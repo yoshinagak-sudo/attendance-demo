@@ -7,12 +7,29 @@ import {
   sendBackRequestAction,
 } from "@/app/overtime/actions";
 import {
+  REQUEST_TYPE_LABEL,
   REVIEW_COMMENT_MAX_CHARS,
+  STATUS_LABEL,
   codePointLength,
   type OvertimeStatus,
   type RequestType,
 } from "@/lib/overtime";
 import { REVIEWER_STORAGE_KEY } from "./reviewer-select";
+
+function statusBadgeClass(status: OvertimeStatus): string {
+  switch (status) {
+    case "submitted":
+      return "badge ot-badge-submitted";
+    case "approved":
+      return "badge ot-badge-approved";
+    case "rejected":
+      return "badge ot-badge-rejected";
+    case "sent_back":
+      return "badge ot-badge-sent-back";
+    default:
+      return "badge";
+  }
+}
 
 type Row = {
   id: string;
@@ -28,9 +45,6 @@ type Row = {
 
 type Props = {
   rows: Row[];
-  statusLabel: Record<OvertimeStatus, string>;
-  requestTypeLabel: Record<RequestType, string>;
-  badgeClassFor: (status: string) => string;
 };
 
 type ExpandMode = null | "reject" | "send_back";
@@ -41,7 +55,7 @@ type ExpandMode = null | "reject" | "send_back";
  * - 「差戻」「却下」は同行直下に展開してコメント入力
  * - 承認者ID は localStorage / CustomEvent から取得
  */
-export function QueueRows({ rows, statusLabel, requestTypeLabel, badgeClassFor }: Props) {
+export function QueueRows({ rows }: Props) {
   const [reviewerId, setReviewerId] = useState<string>("");
   const [expand, setExpand] = useState<{ id: string; mode: ExpandMode } | null>(
     null,
@@ -78,9 +92,9 @@ export function QueueRows({ rows, statusLabel, requestTypeLabel, badgeClassFor }
           <RowGroup
             key={r.id}
             row={r}
-            statusLabel={statusLabel[r.status]}
-            requestTypeLabel={requestTypeLabel[r.requestType]}
-            badgeClass={badgeClassFor(r.status)}
+            statusLabel={STATUS_LABEL[r.status]}
+            requestTypeLabel={REQUEST_TYPE_LABEL[r.requestType]}
+            badgeClass={statusBadgeClass(r.status)}
             reviewerId={reviewerId}
             expanded={isExpanded ? expand.mode : null}
             onToggle={(mode) => toggle(r.id, mode)}

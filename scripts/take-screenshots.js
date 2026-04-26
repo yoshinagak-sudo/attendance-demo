@@ -52,6 +52,56 @@ const PAGES = [
     fullPage: true,
     waitMs: 2000,
   },
+
+  // === 残業申請 ===
+  // 申請者ホーム（履歴あり、田中 太郎）
+  {
+    name: 'desktop-overtime',
+    path: '/overtime?actor=' + encodeURIComponent('田中 太郎'),
+    device: 'desktop',
+    fullPage: true,
+    waitMs: 1000,
+  },
+  // 新規申請フォーム（ステップ1: 入力）
+  {
+    name: 'desktop-overtime-new',
+    path: '/overtime/new?actor=' + encodeURIComponent('田中 太郎'),
+    device: 'desktop',
+    fullPage: true,
+    waitMs: 1000,
+  },
+  // 承認キュー（管理者）
+  {
+    name: 'desktop-admin-overtime',
+    path: '/admin/overtime',
+    device: 'desktop',
+    fullPage: true,
+    waitMs: 1500,
+  },
+  // 月次レポート（管理者）
+  {
+    name: 'desktop-admin-overtime-report',
+    path: '/admin/overtime/report',
+    device: 'desktop',
+    fullPage: true,
+    waitMs: 1500,
+  },
+  // モバイル: 申請者ホーム
+  {
+    name: 'mobile-overtime',
+    path: '/overtime?actor=' + encodeURIComponent('田中 太郎'),
+    device: 'mobile',
+    fullPage: true,
+    waitMs: 1000,
+  },
+  // モバイル: 新規申請フォーム
+  {
+    name: 'mobile-overtime-new',
+    path: '/overtime/new?actor=' + encodeURIComponent('田中 太郎'),
+    device: 'mobile',
+    fullPage: true,
+    waitMs: 1000,
+  },
 ];
 
 async function shoot(ctx, page, p) {

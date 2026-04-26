@@ -3,8 +3,6 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { hasAdminAccess } from "@/lib/admin-auth";
 import {
-  STATUS_LABEL,
-  REQUEST_TYPE_LABEL,
   formatDurationJa,
   type OvertimeStatus,
   type RequestType,
@@ -28,21 +26,6 @@ function formatWorkDate(date: Date): string {
   const [y, m, d] = ymd.split("-").map(Number);
   const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
   return `${m}/${d}（${WEEKDAY_JA[dow]}）`;
-}
-
-function statusBadgeClass(status: string): string {
-  switch (status as OvertimeStatus) {
-    case "submitted":
-      return "badge ot-badge-submitted";
-    case "approved":
-      return "badge ot-badge-approved";
-    case "rejected":
-      return "badge ot-badge-rejected";
-    case "sent_back":
-      return "badge ot-badge-sent-back";
-    default:
-      return "badge";
-  }
 }
 
 type SearchParams = Promise<{
@@ -320,9 +303,6 @@ export default async function AdminOvertimePage({
                     description: r.description,
                     status: r.status as OvertimeStatus,
                   }))}
-                  statusLabel={STATUS_LABEL}
-                  requestTypeLabel={REQUEST_TYPE_LABEL}
-                  badgeClassFor={statusBadgeClass}
                 />
               </tbody>
             </table>
