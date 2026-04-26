@@ -8,18 +8,73 @@ datasource db {
 }
 
 model User {
-  id        String       @id @default(cuid())
-  name      String
-  createdAt DateTime     @default(now())
-  records   TimeRecord[]
+  id                       String            @id @default(cuid())
+  name                     String
+  role                     String            @default("member")
+  createdAt                DateTime          @default(now())
+  records                  TimeRecord[]
+  overtimeRequests         OvertimeRequest[] @relation("Applicant")
+  overtimeReviewedRequests OvertimeRequest[] @relation("Reviewer")
 }
 
 model TimeRecord {
   id        String   @id @default(cuid())
-  userId    String
+  userId   String
   type      String
   timestamp DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
 
   @@index([userId, timestamp])
+}
+
+model OvertimeRequest {
+  id              String   @id @default(cuid())
+
+  userId          String
+  user            User     @relation("Applicant", fields: [userId], references: [id])
+
+  workDate        DateTime
+
+  startAt         DateTime
+  endAt           DateTime
+  durationMinutes Int
+
+  workSiteName    String
+  workSiteId      String?
+  workSite        WorkSite? @relation(fields: [workSiteId], references: [id])
+  description     String
+
+  requestType     String
+  status          String   @default("submitted")
+
+  reviewerId      String?
+  reviewer        User?    @relation("Reviewer", fields: [reviewerId], references: [id])
+  reviewedAt      DateTime?
+  reviewComment   String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  parentId        String?
+  parent          OvertimeRequest?  @relation("ResubmitChain", fields: [parentId], references: [id])
+  children        OvertimeRequest[] @relation("ResubmitChain")
+
+  @@index([userId, workDate])
+  @@index([status, workDate])
+  @@index([workDate])
+}
+
+model WorkSite {
+  id         String            @id @default(cuid())
+  name       String            @unique
+  isActive   Boolean           @default(true)
+  usageCount Int               @default(0)
+  createdAt  DateTime          @default(now())
+  requests   OvertimeRequest[]
+}
+
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
 }
