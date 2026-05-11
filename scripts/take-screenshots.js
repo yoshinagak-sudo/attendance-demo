@@ -57,7 +57,7 @@ const PAGES = [
   // 申請者ホーム（履歴あり、田中 太郎）
   {
     name: 'desktop-overtime',
-    path: '/overtime?actor=' + encodeURIComponent('田中 太郎'),
+    path: '/overtime?actor=' + encodeURIComponent('澤野 大和'),
     device: 'desktop',
     fullPage: true,
     waitMs: 1000,
@@ -65,7 +65,7 @@ const PAGES = [
   // 新規申請フォーム（ステップ1: 入力）
   {
     name: 'desktop-overtime-new',
-    path: '/overtime/new?actor=' + encodeURIComponent('田中 太郎'),
+    path: '/overtime/new?actor=' + encodeURIComponent('澤野 大和'),
     device: 'desktop',
     fullPage: true,
     waitMs: 1000,
@@ -89,7 +89,7 @@ const PAGES = [
   // モバイル: 申請者ホーム
   {
     name: 'mobile-overtime',
-    path: '/overtime?actor=' + encodeURIComponent('田中 太郎'),
+    path: '/overtime?actor=' + encodeURIComponent('澤野 大和'),
     device: 'mobile',
     fullPage: true,
     waitMs: 1000,
@@ -97,7 +97,7 @@ const PAGES = [
   // モバイル: 新規申請フォーム
   {
     name: 'mobile-overtime-new',
-    path: '/overtime/new?actor=' + encodeURIComponent('田中 太郎'),
+    path: '/overtime/new?actor=' + encodeURIComponent('澤野 大和'),
     device: 'mobile',
     fullPage: true,
     waitMs: 1000,

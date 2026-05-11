@@ -3,21 +3,32 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const USERS: { name: string; role: "member" | "manager" }[] = [
-  { name: "田中 太郎", role: "member" },
-  { name: "佐藤 花子", role: "manager" },
-  { name: "鈴木 次郎", role: "member" },
-  { name: "高橋 美咲", role: "manager" },
-  { name: "渡辺 健一", role: "member" },
-  { name: "山本 裕子", role: "member" },
-  { name: "中村 大輔", role: "member" },
+  // ニナウ（経営層・管理職）
+  { name: "髙山 澄人", role: "manager" },
+  { name: "保志 光秀", role: "manager" },
+  { name: "武藤 飛翔", role: "manager" },
+  { name: "本郷 拓也", role: "manager" },
+  { name: "渡辺 翼", role: "manager" },
+  { name: "比佐 京太", role: "manager" },
+  // ニナウ（社員）
+  { name: "澤野 大和", role: "member" },
+  { name: "原田 良輔", role: "member" },
+  { name: "藤巻 卓優", role: "member" },
+  { name: "渡邉 史仁", role: "member" },
+  // 蛸と衣
+  { name: "沼倉 友香", role: "member" },
+  { name: "森下 加奈", role: "member" },
+  { name: "岡本 みち子", role: "member" },
+  { name: "森下 陽奈", role: "member" },
 ];
 
 const WORK_SITES = [
-  "仙台中央ハウス",
-  "若林圃場A",
-  "名取育苗センター",
-  "亘理レタス工場",
+  "仙台市役所 空調更新",
+  "鶴巻ビル B棟 セントラル空調保守",
+  "若林マンション パッケージ空調入替",
+  "名取オフィス 換気設備工事",
   "本社事務所",
+  "蛸と衣 店舗",
 ];
 
 const APP_SETTINGS: { key: string; value: string }[] = [
