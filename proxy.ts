@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { SESSION_COOKIE_NAME, verifySessionEdge } from "@/lib/session-edge";
 
 const PUBLIC_PATHS = ["/login", "/favicon.ico", "/robots.txt"];
-const PUBLIC_API_PREFIXES = ["/api/auth/login", "/api/auth/logout"];
+const PUBLIC_API_PREFIXES = ["/api/auth/login", "/api/auth/logout", "/api/auth/demo-login"];
 
 function isPublicPath(pathname: string): boolean {
   if (PUBLIC_PATHS.includes(pathname)) return true;

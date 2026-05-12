@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { LoginForm } from "./login-form";
+import { QuickLogin } from "./quick-login";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,6 @@ export default async function LoginPage({
 }: {
   searchParams: SearchParams;
 }) {
-  // 既にログイン済なら next or / に飛ばす
   const session = await getSession();
   const params = await searchParams;
   const next = sanitizeNext(params.next);
@@ -20,6 +20,10 @@ export default async function LoginPage({
     redirect(next);
   }
 
+  const demoMode =
+    process.env.DEMO_MODE === "1" ||
+    process.env.NEXT_PUBLIC_DEMO_MODE === "1";
+
   return (
     <main className="login-shell">
       <div className="login-brand">
@@ -27,15 +31,12 @@ export default async function LoginPage({
         <h1 className="login-brand-title">勤怠アプリ</h1>
         <span className="login-brand-sub">舞台ファーム</span>
       </div>
+      {demoMode && <QuickLogin next={next} />}
       <LoginForm next={next} />
     </main>
   );
 }
 
-/**
- * オープンリダイレクト防止。
- * 同一オリジン内（`/` で始まる、ただし `//` や `/\\` は除く）のみ許可。
- */
 function sanitizeNext(value: string | undefined): string {
   if (!value) return "/";
   if (!value.startsWith("/")) return "/";
