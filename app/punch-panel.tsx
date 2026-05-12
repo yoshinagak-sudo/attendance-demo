@@ -68,7 +68,6 @@ export function PunchPanel({
   const [toast, setToast] = useState<Toast | null>(null);
   const [flashing, setFlashing] = useState(false);
   const [punchPending, setPunchPending] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
   const [, startTransition] = useTransition();
 
   // クライアントマウント後に時計を起動（hydration mismatch 回避）
@@ -119,7 +118,7 @@ export function PunchPanel({
       : "本日まだ打刻していません";
 
   const handlePunch = async () => {
-    if (punchPending || loggingOut) return;
+    if (punchPending) return;
     setPunchPending(true);
     setFlashing(true);
     try {
@@ -156,18 +155,6 @@ export function PunchPanel({
     }
   };
 
-  const handleHandoff = async () => {
-    if (loggingOut || punchPending) return;
-    setLoggingOut(true);
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-    } catch {
-      // 失敗しても /login に遷移
-    }
-    router.replace("/login");
-    router.refresh();
-  };
-
   return (
     <>
       {/* 大時計 */}
@@ -199,7 +186,7 @@ export function PunchPanel({
           type="button"
           className={ctaClass}
           onClick={handlePunch}
-          disabled={punchPending || loggingOut}
+          disabled={punchPending}
           aria-label={`${userName} ${ctaLabel}打刻`}
         >
           <span className="punch-cta-label">{ctaLabel}</span>
@@ -257,20 +244,6 @@ export function PunchPanel({
         )}
       </section>
 
-      {/* 「次の人に渡す（ログアウト）」 */}
-      <section className="punch-handoff" aria-label="ログアウト">
-        <button
-          type="button"
-          className="punch-handoff-btn"
-          onClick={handleHandoff}
-          disabled={loggingOut || punchPending}
-        >
-          {loggingOut ? "ログアウト中…" : "次の人に渡す（ログアウト）"}
-        </button>
-        <p className="punch-handoff-hint">
-          共有端末で別の人が使う場合はログアウトしてください
-        </p>
-      </section>
 
       {toast && (
         <div
