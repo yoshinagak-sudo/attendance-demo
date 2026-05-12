@@ -8,25 +8,29 @@
    - 方針: グラデ禁止 / 影は最小 / アクセント色は primary 1色 + semantic(warn/danger)のみ
    ========================================================================= */
 
+@import url("https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap");
+
 :root {
   /* ---------- Surfaces & text ---------- */
-  --bg: #f5f6f2;
+  --bg: #f7f8f6;
   --surface: #ffffff;
-  --surface-alt: #f8f9f5;
-  --surface-hover: #f1f3ec;
-  --border: #e0e3d9;
-  --border-strong: #c3c9b8;
-  --divider: #eaede3;
+  --surface-alt: #f5f7f3;
+  --surface-hover: #eef3e9;
+  --border: #d8ddd1;
+  --border-strong: #bdc5b4;
+  --divider: #e8ece1;
 
-  --text: #1b2017;
-  --text-sub: #4a5340;
-  --muted: #7a8471;
-  --muted-2: #a7ad9d;
+  --text: #1f2a1c;
+  --text-sub: #3f4d39;
+  --muted: #6b7763;
+  --muted-2: #9ba292;
 
-  /* ---------- Semantic (アクセントは最小限) ---------- */
-  --primary: #0f766e;
-  --primary-hover: #115e59;
-  --primary-soft: #e6f2f0;
+  /* ---------- Brand (Ninau) ---------- */
+  --primary: #54bb39;
+  --primary-hover: #278839;
+  --primary-soft: #eaf6dd;
+  --accent: #58c9e1;
+  --accent-soft: #def3f9;
 
   --warn: #b45309;
   --warn-bg: #fef3c7;
@@ -34,11 +38,9 @@
   --danger: #b91c1c;
   --danger-bg: #fef2f2;
 
-  /* ---------- Elevation（ごく薄） ---------- */
-  --shadow-sm: 0 1px 0 rgba(27, 32, 23, 0.03);
-  --shadow-md: 0 1px 2px rgba(27, 32, 23, 0.04);
+  --shadow-sm: 0 1px 0 rgba(31, 42, 28, 0.03);
+  --shadow-md: 0 1px 2px rgba(31, 42, 28, 0.04);
 
-  /* ---------- Radius ---------- */
   --r-sm: 4px;
   --r-md: 6px;
   --r-lg: 8px;
@@ -57,7 +59,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family:
-    "Inter", -apple-system, BlinkMacSystemFont, "Hiragino Sans",
+    "Zen Kaku Gothic New", -apple-system, BlinkMacSystemFont, "Hiragino Sans",
     "Yu Gothic UI", "Noto Sans JP", sans-serif;
   font-size: 14px;
   line-height: 1.55;
@@ -3112,4 +3114,21 @@ body {
   font-size: 16px;
   color: var(--muted);
   font-weight: 600;
+}
+
+/* ---------- ニナウロゴ調整 ---------- */
+.header-app-logo {
+  height: 32px;
+  width: auto;
+  display: block;
+}
+.login-brand-logo {
+  height: 56px;
+  width: auto;
+  display: block;
+  margin-bottom: 4px;
+}
+@media (max-width: 640px) {
+  .header-app-logo { height: 28px; }
+  .login-brand-logo { height: 44px; }
 }
