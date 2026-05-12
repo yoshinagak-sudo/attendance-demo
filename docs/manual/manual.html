@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>勤怠アプリ 操作マニュアル｜株式会社ニナウ</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #54bb39;
+    --primary-hover: #278839;
+    --primary-soft: #eaf6dd;
+    --accent: #58c9e1;
+    --text: #1f2a1c;
+    --text-sub: #3f4d39;
+    --muted: #6b7763;
+    --border: #d8ddd1;
+    --surface: #fff;
+    --bg: #f7f8f6;
+    --warn-bg: #fef3c7;
+    --warn: #b45309;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: "Zen Kaku Gothic New", -apple-system, "Hiragino Sans", "Yu Gothic UI", sans-serif;
+    font-size: 11pt;
+    line-height: 1.7;
+    color: var(--text);
+    background: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  @page {
+    size: A4 portrait;
+    margin: 18mm 16mm 18mm;
+  }
+  .page {
+    page-break-after: always;
+    padding: 0 0 12mm;
+  }
+  .page:last-child { page-break-after: auto; }
+
+  /* 表紙 */
+  .cover {
+    height: 257mm;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(180deg, var(--primary-soft) 0%, #fff 60%);
+    padding: 0 16mm;
+    page-break-after: always;
+  }
+  .cover-logo { width: 320px; margin-bottom: 24px; }
+  .cover-title {
+    font-size: 32pt;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    color: var(--primary-hover);
+    margin-bottom: 12px;
+  }
+  .cover-sub {
+    font-size: 14pt;
+    color: var(--text-sub);
+    margin-bottom: 48px;
+    font-weight: 500;
+  }
+  .cover-meta {
+    margin-top: auto;
+    padding-top: 32px;
+    font-size: 10pt;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* 共通見出し */
+  h1.section-title {
+    font-size: 20pt;
+    font-weight: 900;
+    color: var(--primary-hover);
+    border-bottom: 4px solid var(--primary);
+    padding-bottom: 6px;
+    margin-bottom: 18px;
+    letter-spacing: 0.01em;
+  }
+  h1.section-title .num {
+    display: inline-block;
+    background: var(--primary);
+    color: #fff;
+    font-size: 14pt;
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    text-align: center;
+    border-radius: 50%;
+    margin-right: 12px;
+    vertical-align: middle;
+  }
+  h2 {
+    font-size: 14pt;
+    font-weight: 700;
+    color: var(--text);
+    margin: 20px 0 10px;
+    padding-left: 12px;
+    border-left: 4px solid var(--primary);
+  }
+  h3 {
+    font-size: 12pt;
+    font-weight: 700;
+    color: var(--text-sub);
+    margin: 14px 0 6px;
+  }
+  p { margin-bottom: 10px; }
+
+  /* リード文 */
+  .lead {
+    font-size: 11pt;
+    color: var(--text-sub);
+    background: var(--primary-soft);
+    border-left: 4px solid var(--primary);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 18px;
+  }
+
+  /* 注意ボックス */
+  .note {
+    background: var(--warn-bg);
+    border-left: 4px solid var(--warn);
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 10pt;
+    color: var(--text-sub);
+  }
+  .note strong { color: var(--warn); }
+
+  /* ステップ */
+  ol.steps {
+    list-style: none;
+    counter-reset: step;
+    margin: 12px 0;
+  }
+  ol.steps > li {
+    counter-increment: step;
+    position: relative;
+    padding: 4px 0 8px 36px;
+    margin-bottom: 6px;
+  }
+  ol.steps > li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 2px;
+    width: 26px;
+    height: 26px;
+    line-height: 26px;
+    text-align: center;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 10pt;
+  }
+
+  /* スクショ */
+  .screenshot {
+    max-width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: block;
+    margin: 14px auto;
+    box-shadow: 0 2px 6px rgba(31, 42, 28, 0.08);
+  }
+  .screenshot.sm { max-width: 360px; }
+  .screenshot.md { max-width: 480px; }
+  .screenshot.lg { max-width: 700px; }
+  .screenshot-caption {
+    text-align: center;
+    font-size: 9pt;
+    color: var(--muted);
+    margin-top: -8px;
+    margin-bottom: 16px;
+  }
+  .two-col {
+    display: flex;
+    gap: 16px;
+    margin: 14px 0;
+    align-items: flex-start;
+  }
+  .two-col > * { flex: 1; }
+
+  /* テーブル */
+  table.feature-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10pt;
+    margin: 12px 0;
+  }
+  table.feature-table th {
+    background: var(--primary);
+    color: #fff;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 700;
+  }
+  table.feature-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  table.feature-table tr:nth-child(even) td { background: var(--primary-soft); }
+
+  /* バッジ */
+  .role-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 9pt;
+    font-weight: 700;
+    background: var(--primary-soft);
+    color: var(--primary-hover);
+    margin-right: 4px;
+  }
+  .role-badge-member { background: #fef3c7; color: #92400e; }
+
+  /* 目次 */
+  .toc {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+  }
+  .toc h2 {
+    border: none;
+    padding: 0;
+    margin: 0 0 12px;
+    font-size: 14pt;
+    color: var(--primary-hover);
+  }
+  .toc ol { list-style: none; }
+  .toc li {
+    padding: 4px 0;
+    border-bottom: 1px dashed var(--border);
+    display: flex;
+    justify-content: space-between;
+  }
+  .toc li:last-child { border: none; }
+  .toc .num-circle {
+    display: inline-block;
+    background: var(--primary);
+    color: #fff;
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    text-align: center;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 9pt;
+    margin-right: 8px;
+  }
+
+  /* 用語表 */
+  .terms {
+    background: var(--bg);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 14px 0;
+  }
+  .terms dt {
+    font-weight: 700;
+    color: var(--primary-hover);
+    margin-top: 8px;
+  }
+  .terms dt:first-child { margin-top: 0; }
+  .terms dd { margin-left: 12px; font-size: 10pt; color: var(--text-sub); }
+
+  /* フッター */
+  .footer-note {
+    margin-top: 24px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    font-size: 9pt;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<!-- ============== 表紙 ============== -->
+<section class="cover">
+  <img src="screenshots/ninau-logo.png" alt="株式会社ニナウ" class="cover-logo">
+  <h1 class="cover-title">勤怠アプリ 操作マニュアル</h1>
+  <div class="cover-sub">デモ版 利用ガイド</div>
+  <div class="cover-meta">
+    <span>株式会社ニナウ</span>
+    <span>2026年5月版</span>
+  </div>
+</section>
+
+<!-- ============== 目次 ============== -->
+<section class="page">
+  <h1 class="section-title">はじめに</h1>
+  <p class="lead">
+    本アプリは「打刻」と「残業申請」を1つの画面で完結させる勤怠管理ツールのデモ版です。
+    スマホブラウザでそのままアクセスでき、インストール不要で利用できます。
+  </p>
+
+  <h2>このマニュアルの読み方</h2>
+  <p>
+    立場により操作画面が異なります。以下のバッジで区別しています。
+  </p>
+  <p>
+    <span class="role-badge">manager</span> 経営層・部長・課長など承認権限を持つ人<br>
+    <span class="role-badge role-badge-member">member</span> 現場社員・パート・バイト
+  </p>
+
+  <h2>用語</h2>
+  <dl class="terms">
+    <dt>打刻</dt>
+    <dd>出勤・退勤の時刻を記録すること。</dd>
+    <dt>残業申請</dt>
+    <dd>事前/事後どちらでも提出可能。承認は manager が行う。</dd>
+    <dt>差戻</dt>
+    <dd>申請内容に修正が必要な場合、コメント付きで申請者に返すこと。再提出可能。</dd>
+    <dt>所定終業時刻</dt>
+    <dd>初期値 17:30。残業申請の開始時刻のデフォルト値として使用される。</dd>
+  </dl>
+
+  <div class="toc">
+    <h2>目次</h2>
+    <ol>
+      <li><span><span class="num-circle">1</span>ログイン</span><span>p.3</span></li>
+      <li><span><span class="num-circle">2</span>打刻のしかた</span><span>p.4</span></li>
+      <li><span><span class="num-circle">3</span>残業申請を出す（社員）</span><span>p.5</span></li>
+      <li><span><span class="num-circle">4</span>勤怠ダッシュボード（管理者）</span><span>p.7</span></li>
+      <li><span><span class="num-circle">5</span>残業申請の承認（管理者）</span><span>p.8</span></li>
+      <li><span><span class="num-circle">6</span>月次レポート・CSV出力</span><span>p.9</span></li>
+      <li><span><span class="num-circle">7</span>設定・ユーザー管理</span><span>p.10</span></li>
+      <li><span><span class="num-circle">8</span>デモ機能：別の人で試す</span><span>p.11</span></li>
+      <li><span><span class="num-circle">9</span>よくある質問</span><span>p.12</span></li>
+    </ol>
+  </div>
+
+  <div class="footer-note">
+    アクセスURL: <strong>https://attendance-demo-dun.vercel.app</strong>
+  </div>
+</section>
+
+<!-- ============== 1. ログイン ============== -->
+<section class="page">
+  <h1 class="section-title"><span class="num">1</span>ログイン</h1>
+
+  <p class="lead">
+    商談デモ版では「<strong>かんたん体験ログイン</strong>」を用意しています。
+    パスワード入力なしで、立場を選んでクリックするだけでログインできます。
+  </p>
+
+  <ol class="steps">
+    <li>スマホのブラウザで <strong>https://attendance-demo-dun.vercel.app</strong> を開く</li>
+    <li>「かんたん体験ログイン」から試したい立場のカードをタップ</li>
+    <li>自動的にその役職の画面に遷移します（manager は管理画面、member は打刻画面）</li>
+  </ol>
+
+  <img src="screenshots/01-login.png" alt="ログイン画面" class="screenshot sm">
+  <div class="screenshot-caption">ログイン画面（モバイル）</div>
+
+  <h3>4つのデモ役職</h3>
+  <table class="feature-table">
+    <tr><th style="width:30%">役職</th><th>体験できること</th></tr>
+    <tr><td><span class="role-badge">代表取締役</span></td><td>経営層として全体を俯瞰、すべての操作が可能</td></tr>
+    <tr><td><span class="role-badge">課長</span></td><td>残業承認・差戻のフローを操作</td></tr>
+    <tr><td><span class="role-badge role-badge-member">現場社員</span></td><td>残業申請を出す側の体験。自分のデータのみ閲覧可</td></tr>
+    <tr><td><span class="role-badge role-badge-member">蛸と衣 社員</span></td><td>別組織のメンバー目線</td></tr>
+  </table>
+
+  <div class="note">
+    <strong>デモモードのため</strong>パスワード不要で誰でもログインできます。本番運用時はこの体験ログインを無効化し、各社員に個別のパスワードを発行します。
+  </div>
+</section>
+
+<!-- ============== 2. 打刻 ============== -->
+<section class="page">
+  <h1 class="section-title"><span class="num">2</span>打刻のしかた</h1>
+
+  <p class="lead">
+    出勤・退勤は<strong>巨大ボタンを1タップ</strong>するだけ。
+    今が出勤中なら「退勤」、退勤済または未打刻なら「出勤」が自動表示されます。
+  </p>
+
+  <div class="two-col">
+    <div>
+      <ol class="steps">
+        <li>画面中央の大きなボタン（緑=出勤 / オレンジ=退勤）をタップ</li>
+        <li>瞬時に記録され、画面下部の「本日の打刻履歴」に追加されます</li>
+        <li>状態バッジ（出勤中／退勤済／未打刻）が更新されます</li>
+      </ol>
+
+      <h3>残業申請への動線</h3>
+      <p>
+        打刻ボタンの下に「<strong>残業申請へ</strong>」リンクカードがあります。
+        その日の退勤打刻後に残業申請を出す場合はこちらから。
+      </p>
+
+      <div class="note">
+        セッションは12時間有効。30分操作がないと自動的にログアウトします。
+      </div>
+    </div>
+    <div>
+      <img src="screenshots/02-punch.png" alt="打刻画面" class="screenshot">
+      <div class="screenshot-caption">打刻画面（退勤済の例）</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== 3. 残業申請（社員） ============== -->
+<section class="page">
+  <h1 class="section-title"><span class="num">3</span>残業申請を出す（社員）</h1>
+
+  <p class="lead">
+    <span class="role-badge role-badge-member">member</span>
+    現場社員や蛸と衣メンバーが、残業の事前申請・事後申請を提出する画面です。
+  </p>
+
+  <h2>3-1. 申請履歴を見る</h2>
+  <ol class="steps">
+    <li>ヘッダー「[名前]▾」メニュー → <strong>残業申請</strong></li>
+    <li>または打刻画面下部の「残業申請へ」リンクから</li>
+  </ol>
+
+  <div class="two-col">
+    <div>
+      <img src="screenshots/03-overtime.png" alt="残業申請一覧" class="screenshot">
+      <div class="screenshot-caption">自分の申請履歴一覧</div>
+    </div>
+    <div>
+      <h3>状態バッジの見方</h3>
+      <ul style="font-size: 10pt; line-height: 1.9; margin-left: 16px;">
+        <li><strong>申請中</strong>：承認待ち</li>
+        <li><strong>承認済</strong>：完了</li>
+        <li><strong>差戻</strong>：修正が必要、再申請可能</li>
+        <li><strong>却下</strong>：認められなかった</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>3-2. 新規申請を出す</h2>
+
+  <ol class="steps">
+    <li>「+ 新規申請を作成」をタップ</li>
+    <li><strong>申請種別</strong>を選ぶ（事前申請 / 事後申請）</li>
+    <li><strong>申請日</strong>と<strong>残業開始/終了時刻</strong>を入力（退勤打刻があれば自動セット）</li>
+    <li><strong>現場名</strong>（過去使用順でサジェスト）と<strong>作業内容</strong>（200文字以内）を入力</li>
+    <li>「確認画面へ →」で内容確認 → 「申請を送信する」で完了</li>
+  </ol>
+
+  <img src="screenshots/04-overtime-new.png" alt="新規申請フォーム" class="screenshot md">
+  <div class="screenshot-caption">新規申請フォーム</div>
+
+  <div class="note">
+    <strong>事後申請は当日中のみ</strong>受け付けます。翌日以降の遡及はできません（事前申請推奨）。
+  </div>
+
+  <h3>差戻された申請の再申請</h3>
+  <p>
+    差戻になった申請を開くと、「再申請する」ボタンが表示されます。前回値がプリフィルされた状態で
+    フォームが開くので、コメントに沿って修正して送信します。
+  </p>
+</section>
+
+<!-- ============== 4. 勤怠ダッシュボード ============== -->
+<section class="page">
+  <h1 class="section-title"><span class="num">4</span>勤怠ダッシュボード（管理者）</h1>
+
+  <p class="lead">
+    <span class="role-badge">manager</span>
+    出勤中の社員・労働時間・長時間勤務の警告を1画面で把握します。
+    manager でログインすると最初に表示される画面です。
+  </p>
+
+  <ol class="steps">
+    <li>ログイン直後の画面、もしくはヘッダーメニュー → 「管理画面」</li>
+    <li>上部の <strong>AI 今日のサマリー</strong> で全体状況を1行で確認</li>
+    <li><strong>未承認バナー</strong> から残業承認キューに直接ジャンプ可能</li>
+    <li><strong>KPI 4枚</strong>（出勤中 / 退勤済 / 未出勤 / 合計労働時間）と <strong>タイムライン（ガントチャート）</strong> で詳細を確認</li>
+  </ol>
+
+  <div class="two-col">
+    <img src="screenshots/06-admin.png" alt="管理ダッシュボード（モバイル）" class="screenshot">
+    <img src="screenshots/11-admin-desktop.png" alt="管理ダッシュボード（デスクトップ）" class="screenshot">
+  </div>
+  <div class="screenshot-caption">勤怠ダッシュボード（左: モバイル / 右: PC）</div>
+
+  <div class="note">
+    タイムラインは <strong>緑=出勤中 / グレー=退勤済 / 赤=10時間超</strong> で色分けされます。
+    現在時刻の縦線（NOW）も表示されるので「今どうなっているか」が一目で分かります。
+  </div>
+</section>
+
+<!-- ============== 5. 残業承認 ============== -->
+<section class="page">
+  <h1 class="section-title"><span class="num">5</span>残業申請の承認（管理者）</h1>
+
+  <p class="lead">
+    <span class="role-badge">manager</span>
+    申請中の残業を「承認 / 差戻 / 却下」で処理します。
+    差戻と却下はコメントが必須です。
+  </p>
+
+  <ol class="steps">
+    <li>ヘッダー → 「管理画面」→ 「承認キュー」、または未承認バナーから直接</li>
+    <li>申請カードの「<strong>承認</strong>」をタップで即時承認</li>
+    <li>「<strong>差戻</strong>」または「<strong>却下</strong>」をタップ → コメント入力欄が展開 → 確定</li>
+    <li>処理後はフィルタ「すべて」で過去の承認履歴も確認可能</li>
+  </ol>
+
+  <div class="two-col">
+    <img src="screenshots/07-admin-overtime.png" alt="承認キュー（モバイル）" class="screenshot">
+    <img src="screenshots/12-admin-overtime-desktop.png" alt="承認キュー（PC）" class="screenshot">
+  </div>
+  <div class="screenshot-caption">残業承認キュー</div>
+
+  <h3>差戻・却下の違い</h3>
+  <table class="feature-table">
+    <tr><th>操作</th><th>意味</th><th>申請者の次のアクション</th></tr>
+    <tr><td>承認</td><td>申請を確定。月次集計に反映</td><td>不要</td></tr>
+    <tr><td>差戻</td><td>修正してもう一度出してほしい</td><td>コメントを見て再申請</td></tr>
+    <tr><td>却下</td><td>申請を認めない</td><td>原則終了</td></tr>
+  </table>
+</section>
+
+<!-- ============== 6. レポート ============== -->
+<section class="page">
+  <h1 class="section-title"><span class="num">6</span>月次レポート・CSV出力</h1>
+
+  <p class="lead">
+    <span class="role-badge">manager</span>
+    実労働時間と承認済残業を月次で突き合わせ、CSVでダウンロードできます。
+    給与計算用・労務監査用の出力が想定です。
+  </p>
+
+  <ol class="steps">
+    <li>「管理画面」→ ヘッダーの「<strong>月次レポート</strong>」</li>
+    <li>月切替ナビ（◀／▶）または月選択フォームで対象月を選ぶ</li>
+    <li>合計バッジ4枚で月次サマリーを把握（承認済 / 申請中 / 却下 / 差分注意者）</li>
+    <li>「<strong>CSV（承認済）</strong>」または「<strong>全件CSV</strong>」ボタンでダウンロード</li>
+  </ol>
+
+  <div class="two-col">
+    <img src="screenshots/08-admin-report.png" alt="月次レポート（モバイル）" class="screenshot">
+    <img src="screenshots/13-admin-report-desktop.png" alt="月次レポート（PC）" class="screenshot">
+  </div>
+  <div class="screenshot-caption">月次レポート</div>
+
+  <h3>CSV出力の列</h3>
+  <p style="font-size: 10pt;">
+    申請ID / 業務日 / 申請者 / 申請種別 / 状態 / 開始時刻 / 終了時刻 /
+    残業時間（分）/ 残業時間（h:mm）/ 現場名 / 作業内容 / 承認者 / 承認日時 / 差戻コメント
+  </p>
+  <div class="note">
+    <strong>UTF-8 BOM付き</strong>・CRLF改行で出力されます。Excel で開くと文字化けせずに表示されます。
+  </div>
+</section>
+
+<!-- ============== 7. 設定・ユーザー管理 ============== -->
+<section class="page">
+  <h1 class="section-title"><span class="num">7</span>設定・ユーザー管理</h1>
+
+  <h2>7-1. 設定</h2>
+  <p class="lead" style="margin-bottom: 8px;">
+    <span class="role-badge">manager</span> 所定終業時刻と現場名マスタを管理します。
+  </p>
+  <ul style="font-size: 10pt; line-height: 1.8; margin-left: 16px; margin-bottom: 14px;">
+    <li><strong>所定終業時刻</strong>：残業申請フォームの開始時刻デフォルト値（初期 17:30）</li>
+    <li><strong>現場名マスタ</strong>：申請時のサジェストに出る現場一覧。追加・無効化が可能</li>
+  </ul>
+  <img src="screenshots/10-admin-settings.png" alt="設定画面" class="screenshot sm">
+
+  <h2>7-2. ユーザー管理</h2>
+  <p class="lead" style="margin-bottom: 8px;">
+    <span class="role-badge">manager</span> 各社員のパスワード再発行・有効/無効切替を行います。
+  </p>
+  <ol class="steps">
+    <li>ヘッダーメニュー → 「<strong>ユーザー管理</strong>」</li>
+    <li>パスワードを忘れた社員の行で「PW再発行」をタップ</li>
+    <li>新しいパスワードが画面に<strong>1回だけ</strong>表示されるので、本人に渡す</li>
+    <li>退職者は「無効化」で非アクティブ化（過去の履歴は保持）</li>
+  </ol>
+  <img src="screenshots/09-admin-users.png" alt="ユーザー管理画面" class="screenshot sm">
+  <div class="note">
+    <strong>最後の manager は無効化できません</strong>（システムがロックされるのを防ぐため）。
+  </div>
+</section>
+
+<!-- ============== 8. デモ切替 ============== -->
+<section class="page">
+  <h1 class="section-title"><span class="num">8</span>デモ機能：別の人で試す</h1>
+
+  <p class="lead">
+    デモ版限定。ログアウトせずに別の役職に切り替えて挙動を比較できる機能です。
+    商談中に「manager視点」「member視点」を素早く行き来できます。
+  </p>
+
+  <ol class="steps">
+    <li>画面右上の「[名前]▾」プルダウンをタップ</li>
+    <li>メニュー内の「<strong>デモ: 別の人で試す</strong>」セクション</li>
+    <li>切り替えたい役職をタップ</li>
+    <li>即座にその人としてログインし直し、適切な画面に遷移します</li>
+  </ol>
+
+  <img src="screenshots/05-user-menu.png" alt="ユーザーメニュー" class="screenshot sm">
+  <div class="screenshot-caption">ユーザーメニューを開いた状態（自分以外の3役職が表示）</div>
+
+  <div class="note">
+    <strong>本番運用時はこの機能を無効化します。</strong>
+    各社員は自分のアカウントだけログインできるようになります。
+  </div>
+</section>
+
+<!-- ============== 9. FAQ ============== -->
+<section class="page">
+  <h1 class="section-title"><span class="num">9</span>よくある質問</h1>
+
+  <h3>Q. スマホ以外でも使えますか？</h3>
+  <p>PC・タブレット・スマホすべてで動作します。画面サイズに応じて自動でレイアウトが切り替わります。</p>
+
+  <h3>Q. 打刻のミスは管理者が修正できますか？</h3>
+  <p>本デモ版では打刻の編集機能は実装されていません（本番化時の検討事項）。残業申請は社員自身が差戻→再申請できます。</p>
+
+  <h3>Q. データは安全ですか？</h3>
+  <p>
+    本番運用ではアプリ全体に Basic 認証または個別パスワード認証を有効化します。
+    データベース（Turso）は東京リージョンで保管され、TLS で暗号化通信されます。
+  </p>
+
+  <h3>Q. 給与計算ソフトと連携できますか？</h3>
+  <p>
+    月次レポートから CSV をダウンロードできます（UTF-8 BOM、Excel互換）。
+    現状は汎用フォーマットですが、freee / マネーフォワード等の特定フォーマットへの拡張は対応可能です。
+  </p>
+
+  <h3>Q. 何人まで使えますか？</h3>
+  <p>
+    技術的には数百人規模まで対応可能。今回のデモは14名構成です（ニナウ社員10名＋蛸と衣4名）。
+  </p>
+
+  <h3>Q. 車両管理機能は？</h3>
+  <p>
+    現状は未実装。ご要望があれば設計から相談させてください
+    （車両×ユーザー×日時の紐付け、運行記録の出力など）。
+  </p>
+
+  <div class="footer-note">
+    本マニュアル発行: 2026年5月／株式会社ニナウ向けデモ版<br>
+    質問・ご要望はお気軽にお問い合わせください。
+  </div>
+</section>
+
+</body>
+</html>
