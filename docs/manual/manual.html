@@ -688,9 +688,132 @@
   </div>
 </section>
 
-<!-- ============== 9. FAQ ============== -->
+<!-- ============== 9. 車両管理 ============== -->
+<section class="page">
+  <h1 class="section-title"><span class="num">9</span>車両管理</h1>
+
+  <p class="lead">
+    社用車の割当・走行記録・給油記録を一元管理。スマホで現場社員が登録し、
+    管理者は当日の利用状況・月次走行距離・燃費・給油代を把握できます。
+  </p>
+
+  <h2>使い方の流れ（社員）</h2>
+  <div class="two-col">
+    <div>
+      <ol class="steps">
+        <li>「車両管理」を開き、空いている車両の「<strong>この車両を使う</strong>」をタップ</li>
+        <li>現場に向かう前に「<strong>出発を登録する</strong>」</li>
+        <li>出発時メーター・目的（据付/保守点検 等）・現場名を入力</li>
+        <li>帰社後に「<strong>帰着を登録する</strong>」で帰着時メーターを入力</li>
+        <li>給油時は「<strong>給油を登録する</strong>」から量・金額・給油所を記録</li>
+      </ol>
+      <div class="note">
+        <strong>1日1台が基本。</strong>別の車両に変更したい場合は、新しい車両で「使う」を押すと
+        前の割当が自動で解除されます。
+      </div>
+    </div>
+    <div>
+      <img src="screenshots/14-vehicle.png" alt="車両管理トップ" class="screenshot">
+      <div class="screenshot-caption">車両管理トップ（社員）</div>
+    </div>
+  </div>
+
+  <h2>出発・給油登録画面</h2>
+  <div class="two-col">
+    <div>
+      <img src="screenshots/15-vehicle-driving-start.png" alt="出発登録" class="screenshot">
+      <div class="screenshot-caption">出発登録フォーム</div>
+    </div>
+    <div>
+      <img src="screenshots/16-vehicle-refueling.png" alt="給油登録" class="screenshot">
+      <div class="screenshot-caption">給油登録フォーム</div>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <h1 class="section-title"><span class="num">10</span>車両管理（管理者）</h1>
+
+  <p class="lead">
+    管理者は「車両管理」ダッシュボードで当日の割当状況・進行中の走行・点検期限切迫を一覧でき、
+    月次レポートで車両別・運転者別の走行距離と給油費用を集計できます。
+  </p>
+
+  <img src="screenshots/19-admin-vehicle.png" alt="車両管理ダッシュボード" class="screenshot-wide">
+  <div class="screenshot-caption">車両管理ダッシュボード（PC）</div>
+
+  <h2>月次レポート</h2>
+  <p>
+    車両別の走行距離・走行回数・給油量・給油代・燃費（km/L）を集計。
+    運転者別の走行距離もテーブルで確認可能。CSVは「走行明細」「給油明細」を別途ダウンロードできます。
+  </p>
+  <img src="screenshots/20-admin-vehicle-report.png" alt="車両 月次レポート" class="screenshot-wide">
+  <div class="screenshot-caption">月次レポート（車両別・運転者別）</div>
+
+  <div class="note">
+    <strong>点検期限警告</strong>：30日以内に期限が迫る車両を自動で警告表示。
+    車両マスタ画面から期限を更新できます。
+  </div>
+</section>
+
+<!-- ============== 11. 日報 ============== -->
+<section class="page">
+  <h1 class="section-title"><span class="num">11</span>日報</h1>
+
+  <p class="lead">
+    1日の業務内容を作業ごとに記録します。複数の作業（最大10件）を時刻つきで残せるので、
+    工数の月次集計や現場別の稼働分析にそのまま使えます。
+  </p>
+
+  <h2>使い方の流れ（社員）</h2>
+  <div class="two-col">
+    <div>
+      <ol class="steps">
+        <li>「日報」を開き、「<strong>本日の日報を作成</strong>」をタップ</li>
+        <li>当日の打刻から作業の雛形が自動で入る場合は内容を編集</li>
+        <li>「<strong>+ 作業を追加</strong>」で時刻・現場・作業内容を追加（最大10件）</li>
+        <li>進捗・トラブル・申し送りを下部の自由記述欄に記載（600文字）</li>
+        <li>入力中は<strong>5秒ごとに自動保存</strong>。完了したら「日報を提出する」</li>
+      </ol>
+      <div class="note">
+        <strong>提出後も取り下げ可能。</strong>「取り下げて編集に戻す」で再編集できます。
+        管理者が「確認済」にすると編集できなくなります。
+      </div>
+    </div>
+    <div>
+      <img src="screenshots/17-report.png" alt="日報トップ" class="screenshot">
+      <div class="screenshot-caption">日報トップ（社員）</div>
+    </div>
+  </div>
+
+  <h2>日報作成画面</h2>
+  <img src="screenshots/18-report-today.png" alt="日報作成" class="screenshot">
+  <div class="screenshot-caption">本日の日報作成（自動保存表示・合計工数集計）</div>
+</section>
+
+<section class="page">
+  <h1 class="section-title"><span class="num">12</span>日報（管理者）</h1>
+
+  <p class="lead">
+    管理者は部下の提出日報を一覧で確認し、「確認済」マークでフィードバックできます。
+    月次サマリで社員別・現場別の工数を集計、CSV出力で工数管理ツール等にも連携可能。
+  </p>
+
+  <img src="screenshots/21-admin-report.png" alt="日報管理" class="screenshot-wide">
+  <div class="screenshot-caption">日報管理ダッシュボード（PC）</div>
+
+  <h2>月次サマリ</h2>
+  <p>
+    社員別に「合計工数・日報日数・提出済・確認済」、現場別に「合計工数・日報件数」を集計。
+    作業明細CSVは1日報＝複数行で出力されます。
+  </p>
+  <img src="screenshots/22-admin-report-month.png" alt="日報月次サマリ" class="screenshot-wide">
+  <div class="screenshot-caption">日報 月次サマリ（社員別・現場別）</div>
+</section>
+
+<!-- ============== 13. FAQ ============== -->
 <section class="page faq">
-  <h1 class="section-title"><span class="num">9</span>よくある質問</h1>
+  <h1 class="section-title"><span class="num">13</span>よくある質問</h1>
 
   <dl class="faq-list">
     <dt>Q. スマホ以外でも使えますか？</dt>
