@@ -61,18 +61,19 @@ export function PunchPanel({
   latestType,
   latestAt,
   todayRecords,
-  serverNow,
+  serverNow: _serverNow,
 }: Props) {
   const router = useRouter();
-  const [now, setNow] = useState<Date>(() => new Date(serverNow));
+  const [now, setNow] = useState<Date | null>(null);
   const [toast, setToast] = useState<Toast | null>(null);
   const [flashing, setFlashing] = useState(false);
   const [punchPending, setPunchPending] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [, startTransition] = useTransition();
 
-  // 毎秒時計を更新
+  // クライアントマウント後に時計を起動（hydration mismatch 回避）
   useEffect(() => {
+    setNow(new Date());
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
@@ -84,7 +85,10 @@ export function PunchPanel({
     return () => clearTimeout(t);
   }, [toast]);
 
-  const clock = useMemo(() => formatClock(now), [now]);
+  const clock = useMemo(
+    () => (now ? formatClock(now) : { hm: "--:--", ss: "--", date: "" }),
+    [now],
+  );
 
   const isWorking = latestType === "IN";
   const isDone = latestType === "OUT";
@@ -168,8 +172,8 @@ export function PunchPanel({
     <>
       {/* 大時計 */}
       <section className="clock-wrap" aria-label="現在時刻">
-        <div className="clock-date">{clock.date}</div>
-        <div className="clock-time" aria-live="off">
+        <div className="clock-date" suppressHydrationWarning>{clock.date}</div>
+        <div className="clock-time" aria-live="off" suppressHydrationWarning>
           {clock.hm}
           <span className="clock-time-seconds">:{clock.ss}</span>
         </div>
@@ -233,7 +237,9 @@ export function PunchPanel({
             {todayRecords.map((r) => (
               <div key={r.id} className="recent-card">
                 <div className="recent-card-head">
-                  <span className="recent-ago">{formatAgo(r.timestamp, now)}</span>
+                  <span className="recent-ago" suppressHydrationWarning>
+                    {now ? formatAgo(r.timestamp, now) : ""}
+                  </span>
                   <span
                     className={
                       r.type === "IN" ? "badge badge-in" : "badge badge-out"
