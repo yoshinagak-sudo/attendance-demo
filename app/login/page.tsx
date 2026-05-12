@@ -14,10 +14,12 @@ export default async function LoginPage({
 }) {
   const session = await getSession();
   const params = await searchParams;
-  const next = sanitizeNext(params.next);
+  const requestedNext = sanitizeNext(params.next);
 
   if (session) {
-    redirect(next);
+    const fallback = session.role === "manager" ? "/admin" : "/";
+    const target = requestedNext === "/" ? fallback : requestedNext;
+    redirect(target);
   }
 
   const demoMode =
@@ -36,8 +38,11 @@ export default async function LoginPage({
         />
         <h1 className="login-brand-title">勤怠アプリ</h1>
       </div>
-      {demoMode && <QuickLogin next={next} />}
-      <LoginForm next={next} />
+      {demoMode ? (
+        <QuickLogin next={requestedNext} />
+      ) : (
+        <LoginForm next={requestedNext} />
+      )}
     </main>
   );
 }

@@ -53,7 +53,13 @@ export function QuickLogin({ next }: { next: string }) {
         body: JSON.stringify({ loginId }),
       });
       if (res.ok) {
-        router.replace(next || "/");
+        const data = (await res.json().catch(() => null)) as
+          | { user?: { role?: string } }
+          | null;
+        const role = data?.user?.role;
+        const fallback = role === "manager" ? "/admin" : "/";
+        const target = !next || next === "/" ? fallback : next;
+        router.replace(target);
         router.refresh();
         return;
       }
