@@ -152,6 +152,9 @@ export function GanttChart({
           </div>
         </div>
       </div>
+      <div className="gantt-scroll-hint" aria-hidden="true">
+        ← 横にスクロールできます →
+      </div>
     </div>
   );
 }

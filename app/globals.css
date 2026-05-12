@@ -3132,3 +3132,514 @@ body {
   .header-app-logo { height: 28px; }
   .login-brand-logo { height: 44px; }
 }
+
+/* =========================================================================
+   モバイル最終調整 (iPhone 14 Pro 390px / iPhone SE 375px 主眼)
+   - 既存ブロックの上書きは最小限。バッジの縦割れ防止と「枠はみ出し」抑制を担保
+   ========================================================================= */
+
+/* 全バッジを nowrap 保証（出勤/退勤/事前/事後の縦割れ防止） */
+.badge,
+.ot-badge-pre,
+.ot-badge-post,
+.ot-badge-submitted,
+.ot-badge-approved,
+.ot-badge-rejected,
+.ot-badge-sent-back,
+.ot-site-badge-active,
+.ot-site-badge-inactive,
+.admin-users-role-manager,
+.admin-users-role-member,
+.user-menu-role {
+  white-space: nowrap;
+}
+
+/* インタラクティブ要素のタップ領域確保 */
+.link {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ===== AppHeader (スマホでブランド名を 640px から隠す) ===== */
+@media (max-width: 640px) {
+  .header-app-brand-name { display: none; }
+  .header-app-inner { gap: 8px; }
+  .user-menu > summary {
+    max-width: 180px;
+    padding: 6px 8px 6px 10px;
+    gap: 6px;
+  }
+  .user-menu-name {
+    max-width: 8em;
+    font-size: 13px;
+  }
+  .user-menu-role {
+    font-size: 9px;
+    padding: 1px 5px;
+    letter-spacing: 0.04em;
+  }
+  .user-menu-caret { font-size: 9px; }
+  .user-menu-dropdown {
+    min-width: 200px;
+    right: 0;
+  }
+}
+
+/* ===== ページヘッダ (タイトル + 右側ナビ) ===== */
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+  }
+  .container-wide .title,
+  .container .title {
+    font-size: 18px;
+    line-height: 1.3;
+  }
+  .subtitle {
+    font-size: 11px;
+  }
+  /* 管理ヘッダのリンク群: 横スクロールで折返さない */
+  .ot-admin-actions {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: flex-start;
+    gap: 4px;
+    margin: 0 -4px;
+    padding: 2px 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .ot-admin-actions::-webkit-scrollbar { display: none; }
+  .ot-admin-actions .link {
+    padding: 8px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-pill);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-sub);
+    flex-shrink: 0;
+  }
+}
+
+/* ===== KPIカード ===== */
+@media (max-width: 640px) {
+  .cards { gap: 8px; }
+  .card { padding: 12px 14px; }
+  .card-label { font-size: 11px; }
+  .card-value {
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .card-unit { font-size: 12px; margin-left: 2px; }
+  .card-foot { font-size: 10px; }
+}
+@media (max-width: 380px) {
+  /* iPhone SE 375px 系の追い込み: 「13時間30分」を破綻させない */
+  .card-value { font-size: 20px; }
+}
+
+/* ===== 月次レポート 4分割 totals: スマホで 2列固定 ===== */
+@media (max-width: 640px) {
+  .ot-totals-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+}
+
+/* ===== 未承認バナー（ダッシュボード）スマホ縦組み ===== */
+.ot-banner-pending {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  padding: 14px 16px;
+  min-height: 64px;
+  text-decoration: none;
+}
+.ot-banner-pending .ot-banner-icon { flex-shrink: 0; }
+.ot-banner-pending-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ot-banner-pending-title {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.ot-banner-pending-sub {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.92;
+}
+.ot-banner-pending-cta {
+  flex-shrink: 0;
+  align-self: center;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  background: rgba(180, 83, 9, 0.08);
+}
+@media (max-width: 640px) {
+  .ot-banner-pending {
+    flex-direction: column;
+    padding: 14px;
+    gap: 10px;
+  }
+  .ot-banner-pending-head {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .ot-banner-pending-cta {
+    width: 100%;
+    text-align: center;
+    padding: 10px 12px;
+    background: rgba(180, 83, 9, 0.12);
+    font-size: 13px;
+  }
+}
+
+/* ===== ガントチャート: スマホ密度調整 + スクロール示唆 ===== */
+.gantt-scroll {
+  position: relative;
+}
+.gantt-scroll::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 24px;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.85) 70%,
+    rgba(255, 255, 255, 0.95) 100%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+@media (max-width: 900px) {
+  .gantt-scroll::after { opacity: 1; }
+}
+.gantt-scroll-hint {
+  display: none;
+}
+@media (max-width: 640px) {
+  .gantt-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px 14px;
+    gap: 8px;
+  }
+  .gantt-legend { gap: 10px 14px; }
+  .gantt-legend-item { font-size: 11px; }
+  .gantt { min-width: 600px; padding: 12px 16px 10px; }
+  .gantt-axis { margin-left: 80px; }
+  .gantt-label {
+    width: 80px;
+    padding-right: 10px;
+    font-size: 12px;
+  }
+  .gantt-row { height: 30px; }
+  .gantt-track { height: 22px; }
+  .gantt-bar { top: 3px; height: 16px; }
+  .gantt-bar-text { padding: 0 4px; font-size: 10px; }
+  .gantt-empty-row { font-size: 10px; }
+  .gantt-now-label { font-size: 9px; padding: 2px 4px; }
+  .gantt-scroll-hint {
+    display: block;
+    text-align: right;
+    font-size: 10px;
+    color: var(--muted-2);
+    padding: 4px 14px 8px;
+    background: var(--surface-alt);
+    border-top: 1px solid var(--divider);
+    letter-spacing: 0.02em;
+  }
+}
+
+/* ===== 残業申請: 時間 input 縦並び（スマホ）===== */
+@media (max-width: 480px) {
+  .ot-time-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .ot-time-divider {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted-2);
+  }
+}
+/* iOS の zoom 防止: 入力系の font-size を 16px 以上に */
+@media (max-width: 640px) {
+  .ot-input,
+  .ot-textarea,
+  .ot-select {
+    font-size: 16px;
+    min-height: 44px;
+  }
+  .ot-input[type="date"],
+  .ot-input[type="time"],
+  .ot-input[type="month"] {
+    min-height: 44px;
+  }
+  .ot-segment-btn { min-height: 64px; }
+}
+
+/* ===== 残業申請ヘッダー: subtitle が改行多いので tight に ===== */
+@media (max-width: 640px) {
+  .container .subtitle { font-size: 11px; line-height: 1.5; }
+}
+
+/* ===== ステッパー: スマホで間隔縮小 ===== */
+@media (max-width: 640px) {
+  .ot-stepper {
+    margin-bottom: 16px;
+    padding: 0;
+    gap: 4px;
+  }
+  .ot-stepper-line { margin: 0 8px; }
+  .ot-stepper-item { font-size: 11px; gap: 6px; }
+}
+
+/* ===== 承認キュー: スマホでカード化 ===== */
+.ot-queue-card-list {
+  display: none;
+}
+@media (max-width: 640px) {
+  .ot-queue-scroll { display: none; }
+  .ot-queue-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+.ot-queue-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ot-queue-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ot-queue-card-date {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.ot-queue-card-badges {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.ot-queue-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.35;
+}
+.ot-queue-card-meta {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 6px 12px;
+  font-size: 13px;
+  color: var(--text-sub);
+}
+.ot-queue-card-meta dt {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  align-self: center;
+}
+.ot-queue-card-meta dd {
+  margin: 0;
+  color: var(--text);
+  font-weight: 500;
+  word-break: break-word;
+  font-variant-numeric: tabular-nums;
+}
+.ot-queue-card-desc {
+  font-size: 13px;
+  color: var(--text);
+  background: var(--surface-alt);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.ot-queue-card-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 2px;
+}
+.ot-queue-card-actions > * {
+  min-height: 44px;
+  width: 100%;
+}
+.ot-queue-card-actions form {
+  display: contents;
+}
+.ot-queue-card-actions form button {
+  width: 100%;
+  min-height: 44px;
+}
+.ot-queue-card-expand {
+  border-top: 1px dashed var(--divider);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ===== 承認キュー: スマホで右上ヘッダーの「フィルタタブ」を整える ===== */
+@media (max-width: 640px) {
+  .ot-admin-toolbar {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  .ot-filter-tabs { width: 100%; }
+  .ot-filter-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 8px;
+    font-size: 13px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ===== Admin Users テーブル: スマホで列を絞り横スクロール明示 ===== */
+@media (max-width: 640px) {
+  .admin-users-table {
+    min-width: 560px;
+  }
+  .admin-users-table th,
+  .admin-users-table td {
+    padding: 10px 8px;
+  }
+  /* table-wrap のスクロールヒント */
+  .admin-users-shell {
+    position: relative;
+  }
+  .admin-users-shell::after {
+    content: "→ スクロール";
+    display: block;
+    text-align: right;
+    padding: 4px 8px 0;
+    font-size: 10px;
+    color: var(--muted-2);
+    letter-spacing: 0.04em;
+  }
+}
+
+/* ===== 月次レポート: スマホで table をスクロール、右端フェード ===== */
+@media (max-width: 640px) {
+  .ot-report-table { min-width: 600px; }
+  /* 月切替ナビをスマホで折返さない */
+  .ot-month-nav { flex-shrink: 0; }
+}
+
+/* ===== ログイン: かんたん体験ログイン スマホ調整 ===== */
+@media (max-width: 640px) {
+  .quick-login {
+    padding: 16px 16px 14px;
+    gap: 12px;
+  }
+  .quick-login-btn {
+    min-height: 72px;
+    padding: 12px;
+  }
+  .quick-login-name { font-size: 14px; }
+  .quick-login-hint { font-size: 11px; line-height: 1.5; }
+}
+
+/* ===== table-wrap にスクロールヒント (admin打刻履歴やレポート) ===== */
+.table-wrap {
+  position: relative;
+}
+.table-wrap.is-scrollable {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+@media (max-width: 640px) {
+  .table-wrap.is-scrollable {
+    border-radius: var(--r-md);
+  }
+}
+
+/* ===== container-wide スマホ余白 (再宣言で確実に) ===== */
+@media (max-width: 640px) {
+  .container-wide,
+  .container {
+    padding: 16px 12px 56px;
+  }
+}
+
+/* ===== 打刻画面の status カード スマホ最適化 ===== */
+@media (max-width: 640px) {
+  .punch-status-card {
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .punch-status-label { font-size: 10px; }
+  .punch-status-value { font-size: 18px; }
+  .punch-status-time { font-size: 12px; }
+  .punch-cta { min-height: 132px; }
+  .punch-cta-label { font-size: 30px; }
+  .punch-cta-sub { font-size: 12px; }
+  .punch-secondary-btn { padding: 12px 14px; }
+  .punch-secondary-title { font-size: 14px; }
+  .punch-secondary-sub { font-size: 11px; }
+}
+
+/* ===== 履歴リスト: スマホでフォントtight + タップ高さ確保 ===== */
+@media (max-width: 640px) {
+  .ot-history-row {
+    padding: 14px 14px;
+    gap: 10px;
+    min-height: 64px;
+  }
+  .ot-history-detail { font-size: 14px; }
+  .ot-history-date { font-size: 11px; }
+  .ot-history-time { font-size: 12px; }
+}
+
+/* ===== 詳細画面 status-row: スマホで縦に並べやすく ===== */
+@media (max-width: 640px) {
+  .ot-status-row {
+    gap: 6px 12px;
+    font-size: 11px;
+  }
+}
+

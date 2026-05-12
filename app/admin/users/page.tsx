@@ -45,7 +45,8 @@ export default async function AdminUsersPage() {
             </span>
           </div>
 
-          <div className="table-wrap">
+          <div className="admin-users-shell">
+          <div className="table-wrap is-scrollable">
             <table className="admin-users-table">
               <thead>
                 <tr>
@@ -130,6 +131,7 @@ export default async function AdminUsersPage() {
                 })}
               </tbody>
             </table>
+          </div>
           </div>
         </section>
       </main>

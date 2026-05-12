@@ -222,7 +222,7 @@ export default async function AdminOvertimeReportPage({
             <div>従業員が登録されていないか、{monthLabel}の打刻・申請が0件です</div>
           </div>
         ) : (
-          <div className="table-wrap">
+          <div className="table-wrap is-scrollable">
             <table className="table ot-report-table">
               <thead>
                 <tr>

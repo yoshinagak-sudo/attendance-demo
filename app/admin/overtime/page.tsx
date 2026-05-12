@@ -14,7 +14,7 @@ import {
   endOfMonthJST,
 } from "@/lib/time";
 import { AppHeader } from "@/app/_components/AppHeader";
-import { QueueRows } from "./queue-rows";
+import { QueueRows, QueueCards } from "./queue-rows";
 
 export const dynamic = "force-dynamic";
 
@@ -246,38 +246,53 @@ export default async function AdminOvertimePage({
             </div>
           </div>
         ) : (
-          <div className="table-wrap ot-queue-scroll">
-            <table className="ot-queue-table">
-              <thead>
-                <tr>
-                  <th style={{ width: 96 }}>業務日</th>
-                  <th style={{ width: 120 }}>申請者</th>
-                  <th style={{ width: 64 }}>種別</th>
-                  <th style={{ width: 140 }}>時間帯</th>
-                  <th style={{ width: 80 }}>残業</th>
-                  <th>現場</th>
-                  <th>作業内容</th>
-                  <th style={{ width: 88 }}>状態</th>
-                  <th style={{ width: 1 }} aria-label="アクション" />
-                </tr>
-              </thead>
-              <tbody>
-                <QueueRows
-                  rows={rows.map((r) => ({
-                    id: r.id,
-                    workDateLabel: formatWorkDate(r.workDate),
-                    userName: r.user.name,
-                    requestType: r.requestType as RequestType,
-                    timeRange: `${formatJSTHHmm(r.startAt)}〜${formatJSTHHmm(r.endAt)}`,
-                    durationLabel: formatDurationJa(r.durationMinutes),
-                    workSiteName: r.workSiteName,
-                    description: r.description,
-                    status: r.status as OvertimeStatus,
-                  }))}
-                />
-              </tbody>
-            </table>
-          </div>
+          <>
+            <div className="table-wrap ot-queue-scroll">
+              <table className="ot-queue-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: 96 }}>業務日</th>
+                    <th style={{ width: 120 }}>申請者</th>
+                    <th style={{ width: 64 }}>種別</th>
+                    <th style={{ width: 140 }}>時間帯</th>
+                    <th style={{ width: 80 }}>残業</th>
+                    <th>現場</th>
+                    <th>作業内容</th>
+                    <th style={{ width: 88 }}>状態</th>
+                    <th style={{ width: 1 }} aria-label="アクション" />
+                  </tr>
+                </thead>
+                <tbody>
+                  <QueueRows
+                    rows={rows.map((r) => ({
+                      id: r.id,
+                      workDateLabel: formatWorkDate(r.workDate),
+                      userName: r.user.name,
+                      requestType: r.requestType as RequestType,
+                      timeRange: `${formatJSTHHmm(r.startAt)}〜${formatJSTHHmm(r.endAt)}`,
+                      durationLabel: formatDurationJa(r.durationMinutes),
+                      workSiteName: r.workSiteName,
+                      description: r.description,
+                      status: r.status as OvertimeStatus,
+                    }))}
+                  />
+                </tbody>
+              </table>
+            </div>
+            <QueueCards
+              rows={rows.map((r) => ({
+                id: r.id,
+                workDateLabel: formatWorkDate(r.workDate),
+                userName: r.user.name,
+                requestType: r.requestType as RequestType,
+                timeRange: `${formatJSTHHmm(r.startAt)}〜${formatJSTHHmm(r.endAt)}`,
+                durationLabel: formatDurationJa(r.durationMinutes),
+                workSiteName: r.workSiteName,
+                description: r.description,
+                status: r.status as OvertimeStatus,
+              }))}
+            />
+          </>
         )}
         </section>
       </main>

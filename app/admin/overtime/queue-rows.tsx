@@ -82,6 +82,130 @@ export function QueueRows({ rows }: Props) {
   );
 }
 
+/**
+ * スマホ用カード一覧（同じデータで別レイアウト）。
+ * CSS の媒体クエリで desktop/mobile を切替（テーブル or カードのどちらかしか表示しない）
+ */
+export function QueueCards({ rows }: Props) {
+  const [expand, setExpand] = useState<{ id: string; mode: ExpandMode } | null>(
+    null,
+  );
+
+  function toggle(id: string, mode: Exclude<ExpandMode, null>) {
+    setExpand((prev) =>
+      prev && prev.id === id && prev.mode === mode
+        ? null
+        : { id, mode },
+    );
+  }
+
+  return (
+    <div className="ot-queue-card-list">
+      {rows.map((r) => {
+        const isExpanded = expand?.id === r.id && expand.mode !== null;
+        const expanded = isExpanded ? expand.mode : null;
+        const isPending = r.status === "submitted";
+        return (
+          <article key={r.id} className="ot-queue-card">
+            <header className="ot-queue-card-head">
+              <span className="ot-queue-card-date">{r.workDateLabel}</span>
+              <span className="ot-queue-card-badges">
+                <span
+                  className={
+                    r.requestType === "pre"
+                      ? "badge ot-badge-pre"
+                      : "badge ot-badge-post"
+                  }
+                >
+                  {REQUEST_TYPE_LABEL[r.requestType]}
+                </span>
+                <span className={statusBadgeClass(r.status)}>
+                  {STATUS_LABEL[r.status]}
+                </span>
+              </span>
+            </header>
+
+            <h3 className="ot-queue-card-title">{r.userName}</h3>
+
+            <dl className="ot-queue-card-meta">
+              <dt>時間帯</dt>
+              <dd>
+                {r.timeRange}
+                <span style={{ marginLeft: 6, color: "var(--muted)", fontWeight: 500 }}>
+                  （{r.durationLabel}）
+                </span>
+              </dd>
+              <dt>現場</dt>
+              <dd>{r.workSiteName}</dd>
+            </dl>
+
+            {r.description && (
+              <div className="ot-queue-card-desc">{r.description}</div>
+            )}
+
+            {isPending ? (
+              <>
+                <div className="ot-queue-card-actions">
+                  <form action={approveRequestAction}>
+                    <input type="hidden" name="id" value={r.id} />
+                    <button type="submit" className="ot-btn-primary">
+                      承認
+                    </button>
+                  </form>
+                  <button
+                    type="button"
+                    className={
+                      expanded === "send_back"
+                        ? "ot-btn-warn is-active"
+                        : "ot-btn-warn"
+                    }
+                    onClick={() => toggle(r.id, "send_back")}
+                    aria-expanded={expanded === "send_back"}
+                    aria-controls={`expand-card-${r.id}`}
+                  >
+                    差戻
+                  </button>
+                  <button
+                    type="button"
+                    className={
+                      expanded === "reject"
+                        ? "ot-btn-danger is-active"
+                        : "ot-btn-danger"
+                    }
+                    onClick={() => toggle(r.id, "reject")}
+                    aria-expanded={expanded === "reject"}
+                    aria-controls={`expand-card-${r.id}`}
+                  >
+                    却下
+                  </button>
+                </div>
+                {expanded && (
+                  <div
+                    className="ot-queue-card-expand"
+                    id={`expand-card-${r.id}`}
+                  >
+                    <p className="ot-review-expand-title">
+                      {expanded === "reject"
+                        ? "却下コメント（必須）"
+                        : "差戻コメント（必須）"}
+                    </p>
+                    <CommentForm
+                      key={`${r.id}-${expanded}`}
+                      id={r.id}
+                      mode={expanded}
+                      onCancel={() => setExpand(null)}
+                    />
+                  </div>
+                )}
+              </>
+            ) : null}
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
 function RowGroup({
   row,
   statusLabel,

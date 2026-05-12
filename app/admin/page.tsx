@@ -66,19 +66,20 @@ export default async function AdminPage() {
       {pendingCount > 0 && (
         <Link
           href="/admin/overtime"
-          className="ot-banner ot-banner-warn"
-          style={{ textDecoration: "none", justifyContent: "space-between" }}
+          className="ot-banner ot-banner-warn ot-banner-pending"
         >
-          <div style={{ display: "flex", gap: 10, alignItems: "flex-start", minWidth: 0 }}>
-            <span className="ot-banner-icon">!</span>
-            <div className="ot-banner-body">
-              <strong style={{ fontWeight: 700 }}>未承認の残業申請が {pendingCount} 件あります</strong>
-              <span style={{ marginLeft: 8, fontWeight: 500 }}>
+          <div className="ot-banner-pending-head">
+            <span className="ot-banner-icon" aria-hidden="true">!</span>
+            <div className="ot-banner-pending-body">
+              <span className="ot-banner-pending-title">
+                未承認の残業申請が {pendingCount} 件あります
+              </span>
+              <span className="ot-banner-pending-sub">
                 合計 {formatDurationJa(pendingMinutes)}
               </span>
             </div>
           </div>
-          <span style={{ fontSize: 12, fontWeight: 600 }}>承認画面へ →</span>
+          <span className="ot-banner-pending-cta">承認画面へ →</span>
         </Link>
       )}
 
@@ -108,7 +109,7 @@ export default async function AdminPage() {
         {records.length === 0 ? (
           <p className="empty">本日の打刻はまだありません</p>
         ) : (
-          <div className="table-wrap">
+          <div className="table-wrap is-scrollable">
             <table className="table">
               <thead>
                 <tr>
