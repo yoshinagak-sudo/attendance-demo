@@ -196,6 +196,32 @@
   .two-col > * { flex: 1; }
   .two-col .screenshot { max-height: 140mm; }
 
+  /* 管理画面の大きいPCスクショ専用 */
+  .screenshot-wide {
+    width: 100%;
+    max-width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    display: block;
+    margin: 6px auto;
+    box-shadow: 0 1px 3px rgba(31, 42, 28, 0.08);
+  }
+
+  /* avoid-break: 見出しと直後の内容を分離させない */
+  h1.section-title,
+  h2 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+  .lead, .note {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  table.feature-table {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
   /* テーブル */
   table.feature-table {
     width: 100%;
@@ -294,6 +320,23 @@
   }
   ul { padding-left: 18px; }
   ul li { margin-bottom: 2px; }
+
+  /* FAQ */
+  .faq-list { margin: 8px 0; }
+  .faq-list dt {
+    font-weight: 700;
+    color: var(--primary-hover);
+    margin-top: 8px;
+    font-size: 10pt;
+  }
+  .faq-list dt:first-child { margin-top: 0; }
+  .faq-list dd {
+    margin: 2px 0 0 0;
+    padding-left: 0;
+    font-size: 9.5pt;
+    color: var(--text-sub);
+    line-height: 1.5;
+  }
 </style>
 </head>
 <body>
@@ -459,26 +502,31 @@
 <section class="page">
   <h2>3-2. 新規申請を出す</h2>
 
-  <ol class="steps">
-    <li>「+ 新規申請を作成」をタップ</li>
-    <li><strong>申請種別</strong>を選ぶ（事前申請 / 事後申請）</li>
-    <li><strong>申請日</strong>と<strong>残業開始/終了時刻</strong>を入力（退勤打刻があれば自動セット）</li>
-    <li><strong>現場名</strong>（過去使用順でサジェスト）と<strong>作業内容</strong>（200文字以内）を入力</li>
-    <li>「確認画面へ →」で内容確認 → 「申請を送信する」で完了</li>
-  </ol>
+  <div class="two-col">
+    <div>
+      <ol class="steps">
+        <li>「+ 新規申請を作成」をタップ</li>
+        <li><strong>申請種別</strong>を選ぶ（事前申請 / 事後申請）</li>
+        <li><strong>申請日</strong>と<strong>残業開始/終了時刻</strong>を入力（退勤打刻があれば自動セット）</li>
+        <li><strong>現場名</strong>（過去使用順でサジェスト）と<strong>作業内容</strong>（200文字以内）を入力</li>
+        <li>「確認画面へ →」で内容確認 → 「申請を送信する」で完了</li>
+      </ol>
 
-  <img src="screenshots/04-overtime-new.png" alt="新規申請フォーム" class="screenshot md">
-  <div class="screenshot-caption">新規申請フォーム</div>
+      <div class="note">
+        <strong>事後申請は当日中のみ</strong>受け付けます。翌日以降の遡及はできません（事前申請推奨）。
+      </div>
 
-  <div class="note">
-    <strong>事後申請は当日中のみ</strong>受け付けます。翌日以降の遡及はできません（事前申請推奨）。
+      <h3>差戻された申請の再申請</h3>
+      <p style="font-size: 10pt;">
+        差戻になった申請を開くと、「再申請する」ボタンが表示されます。前回値がプリフィルされた状態で
+        フォームが開くので、コメントに沿って修正して送信します。
+      </p>
+    </div>
+    <div>
+      <img src="screenshots/04-overtime-new.png" alt="新規申請フォーム" class="screenshot">
+      <div class="screenshot-caption">新規申請フォーム</div>
+    </div>
   </div>
-
-  <h3>差戻された申請の再申請</h3>
-  <p>
-    差戻になった申請を開くと、「再申請する」ボタンが表示されます。前回値がプリフィルされた状態で
-    フォームが開くので、コメントに沿って修正して送信します。
-  </p>
 </section>
 
 <!-- ============== 4. 勤怠ダッシュボード ============== -->
@@ -498,11 +546,8 @@
     <li><strong>KPI 4枚</strong>（出勤中 / 退勤済 / 未出勤 / 合計労働時間）と <strong>タイムライン（ガントチャート）</strong> で詳細を確認</li>
   </ol>
 
-  <div class="two-col">
-    <img src="screenshots/06-admin.png" alt="管理ダッシュボード（モバイル）" class="screenshot">
-    <img src="screenshots/11-admin-desktop.png" alt="管理ダッシュボード（デスクトップ）" class="screenshot">
-  </div>
-  <div class="screenshot-caption">勤怠ダッシュボード（左: モバイル / 右: PC）</div>
+  <img src="screenshots/11-admin-desktop.png" alt="勤怠ダッシュボード" class="screenshot-wide">
+  <div class="screenshot-caption">勤怠ダッシュボード（PC表示）</div>
 
   <div class="note">
     タイムラインは <strong>緑=出勤中 / グレー=退勤済 / 赤=10時間超</strong> で色分けされます。
@@ -527,11 +572,8 @@
     <li>処理後はフィルタ「すべて」で過去の承認履歴も確認可能</li>
   </ol>
 
-  <div class="two-col">
-    <img src="screenshots/07-admin-overtime.png" alt="承認キュー（モバイル）" class="screenshot">
-    <img src="screenshots/12-admin-overtime-desktop.png" alt="承認キュー（PC）" class="screenshot">
-  </div>
-  <div class="screenshot-caption">残業承認キュー</div>
+  <img src="screenshots/12-admin-overtime-desktop.png" alt="承認キュー" class="screenshot-wide">
+  <div class="screenshot-caption">残業承認キュー（PC表示）</div>
 
   <h3>差戻・却下の違い</h3>
   <table class="feature-table">
@@ -559,11 +601,8 @@
     <li>「<strong>CSV（承認済）</strong>」または「<strong>全件CSV</strong>」ボタンでダウンロード</li>
   </ol>
 
-  <div class="two-col">
-    <img src="screenshots/08-admin-report.png" alt="月次レポート（モバイル）" class="screenshot">
-    <img src="screenshots/13-admin-report-desktop.png" alt="月次レポート（PC）" class="screenshot">
-  </div>
-  <div class="screenshot-caption">月次レポート</div>
+  <img src="screenshots/13-admin-report-desktop.png" alt="月次レポート" class="screenshot-wide">
+  <div class="screenshot-caption">月次レポート（PC表示）</div>
 
   <h3>CSV出力の列</h3>
   <p style="font-size: 10pt;">
@@ -580,28 +619,42 @@
   <h1 class="section-title"><span class="num">7</span>設定・ユーザー管理</h1>
 
   <h2>7-1. 設定</h2>
-  <p class="lead" style="margin-bottom: 8px;">
-    <span class="role-badge">manager</span> 所定終業時刻と現場名マスタを管理します。
-  </p>
-  <ul style="font-size: 10pt; line-height: 1.8; margin-left: 16px; margin-bottom: 14px;">
-    <li><strong>所定終業時刻</strong>：残業申請フォームの開始時刻デフォルト値（初期 17:30）</li>
-    <li><strong>現場名マスタ</strong>：申請時のサジェストに出る現場一覧。追加・無効化が可能</li>
-  </ul>
-  <img src="screenshots/10-admin-settings.png" alt="設定画面" class="screenshot sm">
+  <div class="two-col">
+    <div>
+      <p class="lead" style="margin-bottom: 8px;">
+        <span class="role-badge">manager</span> 所定終業時刻と現場名マスタを管理します。
+      </p>
+      <ul style="font-size: 10pt; line-height: 1.7; margin-bottom: 8px;">
+        <li><strong>所定終業時刻</strong>：残業申請フォームの開始時刻デフォルト値（初期 17:30）</li>
+        <li><strong>現場名マスタ</strong>：申請時のサジェストに出る現場一覧。追加・無効化が可能</li>
+      </ul>
+    </div>
+    <div>
+      <img src="screenshots/10-admin-settings.png" alt="設定画面" class="screenshot">
+      <div class="screenshot-caption">設定画面</div>
+    </div>
+  </div>
 
   <h2>7-2. ユーザー管理</h2>
-  <p class="lead" style="margin-bottom: 8px;">
-    <span class="role-badge">manager</span> 各社員のパスワード再発行・有効/無効切替を行います。
-  </p>
-  <ol class="steps">
-    <li>ヘッダーメニュー → 「<strong>ユーザー管理</strong>」</li>
-    <li>パスワードを忘れた社員の行で「PW再発行」をタップ</li>
-    <li>新しいパスワードが画面に<strong>1回だけ</strong>表示されるので、本人に渡す</li>
-    <li>退職者は「無効化」で非アクティブ化（過去の履歴は保持）</li>
-  </ol>
-  <img src="screenshots/09-admin-users.png" alt="ユーザー管理画面" class="screenshot sm">
-  <div class="note">
-    <strong>最後の manager は無効化できません</strong>（システムがロックされるのを防ぐため）。
+  <div class="two-col">
+    <div>
+      <p class="lead" style="margin-bottom: 8px;">
+        <span class="role-badge">manager</span> 各社員のパスワード再発行・有効/無効切替を行います。
+      </p>
+      <ol class="steps">
+        <li>ヘッダーメニュー → 「<strong>ユーザー管理</strong>」</li>
+        <li>パスワードを忘れた社員の行で「PW再発行」をタップ</li>
+        <li>新しいパスワードが画面に<strong>1回だけ</strong>表示されるので、本人に渡す</li>
+        <li>退職者は「無効化」で非アクティブ化（過去の履歴は保持）</li>
+      </ol>
+      <div class="note">
+        <strong>最後の manager は無効化できません</strong>（システムがロックされるのを防ぐため）。
+      </div>
+    </div>
+    <div>
+      <img src="screenshots/09-admin-users.png" alt="ユーザー管理画面" class="screenshot">
+      <div class="screenshot-caption">ユーザー管理画面</div>
+    </div>
   </div>
 </section>
 
@@ -614,58 +667,53 @@
     商談中に「manager視点」「member視点」を素早く行き来できます。
   </p>
 
-  <ol class="steps">
-    <li>画面右上の「[名前]▾」プルダウンをタップ</li>
-    <li>メニュー内の「<strong>デモ: 別の人で試す</strong>」セクション</li>
-    <li>切り替えたい役職をタップ</li>
-    <li>即座にその人としてログインし直し、適切な画面に遷移します</li>
-  </ol>
+  <div class="two-col">
+    <div>
+      <ol class="steps">
+        <li>画面右上の「[名前]▾」プルダウンをタップ</li>
+        <li>メニュー内の「<strong>デモ: 別の人で試す</strong>」セクション</li>
+        <li>切り替えたい役職をタップ</li>
+        <li>即座にその人としてログインし直し、適切な画面に遷移します</li>
+      </ol>
 
-  <img src="screenshots/05-user-menu.png" alt="ユーザーメニュー" class="screenshot sm">
-  <div class="screenshot-caption">ユーザーメニューを開いた状態（自分以外の3役職が表示）</div>
-
-  <div class="note">
-    <strong>本番運用時はこの機能を無効化します。</strong>
-    各社員は自分のアカウントだけログインできるようになります。
+      <div class="note">
+        <strong>本番運用時はこの機能を無効化します。</strong>
+        各社員は自分のアカウントだけログインできるようになります。
+      </div>
+    </div>
+    <div>
+      <img src="screenshots/05-user-menu.png" alt="ユーザーメニュー" class="screenshot">
+      <div class="screenshot-caption">ユーザーメニューを開いた状態</div>
+    </div>
   </div>
 </section>
 
 <!-- ============== 9. FAQ ============== -->
-<section class="page">
+<section class="page faq">
   <h1 class="section-title"><span class="num">9</span>よくある質問</h1>
 
-  <h3>Q. スマホ以外でも使えますか？</h3>
-  <p>PC・タブレット・スマホすべてで動作します。画面サイズに応じて自動でレイアウトが切り替わります。</p>
+  <dl class="faq-list">
+    <dt>Q. スマホ以外でも使えますか？</dt>
+    <dd>PC・タブレット・スマホすべてで動作します。画面サイズに応じて自動でレイアウトが切り替わります。</dd>
 
-  <h3>Q. 打刻のミスは管理者が修正できますか？</h3>
-  <p>本デモ版では打刻の編集機能は実装されていません（本番化時の検討事項）。残業申請は社員自身が差戻→再申請できます。</p>
+    <dt>Q. 打刻のミスは管理者が修正できますか？</dt>
+    <dd>本デモ版では打刻の編集機能は実装されていません（本番化時の検討事項）。残業申請は社員自身が差戻→再申請できます。</dd>
 
-  <h3>Q. データは安全ですか？</h3>
-  <p>
-    本番運用ではアプリ全体に Basic 認証または個別パスワード認証を有効化します。
-    データベース（Turso）は東京リージョンで保管され、TLS で暗号化通信されます。
-  </p>
+    <dt>Q. データは安全ですか？</dt>
+    <dd>本番運用ではアプリ全体に Basic 認証または個別パスワード認証を有効化します。データベース（Turso）は東京リージョンで保管され、TLS で暗号化通信されます。</dd>
 
-  <h3>Q. 給与計算ソフトと連携できますか？</h3>
-  <p>
-    月次レポートから CSV をダウンロードできます（UTF-8 BOM、Excel互換）。
-    現状は汎用フォーマットですが、freee / マネーフォワード等の特定フォーマットへの拡張は対応可能です。
-  </p>
+    <dt>Q. 給与計算ソフトと連携できますか？</dt>
+    <dd>月次レポートから CSV をダウンロードできます（UTF-8 BOM、Excel互換）。現状は汎用フォーマットですが、freee / マネーフォワード等の特定フォーマットへの拡張は対応可能です。</dd>
 
-  <h3>Q. 何人まで使えますか？</h3>
-  <p>
-    技術的には数百人規模まで対応可能。今回のデモは14名構成です（ニナウ社員10名＋蛸と衣4名）。
-  </p>
+    <dt>Q. 何人まで使えますか？</dt>
+    <dd>技術的には数百人規模まで対応可能。今回のデモは14名構成です（ニナウ社員10名＋蛸と衣4名）。</dd>
 
-  <h3>Q. 車両管理機能は？</h3>
-  <p>
-    現状は未実装。ご要望があれば設計から相談させてください
-    （車両×ユーザー×日時の紐付け、運行記録の出力など）。
-  </p>
+    <dt>Q. 車両管理機能は？</dt>
+    <dd>現状は未実装。ご要望があれば設計から相談させてください（車両×ユーザー×日時の紐付け、運行記録の出力など）。</dd>
+  </dl>
 
   <div class="footer-note">
-    本マニュアル発行: 2026年5月／株式会社ニナウ向けデモ版<br>
-    質問・ご要望はお気軽にお問い合わせください。
+    本マニュアル発行: 2026年5月／株式会社ニナウ向けデモ版　質問・ご要望はお気軽にお問い合わせください。
   </div>
 </section>
 
