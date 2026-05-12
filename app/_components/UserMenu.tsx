@@ -111,6 +111,22 @@ export function UserMenu({ user }: { user: SessionUser }) {
         >
           残業申請
         </Link>
+        <Link
+          href="/vehicle"
+          className="user-menu-item"
+          role="menuitem"
+          onClick={close}
+        >
+          車両管理
+        </Link>
+        <Link
+          href="/report"
+          className="user-menu-item"
+          role="menuitem"
+          onClick={close}
+        >
+          日報
+        </Link>
         {isManager && (
           <>
             <div className="user-menu-divider" role="separator" aria-hidden="true" />

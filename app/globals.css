@@ -3725,3 +3725,859 @@ body {
     padding: 6px 12px;
   }
 }
+
+/* =========================================================================
+   車両管理（/vehicle, /vehicle/driving/[id], /vehicle/history,
+              /admin/vehicle, /admin/vehicle/report）
+   日報（/report, /report/today, /report/[id], /admin/report 系）
+   既存トークンのみ使用。ot-* と統一感を保つ。
+   ========================================================================= */
+
+/* --- 詳細行（フラットな label/value ペア） --- */
+/* report/[id] と vehicle/driving/[id] が `.ot-detail-card` 内で `.ot-detail-row`
+   を使う。既存の `.ot-detail-table` とは別の、軽量な縦並びパターン。 */
+.ot-detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--divider);
+  font-size: 14px;
+  line-height: 1.55;
+}
+.ot-detail-row:last-child {
+  border-bottom: none;
+}
+.ot-detail-label {
+  width: 120px;
+  flex-shrink: 0;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 13px;
+}
+.ot-detail-row > span:not(.ot-detail-label),
+.ot-detail-row > .num {
+  flex: 1;
+  min-width: 0;
+  color: var(--text);
+  font-weight: 500;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+@media (max-width: 640px) {
+  .ot-detail-row {
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 0;
+  }
+  .ot-detail-label {
+    width: auto;
+    font-size: 12px;
+  }
+}
+
+/* =========================================================================
+   管理トップのクイックショートカット
+   ========================================================================= */
+.admin-quick-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 16px 0 24px;
+}
+@media (max-width: 640px) {
+  .admin-quick-cards {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+.admin-quick-card {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.12s, border-color 0.12s;
+}
+.admin-quick-card:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+.admin-quick-card:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.18);
+}
+
+.admin-quick-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: 0.01em;
+}
+.admin-quick-card-body {
+  font-size: 13px;
+  color: var(--text-sub);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.admin-quick-card-body .num {
+  font-weight: 700;
+  color: var(--text);
+}
+.admin-quick-card-warn {
+  color: var(--warn);
+  font-weight: 600;
+  margin-left: 2px;
+}
+
+/* =========================================================================
+   車両: 共通バッジ・プレート表示
+   ========================================================================= */
+
+/* プレート（車両番号）大 */
+.vh-plate-strong {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+/* プレート小（履歴の行頭など） */
+.vh-plate-small {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+.vh-model {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+@media (max-width: 640px) {
+  .vh-plate-strong { font-size: 18px; }
+}
+
+/* ステータスバッジ（`.badge` を継承）
+   HTMLは `in-progress` と `in_progress` の2系統が混在しているので両方対応 */
+.vh-badge-in_progress,
+.vh-badge-in-progress {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+.vh-badge-in_progress::before,
+.vh-badge-in-progress::before {
+  background: var(--warn);
+}
+.vh-badge-completed {
+  background: var(--primary-soft);
+  color: var(--primary-hover);
+}
+.vh-badge-completed::before {
+  background: var(--primary);
+}
+.vh-badge-mine {
+  background: var(--primary);
+  color: #fff;
+  border: 1px solid var(--primary);
+}
+.vh-badge-mine::before {
+  background: #fff;
+}
+.vh-badge-busy {
+  background: var(--surface-alt);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.vh-badge-busy::before {
+  background: var(--muted-2);
+}
+.vh-badge-free {
+  background: var(--surface);
+  color: var(--text-sub);
+  border: 1px solid var(--border);
+}
+.vh-badge-free::before {
+  background: var(--border-strong);
+}
+
+/* =========================================================================
+   車両: 今日の自分のカード（/vehicle トップ）
+   ========================================================================= */
+.vh-mycard {
+  /* `.card` を継承。中の縦組を整える */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+}
+.vh-mycard-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.vh-mycard-meta {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* 進行中の状態を囲う内枠 */
+.vh-progress-block {
+  margin-top: 4px;
+  padding: 12px 14px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--warn);
+  border-radius: var(--r-md);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.vh-progress-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 600;
+  flex-wrap: wrap;
+}
+.vh-progress-detail {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* 縦並び CTA（割当→出発の動線） */
+.vh-cta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* 「割当を解除する」薄いリンク風ボタン */
+.vh-release-form {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+.vh-release-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 10px;
+  font-family: inherit;
+}
+.vh-release-btn:hover {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+
+/* =========================================================================
+   車両: 車両リスト（/vehicle 下段）
+   ========================================================================= */
+.vh-vehicle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vh-vehicle-card {
+  /* `.card` 継承想定 */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  transition: background 0.12s, border-color 0.12s;
+}
+.vh-vehicle-card.is-assigned {
+  background: var(--surface-alt);
+  border-color: var(--border);
+  opacity: 0.92;
+}
+
+.vh-vehicle-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.vh-vehicle-meta {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.vh-vehicle-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.vh-vehicle-status form {
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .vh-vehicle-status form,
+  .vh-vehicle-status .ot-btn-primary {
+    width: 100%;
+  }
+}
+
+/* =========================================================================
+   車両: 履歴リスト（残業の .ot-history-list と同じ作法）
+   ========================================================================= */
+.vh-history-list {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.vh-history-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--divider);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.12s;
+}
+.vh-history-row:first-child {
+  border-top: none;
+}
+.vh-history-row:hover {
+  background: var(--surface-hover);
+}
+.vh-history-row:focus-visible {
+  outline: none;
+  background: var(--surface-hover);
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+/* 24時間以上経過の警告（borderだけ強調） */
+.vh-history-row.is-warn {
+  border-left: 3px solid var(--warn);
+  background: var(--warn-bg);
+}
+.vh-history-row.is-warn:hover {
+  background: var(--warn-bg);
+  filter: brightness(0.97);
+}
+
+.vh-history-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.vh-history-top {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.vh-history-purpose {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.vh-history-detail {
+  font-size: 13px;
+  color: var(--text-sub);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.vh-history-time {
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================================
+   車両: 給油履歴
+   ========================================================================= */
+.vh-refuel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.vh-refuel-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+.vh-refuel-main {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+.vh-refuel-sub {
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* =========================================================================
+   車両: 月次KPIカード
+   ========================================================================= */
+.vh-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+@media (max-width: 900px) {
+  .vh-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.vh-kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.vh-kpi-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.vh-kpi-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 640px) {
+  .vh-kpi-value { font-size: 20px; }
+}
+
+/* =========================================================================
+   日報: 今日の日報サマリカード（/report トップ）
+   ========================================================================= */
+.dr-today-card {
+  /* `.card` 継承。Linkとして全体クリック可能 */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.12s, border-color 0.12s;
+}
+.dr-today-card:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+.dr-today-card:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.18);
+}
+
+.dr-today-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.dr-today-total {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.dr-today-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid var(--divider);
+  padding-top: 10px;
+}
+.dr-today-item {
+  font-size: 13px;
+  color: var(--text-sub);
+  font-weight: 500;
+  line-height: 1.5;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dr-today-item .num {
+  color: var(--muted);
+  font-weight: 600;
+  flex-shrink: 0;
+  min-width: 90px;
+}
+
+.dr-today-cta {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-hover);
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* =========================================================================
+   日報: 履歴リスト
+   ========================================================================= */
+.dr-history-list {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.dr-history-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--divider);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.12s;
+}
+.dr-history-row:first-child {
+  border-top: none;
+}
+.dr-history-row:hover {
+  background: var(--surface-hover);
+}
+.dr-history-row:focus-visible {
+  outline: none;
+  background: var(--surface-hover);
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+.dr-history-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.dr-history-date {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.dr-history-detail {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =========================================================================
+   日報: 編集フォーム
+   ========================================================================= */
+.dr-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dr-form-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.dr-form-total-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  display: block;
+  margin-bottom: 2px;
+}
+.dr-form-total {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.dr-autosave-status {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* =========================================================================
+   日報: 作業アイテムセクション
+   ========================================================================= */
+.dr-items-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 20px;
+}
+.dr-progress-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 20px;
+}
+@media (max-width: 640px) {
+  .dr-items-section,
+  .dr-progress-section { padding: 16px; }
+}
+
+.dr-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--divider);
+}
+.dr-section-head .ot-section-title {
+  margin: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+/* 作業アイテムリスト */
+.dr-item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dr-item-list-view {
+  gap: 8px;
+}
+
+.dr-item-card {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dr-item-list-view .dr-item-card {
+  background: var(--surface);
+  border-color: var(--divider);
+  padding: 10px 14px;
+  gap: 4px;
+}
+
+.dr-item-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  justify-content: flex-start;
+}
+.dr-item-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.dr-item-duration {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary-hover);
+  font-variant-numeric: tabular-nums;
+  flex: 1;
+}
+.dr-item-remove {
+  font-size: 12px;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-family: inherit;
+}
+.dr-item-remove:hover {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.dr-item-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dr-item-row > .ot-input,
+.dr-item-row > .ot-input.dr-item-desc {
+  flex: 1;
+  min-width: 0;
+}
+
+.dr-item-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  width: 32px;
+}
+
+/* 短い時刻 input */
+.dr-time-input {
+  flex: 0 0 auto;
+  width: 110px;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 640px) {
+  .dr-time-input { width: 100px; }
+}
+
+.dr-item-desc {
+  min-height: 64px;
+  resize: vertical;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* 閲覧用（report/[id]） */
+.dr-item-time {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+.dr-item-site {
+  font-size: 13px;
+  color: var(--text-sub);
+  font-weight: 500;
+}
+.dr-item-text {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 500;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 「+ 作業を追加」ボタン */
+.dr-add-item {
+  margin-top: 8px;
+  border: 1px dashed var(--border-strong);
+  color: var(--text-sub);
+  background: var(--surface);
+}
+.dr-add-item:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary-hover);
+  background: var(--primary-soft);
+}
+
+/* 進捗・自由記述セクション */
+.dr-progress-section .ot-input {
+  resize: vertical;
+  min-height: 96px;
+  line-height: 1.6;
+  font-size: 13px;
+}
+
+/* 文字カウンタ（残業の .ot-charcount と揃えるが日報専用変種） */
+.dr-charcount {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  margin-top: 4px;
+}
+
+/* 提出済の case で出る撤回ボタン領域 */
+.dr-submitted-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* =========================================================================
+   日報: ステータスバッジ（残業の submitted と揃える）
+   ========================================================================= */
+.dr-badge-draft {
+  background: var(--surface-alt);
+  color: var(--text-sub);
+  border: 1px solid var(--border);
+}
+.dr-badge-draft::before {
+  background: var(--muted-2);
+}
+.dr-badge-submitted {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+.dr-badge-submitted::before {
+  background: var(--warn);
+}
+.dr-badge-acknowledged {
+  background: var(--primary);
+  color: #fff;
+  border: 1px solid var(--primary);
+}
+.dr-badge-acknowledged::before {
+  background: #fff;
+}

@@ -4,6 +4,7 @@ import { requireManager } from "@/lib/session";
 import { startOfTodayJST, formatJSTDateTime } from "@/lib/time";
 import { buildDailyStats, generateAiSummary } from "@/lib/attendance";
 import { formatDurationJa } from "@/lib/overtime";
+import { inspectionsDueWithin } from "@/lib/vehicle";
 import { AppHeader } from "@/app/_components/AppHeader";
 import { SummaryCards } from "./summary-cards";
 import { GanttChart } from "./gantt-chart";
@@ -26,24 +27,29 @@ export default async function AdminPage() {
   const now = new Date();
   const since = startOfTodayJST();
 
-  const [users, records, pendingOvertime] = await Promise.all([
-    prisma.user.findMany({ orderBy: { name: "asc" } }),
-    prisma.timeRecord.findMany({
-      where: { timestamp: { gte: since } },
-      orderBy: { timestamp: "desc" },
-      include: { user: true },
-    }),
-    prisma.overtimeRequest.findMany({
-      where: { status: "submitted" },
-      select: { id: true, durationMinutes: true },
-    }),
-  ]);
+  const [users, records, pendingOvertime, inProgressDriving, pendingReports, vehicles] =
+    await Promise.all([
+      prisma.user.findMany({ orderBy: { name: "asc" } }),
+      prisma.timeRecord.findMany({
+        where: { timestamp: { gte: since } },
+        orderBy: { timestamp: "desc" },
+        include: { user: true },
+      }),
+      prisma.overtimeRequest.findMany({
+        where: { status: "submitted" },
+        select: { id: true, durationMinutes: true },
+      }),
+      prisma.drivingLog.count({ where: { status: "in_progress" } }),
+      prisma.dailyReport.count({ where: { status: "submitted" } }),
+      prisma.vehicle.findMany({ where: { isActive: true } }),
+    ]);
 
   const stats = buildDailyStats(users, records, now);
   const summaryText = generateAiSummary(stats, now);
   const dateLabel = formatDateJP(now);
   const pendingCount = pendingOvertime.length;
   const pendingMinutes = pendingOvertime.reduce((s, r) => s + r.durationMinutes, 0);
+  const inspectionWarns = inspectionsDueWithin({ vehicles, now });
 
   return (
     <>
@@ -56,6 +62,8 @@ export default async function AdminPage() {
           </div>
           <div className="ot-admin-actions">
             <Link href="/admin/overtime" className="link">承認キュー</Link>
+            <Link href="/admin/vehicle" className="link">車両管理</Link>
+            <Link href="/admin/report" className="link">日報</Link>
             <Link href="/admin/users" className="link">ユーザー管理</Link>
             <Link href="/admin/settings/overtime" className="link">設定</Link>
           </div>
@@ -82,6 +90,24 @@ export default async function AdminPage() {
           <span className="ot-banner-pending-cta">承認画面へ →</span>
         </Link>
       )}
+
+      <div className="admin-quick-cards">
+        <Link href="/admin/vehicle" className="admin-quick-card">
+          <div className="admin-quick-card-title">車両管理</div>
+          <div className="admin-quick-card-body">
+            <span className="num">{inProgressDriving}</span> 件 進行中
+            {inspectionWarns.length > 0 && (
+              <span className="admin-quick-card-warn">・点検期限警告 {inspectionWarns.length} 台</span>
+            )}
+          </div>
+        </Link>
+        <Link href="/admin/report" className="admin-quick-card">
+          <div className="admin-quick-card-title">日報</div>
+          <div className="admin-quick-card-body">
+            <span className="num">{pendingReports}</span> 件 未確認
+          </div>
+        </Link>
+      </div>
 
       <SummaryCards stats={stats} />
 

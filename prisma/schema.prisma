@@ -22,6 +22,11 @@ model User {
   overtimeRequests         OvertimeRequest[] @relation("Applicant")
   overtimeReviewedRequests OvertimeRequest[] @relation("Reviewer")
   loginAttempts            LoginAttempt[]
+  vehicleAssignments       VehicleAssignment[] @relation("VehicleAssignedUser")
+  drivingLogs              DrivingLog[]        @relation("DrivingLogUser")
+  refuelingLogs            RefuelingLog[]      @relation("RefuelingLogUser")
+  dailyReports             DailyReport[]       @relation("DailyReportUser")
+  dailyReportsAcknowledged DailyReport[]       @relation("DailyReportAck")
 }
 
 model LoginAttempt {
@@ -87,12 +92,130 @@ model OvertimeRequest {
 }
 
 model WorkSite {
-  id         String            @id @default(cuid())
-  name       String            @unique
-  isActive   Boolean           @default(true)
-  usageCount Int               @default(0)
-  createdAt  DateTime          @default(now())
-  requests   OvertimeRequest[]
+  id               String            @id @default(cuid())
+  name             String            @unique
+  isActive         Boolean           @default(true)
+  usageCount       Int               @default(0)
+  createdAt        DateTime          @default(now())
+  requests         OvertimeRequest[]
+  drivingLogs      DrivingLog[]      @relation("DrivingLogSite")
+  dailyReportItems DailyReportItem[] @relation("DailyReportItemSite")
+}
+
+model Vehicle {
+  id                String              @id @default(cuid())
+  plate             String              @unique
+  model             String
+  depot             String
+  inspectionDueDate DateTime?
+  isActive          Boolean             @default(true)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  assignments       VehicleAssignment[]
+  drivingLogs       DrivingLog[]
+  refuelingLogs     RefuelingLog[]
+
+  @@index([isActive])
+  @@index([inspectionDueDate])
+}
+
+model VehicleAssignment {
+  id         String    @id @default(cuid())
+  vehicleId  String
+  vehicle    Vehicle   @relation(fields: [vehicleId], references: [id])
+  userId     String
+  user       User      @relation("VehicleAssignedUser", fields: [userId], references: [id])
+  assignDate DateTime
+  releasedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([vehicleId, assignDate])
+  @@index([userId, assignDate])
+}
+
+model DrivingLog {
+  id            String    @id @default(cuid())
+  vehicleId     String
+  vehicle       Vehicle   @relation(fields: [vehicleId], references: [id])
+  userId        String
+  user          User      @relation("DrivingLogUser", fields: [userId], references: [id])
+  workDate      DateTime
+  startAt       DateTime
+  startOdometer Int
+  purpose       String
+  workSiteName  String
+  workSiteId    String?
+  workSite      WorkSite? @relation("DrivingLogSite", fields: [workSiteId], references: [id])
+  endAt         DateTime?
+  endOdometer   Int?
+  distanceKm    Int?
+  status        String    @default("in_progress")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([vehicleId, workDate])
+  @@index([userId, workDate])
+  @@index([status, workDate])
+  @@index([workDate])
+}
+
+model RefuelingLog {
+  id          String   @id @default(cuid())
+  vehicleId   String
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id])
+  userId      String
+  user        User     @relation("RefuelingLogUser", fields: [userId], references: [id])
+  refuelDate  DateTime
+  liters      Float
+  amountJpy   Int
+  stationName String
+  note        String?
+  createdAt   DateTime @default(now())
+
+  @@index([vehicleId, refuelDate])
+  @@index([refuelDate])
+}
+
+model DailyReport {
+  id               String            @id @default(cuid())
+  userId           String
+  user             User              @relation("DailyReportUser", fields: [userId], references: [id])
+  reportDate       DateTime
+  progressNote     String            @default("")
+  totalMinutes     Int               @default(0)
+  status           String            @default("draft")
+  submittedAt      DateTime?
+  acknowledgedById String?
+  acknowledgedBy   User?             @relation("DailyReportAck", fields: [acknowledgedById], references: [id])
+  acknowledgedAt   DateTime?
+  ackComment       String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  items            DailyReportItem[]
+
+  @@unique([userId, reportDate])
+  @@index([reportDate])
+  @@index([status, reportDate])
+  @@index([userId, reportDate])
+}
+
+model DailyReportItem {
+  id              String      @id @default(cuid())
+  reportId        String
+  report          DailyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  orderIndex      Int         @default(0)
+  startAt         DateTime
+  endAt           DateTime
+  durationMinutes Int
+  description     String
+  workSiteName    String
+  workSiteId      String?
+  workSite        WorkSite?   @relation("DailyReportItemSite", fields: [workSiteId], references: [id])
+  createdAt       DateTime    @default(now())
+
+  @@index([reportId, orderIndex])
+  @@index([workSiteId])
 }
 
 model AppSetting {
