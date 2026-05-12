@@ -2186,14 +2186,14 @@ body {
 
 /* --- ログイン画面 --- */
 .login-shell {
-  max-width: 440px;
-  margin: 64px auto 0;
-  padding: 32px 24px 64px;
+  max-width: 520px;
+  margin: 48px auto 0;
+  padding: 24px 24px 64px;
 }
 @media (max-width: 640px) {
   .login-shell {
     margin-top: 24px;
-    padding: 24px 16px 48px;
+    padding: 20px 16px 48px;
   }
 }
 
@@ -2987,14 +2987,11 @@ body {
 }
 .quick-login-list {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 10px;
   list-style: none;
   margin: 0;
   padding: 0;
-}
-@media (max-width: 520px) {
-  .quick-login-list { grid-template-columns: 1fr; }
 }
 .quick-login-btn {
   display: flex;
