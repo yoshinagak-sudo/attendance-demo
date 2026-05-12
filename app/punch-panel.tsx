@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
 
@@ -205,6 +206,18 @@ export function PunchPanel({
             </span>
           )}
         </button>
+      </div>
+
+      {/* 関連動線: 残業申請 */}
+      <div className="punch-secondary-actions">
+        <Link href="/overtime" className="punch-secondary-btn">
+          <span className="punch-secondary-icon" aria-hidden="true">＋</span>
+          <span className="punch-secondary-body">
+            <span className="punch-secondary-title">残業申請へ</span>
+            <span className="punch-secondary-sub">事前/事後の申請・履歴確認</span>
+          </span>
+          <span className="punch-secondary-arrow" aria-hidden="true">→</span>
+        </Link>
       </div>
 
       {/* 本日の自分の打刻履歴（全件） */}

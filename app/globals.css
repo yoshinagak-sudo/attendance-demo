@@ -3053,3 +3053,63 @@ body {
   margin: 0;
   line-height: 1.5;
 }
+
+/* ---------- 打刻画面: 残業申請への動線 ---------- */
+.punch-secondary-actions {
+  margin: 16px 0 24px;
+}
+.punch-secondary-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--primary);
+  border-radius: var(--r-md);
+  text-decoration: none;
+  color: var(--text);
+  transition: background 0.12s, border-color 0.12s, transform 0.05s;
+  cursor: pointer;
+}
+.punch-secondary-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+  border-left-color: var(--primary-hover);
+}
+.punch-secondary-btn:active {
+  transform: translateY(1px);
+}
+.punch-secondary-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary);
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.punch-secondary-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.punch-secondary-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.punch-secondary-sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+.punch-secondary-arrow {
+  font-size: 16px;
+  color: var(--muted);
+  font-weight: 600;
+}

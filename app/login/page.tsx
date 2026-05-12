@@ -29,7 +29,7 @@ export default async function LoginPage({
       <div className="login-brand">
         <span className="brand-mark" aria-hidden="true">BF</span>
         <h1 className="login-brand-title">勤怠アプリ</h1>
-        <span className="login-brand-sub">舞台ファーム</span>
+        <span className="login-brand-sub">株式会社ニナウ</span>
       </div>
       {demoMode && <QuickLogin next={next} />}
       <LoginForm next={next} />

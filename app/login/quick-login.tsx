@@ -5,7 +5,6 @@ import { useState } from "react";
 
 type DemoUser = {
   loginId: string;
-  name: string;
   roleLabel: string;
   hint: string;
   variant: "manager" | "member" | "part";
@@ -14,28 +13,24 @@ type DemoUser = {
 const DEMO_USERS: DemoUser[] = [
   {
     loginId: "takayama",
-    name: "髙山 澄人",
     roleLabel: "代表取締役",
     hint: "経営層として全体を俯瞰",
     variant: "manager",
   },
   {
     loginId: "hisa",
-    name: "比佐 京太",
     roleLabel: "課長",
     hint: "残業承認の動きを体験",
     variant: "manager",
   },
   {
     loginId: "sawano",
-    name: "澤野 大和",
     roleLabel: "現場社員",
     hint: "現場から残業申請する側",
     variant: "member",
   },
   {
     loginId: "numakura",
-    name: "沼倉 友香",
     roleLabel: "蛸と衣 社員",
     hint: "店舗運営側のメンバー",
     variant: "part",
@@ -91,7 +86,6 @@ export function QuickLogin({ next }: { next: string }) {
               aria-busy={pending === u.loginId}
             >
               <span className="quick-login-role">{u.roleLabel}</span>
-              <span className="quick-login-name">{u.name}</span>
               <span className="quick-login-hint">{u.hint}</span>
             </button>
           </li>
