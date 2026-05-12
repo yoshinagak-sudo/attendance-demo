@@ -5,23 +5,26 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import type { SessionUser } from "@/lib/session";
 
-/**
- * 右上のユーザーメニュー。
- * details/summary を使い、JS なしでも一応開閉できる。
- * クリックで遷移/ログアウトを実行するため "use client"。
- */
+const DEMO_SWITCH = [
+  { loginId: "takayama", label: "代表取締役（manager）" },
+  { loginId: "hisa", label: "課長（manager）" },
+  { loginId: "sawano", label: "現場社員（member）" },
+  { loginId: "numakura", label: "蛸と衣 社員（member）" },
+];
+
 export function UserMenu({ user }: { user: SessionUser }) {
   const router = useRouter();
   const ref = useRef<HTMLDetailsElement>(null);
   const [isPending, startTransition] = useTransition();
   const [loggingOut, setLoggingOut] = useState(false);
+  const [switching, setSwitching] = useState<string | null>(null);
   const isManager = user.role === "manager";
+  const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 
   const close = () => {
     if (ref.current) ref.current.open = false;
   };
 
-  // 外側クリックで閉じる
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
       if (!ref.current) return;
@@ -55,6 +58,34 @@ export function UserMenu({ user }: { user: SessionUser }) {
       router.replace("/login");
       router.refresh();
     });
+  };
+
+  const handleSwitch = async (loginId: string) => {
+    if (switching) return;
+    setSwitching(loginId);
+    try {
+      const res = await fetch("/api/auth/demo-login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ loginId }),
+      });
+      if (!res.ok) {
+        setSwitching(null);
+        return;
+      }
+      const data = (await res.json().catch(() => null)) as
+        | { user?: { role?: string } }
+        | null;
+      const role = data?.user?.role;
+      const target = role === "manager" ? "/admin" : "/";
+      close();
+      startTransition(() => {
+        router.replace(target);
+        router.refresh();
+      });
+    } catch {
+      setSwitching(null);
+    }
   };
 
   return (
@@ -99,6 +130,24 @@ export function UserMenu({ user }: { user: SessionUser }) {
             >
               ユーザー管理
             </Link>
+          </>
+        )}
+        {demoMode && (
+          <>
+            <div className="user-menu-divider" role="separator" aria-hidden="true" />
+            <div className="user-menu-section-label">デモ: 別の人で試す</div>
+            {DEMO_SWITCH.filter((d) => d.loginId !== user.loginId).map((d) => (
+              <button
+                key={d.loginId}
+                type="button"
+                className="user-menu-item user-menu-item-demo"
+                role="menuitem"
+                onClick={() => handleSwitch(d.loginId)}
+                disabled={!!switching}
+              >
+                {switching === d.loginId ? "切替中…" : d.label}
+              </button>
+            ))}
           </>
         )}
         <div className="user-menu-divider" role="separator" aria-hidden="true" />
