@@ -166,70 +166,95 @@ export default async function AdminOvertimeSettingsPage({
               <div>上のフォームから追加してください</div>
             </div>
           ) : (
-            <div className="table-wrap" style={{ marginTop: 8 }}>
-              <table className="table ot-site-table">
-                <thead>
-                  <tr>
-                    <th>現場名</th>
-                    <th style={{ textAlign: "right", width: 90 }}>利用回数</th>
-                    <th style={{ width: 80 }}>状態</th>
-                    <th style={{ width: 1 }} aria-label="アクション" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {workSites.map((w) => (
-                    <tr
-                      key={w.id}
-                      className={w.isActive ? undefined : "is-inactive"}
-                    >
-                      <td style={{ fontWeight: 600, color: "var(--text)" }}>
-                        {w.name}
-                      </td>
-                      <td className="num" style={{ textAlign: "right" }}>
-                        {w.usageCount}
-                      </td>
-                      <td>
+            <>
+              {/* PC: テーブル */}
+              <div className="table-wrap ot-site-table-wrap" style={{ marginTop: 8 }}>
+                <table className="table ot-site-table">
+                  <thead>
+                    <tr>
+                      <th>現場名</th>
+                      <th style={{ textAlign: "right", width: 90 }}>利用回数</th>
+                      <th style={{ width: 80 }}>状態</th>
+                      <th style={{ width: 1 }} aria-label="アクション" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {workSites.map((w) => (
+                      <tr
+                        key={w.id}
+                        className={w.isActive ? undefined : "is-inactive"}
+                      >
+                        <td className="ot-site-name-cell">{w.name}</td>
+                        <td className="num" style={{ textAlign: "right" }}>
+                          {w.usageCount}
+                        </td>
+                        <td>
+                          {w.isActive ? (
+                            <span className="ot-site-badge-active">有効</span>
+                          ) : (
+                            <span className="ot-site-badge-inactive">無効</span>
+                          )}
+                        </td>
+                        <td className="ot-row-actions-end">
+                          {w.isActive ? (
+                            <form action={deactivateWorkSite} style={{ display: "inline-flex" }}>
+                              <input type="hidden" name="id" value={w.id} />
+                              <button type="submit" className="ot-btn-ghost ot-btn-sm" style={{ color: "var(--warn)" }}>
+                                無効化
+                              </button>
+                            </form>
+                          ) : (
+                            <form action={upsertWorkSite} style={{ display: "inline-flex" }}>
+                              <input type="hidden" name="name" value={w.name} />
+                              <button type="submit" className="ot-btn-ghost ot-btn-sm">
+                                再有効化
+                              </button>
+                            </form>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* スマホ: カード一覧 */}
+              <ul className="ot-site-card-list" style={{ marginTop: 8 }}>
+                {workSites.map((w) => (
+                  <li
+                    key={w.id}
+                    className={`ot-site-card${w.isActive ? "" : " is-inactive"}`}
+                  >
+                    <div className="ot-site-card-main">
+                      <div className="ot-site-card-name">{w.name}</div>
+                      <div className="ot-site-card-meta">
+                        <span>利用 {w.usageCount} 回</span>
                         {w.isActive ? (
                           <span className="ot-site-badge-active">有効</span>
                         ) : (
                           <span className="ot-site-badge-inactive">無効</span>
                         )}
-                      </td>
-                      <td className="ot-row-actions-end">
-                        {w.isActive ? (
-                          <form
-                            action={deactivateWorkSite}
-                            style={{ display: "inline-flex" }}
-                          >
-                            <input type="hidden" name="id" value={w.id} />
-                            <button
-                              type="submit"
-                              className="ot-btn-ghost ot-btn-sm"
-                              style={{ color: "var(--warn)" }}
-                            >
-                              無効化
-                            </button>
-                          </form>
-                        ) : (
-                          <form
-                            action={upsertWorkSite}
-                            style={{ display: "inline-flex" }}
-                          >
-                            <input type="hidden" name="name" value={w.name} />
-                            <button
-                              type="submit"
-                              className="ot-btn-ghost ot-btn-sm"
-                            >
-                              再有効化
-                            </button>
-                          </form>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </div>
+                    </div>
+                    {w.isActive ? (
+                      <form action={deactivateWorkSite}>
+                        <input type="hidden" name="id" value={w.id} />
+                        <button type="submit" className="ot-btn-ghost ot-btn-sm" style={{ color: "var(--warn)" }}>
+                          無効化
+                        </button>
+                      </form>
+                    ) : (
+                      <form action={upsertWorkSite}>
+                        <input type="hidden" name="name" value={w.name} />
+                        <button type="submit" className="ot-btn-ghost ot-btn-sm">
+                          再有効化
+                        </button>
+                      </form>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </section>
         </div>
