@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { requireManager } from "@/lib/session";
 import { startOfTodayJST, formatJSTDateTime } from "@/lib/time";
 import { buildDailyStats, generateAiSummary } from "@/lib/attendance";
 import { formatDurationJa } from "@/lib/overtime";
+import { AppHeader } from "@/app/_components/AppHeader";
 import { SummaryCards } from "./summary-cards";
 import { GanttChart } from "./gantt-chart";
 import { AiSummary } from "./ai-summary";
@@ -20,6 +22,7 @@ function formatDateJP(d: Date): string {
 }
 
 export default async function AdminPage() {
+  const session = await requireManager("/admin");
   const now = new Date();
   const since = startOfTodayJST();
 
@@ -43,18 +46,20 @@ export default async function AdminPage() {
   const pendingMinutes = pendingOvertime.reduce((s, r) => s + r.durationMinutes, 0);
 
   return (
-    <main className="container-wide">
-      <header className="header">
-        <div>
-          <h1 className="title">勤怠ダッシュボード</h1>
-          <span className="subtitle">{dateLabel}</span>
-        </div>
-        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          <Link href="/overtime" className="link">残業申請</Link>
-          <Link href="/admin/overtime" className="link">承認キュー</Link>
-          <Link href="/" className="link">← 打刻画面</Link>
-        </div>
-      </header>
+    <>
+      <AppHeader user={session} />
+      <main className="container-wide">
+        <header className="header">
+          <div>
+            <h1 className="title">勤怠ダッシュボード</h1>
+            <span className="subtitle">{dateLabel}</span>
+          </div>
+          <div className="ot-admin-actions">
+            <Link href="/admin/overtime" className="link">承認キュー</Link>
+            <Link href="/admin/users" className="link">ユーザー管理</Link>
+            <Link href="/admin/settings/overtime" className="link">設定</Link>
+          </div>
+        </header>
 
       <AiSummary text={summaryText} />
 
@@ -132,7 +137,8 @@ export default async function AdminPage() {
             </table>
           </div>
         )}
-      </section>
-    </main>
+        </section>
+      </main>
+    </>
   );
 }

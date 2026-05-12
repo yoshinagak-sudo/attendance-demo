@@ -3,16 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
 
-type UserItem = {
+type RecordItem = {
   id: string;
-  name: string;
-  latest: { type: string; timestamp: string } | null;
-};
-
-type RecentItem = {
-  id: string;
-  userName: string;
-  type: string;
+  type: "IN" | "OUT";
   timestamp: string;
 };
 
@@ -54,21 +47,28 @@ function formatAgo(iso: string, now: Date): string {
   return `${hr}時間${min % 60}分前`;
 }
 
-export function PunchPanel({
-  users,
-  recent,
-  serverNow,
-}: {
-  users: UserItem[];
-  recent: RecentItem[];
+type Props = {
+  userName: string;
+  latestType: "IN" | "OUT" | null;
+  latestAt: string | null;
+  todayRecords: RecordItem[];
   serverNow: string;
-}) {
+};
+
+export function PunchPanel({
+  userName,
+  latestType,
+  latestAt,
+  todayRecords,
+  serverNow,
+}: Props) {
   const router = useRouter();
   const [now, setNow] = useState<Date>(() => new Date(serverNow));
   const [toast, setToast] = useState<Toast | null>(null);
-  const [flashingId, setFlashingId] = useState<string | null>(null);
-  const [pendingId, setPendingId] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [flashing, setFlashing] = useState(false);
+  const [punchPending, setPunchPending] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [, startTransition] = useTransition();
 
   // 毎秒時計を更新
   useEffect(() => {
@@ -85,40 +85,82 @@ export function PunchPanel({
 
   const clock = useMemo(() => formatClock(now), [now]);
 
-  const punch = async (user: UserItem) => {
-    if (pendingId || isPending) return;
-    // 最新が IN なら OUT、それ以外（未打刻 or OUT）なら IN
-    const nextType: "IN" | "OUT" = user.latest?.type === "IN" ? "OUT" : "IN";
-    setPendingId(user.id);
-    setFlashingId(user.id);
+  const isWorking = latestType === "IN";
+  const isDone = latestType === "OUT";
+
+  // 次のアクション: 出勤中なら退勤、それ以外（未打刻 / 退勤済）なら出勤
+  const nextType: "IN" | "OUT" = isWorking ? "OUT" : "IN";
+  const ctaClass = isWorking ? "punch-cta punch-cta-out" : "punch-cta punch-cta-in";
+  const ctaLabel = isWorking ? "退勤" : "出勤";
+  const ctaSub = isWorking
+    ? "タップで退勤を記録します"
+    : isDone
+      ? "再度出勤する場合はこちら"
+      : "タップで出勤を記録します";
+
+  const statusDotClass = isWorking
+    ? "punch-status-dot punch-status-dot-in"
+    : isDone
+      ? "punch-status-dot punch-status-dot-out"
+      : "punch-status-dot punch-status-dot-none";
+  const statusLabel = isWorking
+    ? "出勤中"
+    : isDone
+      ? "退勤済"
+      : "未打刻";
+  const statusTime =
+    latestAt && (isWorking || isDone)
+      ? `${formatHM(latestAt)} から`
+      : "本日まだ打刻していません";
+
+  const handlePunch = async () => {
+    if (punchPending || loggingOut) return;
+    setPunchPending(true);
+    setFlashing(true);
     try {
       const res = await fetch("/api/punch", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ userId: user.id, type: nextType }),
+        body: JSON.stringify({ type: nextType }),
       });
       if (!res.ok) {
+        if (res.status === 401) {
+          // セッション切れ → ログインへ
+          router.replace("/login?next=%2F");
+          return;
+        }
         const err = await res.json().catch(() => ({}));
         setToast({
           kind: "error",
           message: `エラー: ${err.error ?? res.status}`,
         });
-        setFlashingId(null);
+        setFlashing(false);
         return;
       }
       setToast({
         kind: "success",
-        message: `${user.name}さん ${nextType === "IN" ? "出勤" : "退勤"}しました`,
+        message: `${userName}さん ${nextType === "IN" ? "出勤" : "退勤"}しました`,
       });
-      // フラッシュが終わるのを待ってから画面を再取得
-      setTimeout(() => setFlashingId(null), 600);
+      setTimeout(() => setFlashing(false), 600);
       startTransition(() => router.refresh());
-    } catch (e) {
+    } catch {
       setToast({ kind: "error", message: "通信エラーが発生しました" });
-      setFlashingId(null);
+      setFlashing(false);
     } finally {
-      setPendingId(null);
+      setPunchPending(false);
     }
+  };
+
+  const handleHandoff = async () => {
+    if (loggingOut || punchPending) return;
+    setLoggingOut(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // 失敗しても /login に遷移
+    }
+    router.replace("/login");
+    router.refresh();
   };
 
   return (
@@ -132,61 +174,50 @@ export function PunchPanel({
         </div>
       </section>
 
-      {/* 名前ボタングリッド */}
-      <div className="punch-section-head">
-        <h2 className="punch-section-title">打刻 · タップで切替</h2>
-        <span className="punch-section-hint">未打刻→出勤 / 出勤中→退勤</span>
-      </div>
-      <section className="punch-grid" aria-label="従業員一覧">
-        {users.map((u) => {
-          const isWorking = u.latest?.type === "IN";
-          const isDone = u.latest?.type === "OUT";
-          const cls = isWorking
-            ? "punch-btn punch-btn-working"
-            : isDone
-              ? "punch-btn punch-btn-done"
-              : "punch-btn";
-          const statusText = isWorking
-            ? `${formatHM(u.latest!.timestamp)} 出勤中`
-            : isDone
-              ? `${formatHM(u.latest!.timestamp)} 退勤済`
-              : "未打刻";
-          const nextAction = isWorking ? "退勤" : "出勤";
-          return (
-            <button
-              key={u.id}
-              type="button"
-              className={cls}
-              onClick={() => punch(u)}
-              disabled={pendingId !== null || isPending}
-              aria-label={`${u.name} ${nextAction}打刻`}
-            >
-              <span className="punch-btn-name">{u.name}</span>
-              <span className="punch-btn-status">{statusText}</span>
-              {flashingId === u.id && (
-                <span className="punch-btn-flash" aria-hidden="true">
-                  ✓
-                </span>
-              )}
-            </button>
-          );
-        })}
-        {users.length === 0 && (
-          <div className="recent-empty">従業員が登録されていません</div>
-        )}
+      {/* 現在のステータス */}
+      <section className="punch-status-card" aria-label="現在のステータス">
+        <div>
+          <div className="punch-status-label">現在のステータス</div>
+          <div className="punch-status-value">
+            <span className={statusDotClass} aria-hidden="true" />
+            <span>{statusLabel}</span>
+          </div>
+        </div>
+        <div className="punch-status-time" aria-live="polite">
+          {statusTime}
+        </div>
       </section>
 
-      {/* 直近履歴 */}
-      <section className="recent" aria-label="直近の打刻">
+      {/* 巨大CTA */}
+      <div className="punch-cta-wrap">
+        <button
+          type="button"
+          className={ctaClass}
+          onClick={handlePunch}
+          disabled={punchPending || loggingOut}
+          aria-label={`${userName} ${ctaLabel}打刻`}
+        >
+          <span className="punch-cta-label">{ctaLabel}</span>
+          <span className="punch-cta-sub">{ctaSub}</span>
+          {flashing && (
+            <span className="punch-cta-flash" aria-hidden="true">
+              ✓
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* 本日の自分の打刻履歴（全件） */}
+      <section className="recent" aria-label="本日の自分の打刻履歴">
         <div className="recent-head">
-          <h2 className="recent-title">直近の打刻</h2>
-          <span className="recent-sub">最新3件</span>
+          <h2 className="recent-title">本日の打刻履歴</h2>
+          <span className="recent-sub tabular">全 {todayRecords.length} 件</span>
         </div>
-        <div className="recent-grid">
-          {recent.length === 0 ? (
-            <div className="recent-empty">本日の打刻はまだありません</div>
-          ) : (
-            recent.map((r) => (
+        {todayRecords.length === 0 ? (
+          <div className="recent-empty">本日の打刻はまだありません</div>
+        ) : (
+          <div className="punch-history-list">
+            {todayRecords.map((r) => (
               <div key={r.id} className="recent-card">
                 <div className="recent-card-head">
                   <span className="recent-ago">{formatAgo(r.timestamp, now)}</span>
@@ -198,13 +229,28 @@ export function PunchPanel({
                     {r.type === "IN" ? "出勤" : "退勤"}
                   </span>
                 </div>
-                <div className="recent-name" title={r.userName}>
-                  {r.userName}
+                <div className="recent-name tabular">
+                  {formatHM(r.timestamp)}
                 </div>
               </div>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* 「次の人に渡す（ログアウト）」 */}
+      <section className="punch-handoff" aria-label="ログアウト">
+        <button
+          type="button"
+          className="punch-handoff-btn"
+          onClick={handleHandoff}
+          disabled={loggingOut || punchPending}
+        >
+          {loggingOut ? "ログアウト中…" : "次の人に渡す（ログアウト）"}
+        </button>
+        <p className="punch-handoff-hint">
+          共有端末で別の人が使う場合はログアウトしてください
+        </p>
       </section>
 
       {toast && (

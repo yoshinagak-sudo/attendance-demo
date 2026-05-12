@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { hasAdminAccess } from "@/lib/admin-auth";
+import { requireManager } from "@/lib/session";
+import { AppHeader } from "@/app/_components/AppHeader";
 import {
   updateRegularEndTime,
   upsertWorkSite,
@@ -17,10 +17,7 @@ export default async function AdminOvertimeSettingsPage({
 }: {
   searchParams: SearchParams;
 }) {
-  if (!(await hasAdminAccess())) {
-    redirect("/admin/overtime/auth?next=/admin/settings/overtime");
-  }
-
+  const session = await requireManager("/admin/settings/overtime");
   const sp = await searchParams;
   const saved = sp.saved === "1";
   const errorMsg = sp.error;
@@ -36,24 +33,26 @@ export default async function AdminOvertimeSettingsPage({
   const activeCount = workSites.filter((w) => w.isActive).length;
 
   return (
-    <main className="container">
-      <header className="header">
-        <div>
-          <h1 className="title">残業設定</h1>
-          <span className="subtitle">所定終業時刻・現場名マスタ</span>
-        </div>
-        <div className="ot-admin-actions">
-          <Link href="/admin/overtime" className="link">
-            承認キュー
-          </Link>
-          <Link href="/admin/overtime/report" className="link">
-            月次レポート
-          </Link>
-          <Link href="/admin" className="link">
-            ← 管理
-          </Link>
-        </div>
-      </header>
+    <>
+      <AppHeader user={session} />
+      <main className="container">
+        <header className="header">
+          <div>
+            <h1 className="title">残業設定</h1>
+            <span className="subtitle">所定終業時刻・現場名マスタ</span>
+          </div>
+          <div className="ot-admin-actions">
+            <Link href="/admin/overtime" className="link">
+              承認キュー
+            </Link>
+            <Link href="/admin/overtime/report" className="link">
+              月次レポート
+            </Link>
+            <Link href="/admin" className="link">
+              ← 管理
+            </Link>
+          </div>
+        </header>
 
       {saved && (
         <div className="ot-banner ot-banner-success" role="status">
@@ -233,7 +232,8 @@ export default async function AdminOvertimeSettingsPage({
             </div>
           )}
         </section>
-      </div>
-    </main>
+        </div>
+      </main>
+    </>
   );
 }

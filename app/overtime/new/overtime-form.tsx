@@ -58,7 +58,9 @@ function isHHmm(v: string): boolean {
 }
 
 export function OvertimeForm({
-  userId,
+  // userId はサーバ側 (session) で強制上書きされるためフォームには載せない。
+  // Props 自体はキャラ確認や互換用に受け取るだけ。
+  userId: _userId,
   userName,
   defaultWorkDate,
   defaultStartTime,
@@ -387,10 +389,7 @@ export function OvertimeForm({
           </div>
 
           <div className="ot-btn-row">
-            <Link
-              href={`/overtime?actor=${encodeURIComponent(userId)}`}
-              className="ot-btn-ghost"
-            >
+            <Link href="/overtime" className="ot-btn-ghost">
               キャンセル
             </Link>
             <span className="ot-btn-row-end">
@@ -409,8 +408,7 @@ export function OvertimeForm({
 
       {step === 2 && (
         <form action={formAction} className="ot-form-card">
-          {/* hidden fields */}
-          <input type="hidden" name="userId" value={userId} />
+          {/* hidden fields（userId は Server Action 側で session から強制上書きされる） */}
           <input type="hidden" name="workDate" value={workDate} />
           <input type="hidden" name="startAt" value={computed.startIso} />
           <input type="hidden" name="endAt" value={computed.endIso} />

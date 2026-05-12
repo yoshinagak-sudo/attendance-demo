@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   approveRequestAction,
   rejectRequestAction,
@@ -14,7 +14,6 @@ import {
   type OvertimeStatus,
   type RequestType,
 } from "@/lib/overtime";
-import { REVIEWER_STORAGE_KEY } from "./reviewer-select";
 
 function statusBadgeClass(status: OvertimeStatus): string {
   switch (status) {
@@ -49,32 +48,10 @@ type Props = {
 
 type ExpandMode = null | "reject" | "send_back";
 
-/**
- * 承認キューのテーブル行群（client）。
- * - 「承認」は即時 form submit
- * - 「差戻」「却下」は同行直下に展開してコメント入力
- * - 承認者ID は localStorage / CustomEvent から取得
- */
 export function QueueRows({ rows }: Props) {
-  const [reviewerId, setReviewerId] = useState<string>("");
   const [expand, setExpand] = useState<{ id: string; mode: ExpandMode } | null>(
     null,
   );
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(REVIEWER_STORAGE_KEY);
-      if (saved) setReviewerId(saved);
-    } catch {
-      // ignore
-    }
-    function onChange(e: Event) {
-      const ce = e as CustomEvent<{ id: string }>;
-      if (ce.detail?.id) setReviewerId(ce.detail.id);
-    }
-    window.addEventListener("ot:reviewer-change", onChange);
-    return () => window.removeEventListener("ot:reviewer-change", onChange);
-  }, []);
 
   function toggle(id: string, mode: Exclude<ExpandMode, null>) {
     setExpand((prev) =>
@@ -95,7 +72,6 @@ export function QueueRows({ rows }: Props) {
             statusLabel={STATUS_LABEL[r.status]}
             requestTypeLabel={REQUEST_TYPE_LABEL[r.requestType]}
             badgeClass={statusBadgeClass(r.status)}
-            reviewerId={reviewerId}
             expanded={isExpanded ? expand.mode : null}
             onToggle={(mode) => toggle(r.id, mode)}
             onClose={() => setExpand(null)}
@@ -111,7 +87,6 @@ function RowGroup({
   statusLabel,
   requestTypeLabel,
   badgeClass,
-  reviewerId,
   expanded,
   onToggle,
   onClose,
@@ -120,7 +95,6 @@ function RowGroup({
   statusLabel: string;
   requestTypeLabel: string;
   badgeClass: string;
-  reviewerId: string;
   expanded: ExpandMode;
   onToggle: (mode: Exclude<ExpandMode, null>) => void;
   onClose: () => void;
@@ -156,7 +130,7 @@ function RowGroup({
       <td className="ot-queue-cell-actions">
         {isPending ? (
           <div className="ot-action-row-inline">
-            <ApproveButton id={row.id} reviewerId={reviewerId} />
+            <ApproveButton id={row.id} />
             <button
               type="button"
               className={
@@ -195,8 +169,6 @@ function RowGroup({
     return <>{main}</>;
   }
 
-  const isReject = expanded === "reject";
-
   return (
     <>
       {main}
@@ -204,12 +176,11 @@ function RowGroup({
         <td colSpan={9}>
           <div className="ot-review-expand-inner" id={`expand-${row.id}`}>
             <p className="ot-review-expand-title">
-              {isReject ? "却下コメント（必須）" : "差戻コメント（必須）"}
+              {expanded === "reject" ? "却下コメント（必須）" : "差戻コメント（必須）"}
             </p>
             <CommentForm
               key={`${row.id}-${expanded}`}
               id={row.id}
-              reviewerId={reviewerId}
               mode={expanded}
               onCancel={onClose}
             />
@@ -220,18 +191,11 @@ function RowGroup({
   );
 }
 
-function ApproveButton({ id, reviewerId }: { id: string; reviewerId: string }) {
-  const disabled = !reviewerId;
+function ApproveButton({ id }: { id: string }) {
   return (
     <form action={approveRequestAction}>
       <input type="hidden" name="id" value={id} />
-      <input type="hidden" name="reviewerId" value={reviewerId} />
-      <button
-        type="submit"
-        className="ot-btn-primary ot-btn-sm"
-        disabled={disabled}
-        title={disabled ? "承認者を選択してください" : undefined}
-      >
+      <button type="submit" className="ot-btn-primary ot-btn-sm">
         承認
       </button>
     </form>
@@ -240,12 +204,10 @@ function ApproveButton({ id, reviewerId }: { id: string; reviewerId: string }) {
 
 function CommentForm({
   id,
-  reviewerId,
   mode,
   onCancel,
 }: {
   id: string;
-  reviewerId: string;
   mode: Exclude<ExpandMode, null>;
   onCancel: () => void;
 }) {
@@ -253,7 +215,7 @@ function CommentForm({
   const length = codePointLength(comment);
   const overLimit = length > REVIEW_COMMENT_MAX_CHARS;
   const empty = comment.trim().length === 0;
-  const disabled = !reviewerId || empty || overLimit;
+  const disabled = empty || overLimit;
   const action = mode === "reject" ? rejectRequestAction : sendBackRequestAction;
 
   const charCountClass =
@@ -266,7 +228,6 @@ function CommentForm({
   return (
     <form action={action}>
       <input type="hidden" name="id" value={id} />
-      <input type="hidden" name="reviewerId" value={reviewerId} />
       <textarea
         name="comment"
         className="ot-textarea"
@@ -284,17 +245,8 @@ function CommentForm({
       <div className={charCountClass} aria-live="polite">
         {length} / {REVIEW_COMMENT_MAX_CHARS}
       </div>
-      {!reviewerId && (
-        <div className="ot-field-error">
-          承認者を選択してください
-        </div>
-      )}
       <div className="ot-review-expand-actions">
-        <button
-          type="button"
-          className="ot-btn-ghost"
-          onClick={onCancel}
-        >
+        <button type="button" className="ot-btn-ghost" onClick={onCancel}>
           キャンセル
         </button>
         <button

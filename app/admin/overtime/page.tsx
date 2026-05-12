@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { hasAdminAccess } from "@/lib/admin-auth";
+import { requireManager } from "@/lib/session";
 import {
   formatDurationJa,
   type OvertimeStatus,
@@ -14,7 +13,7 @@ import {
   startOfMonthJST,
   endOfMonthJST,
 } from "@/lib/time";
-import { ReviewerSelect } from "./reviewer-select";
+import { AppHeader } from "@/app/_components/AppHeader";
 import { QueueRows } from "./queue-rows";
 
 export const dynamic = "force-dynamic";
@@ -40,10 +39,7 @@ export default async function AdminOvertimePage({
 }: {
   searchParams: SearchParams;
 }) {
-  if (!(await hasAdminAccess())) {
-    redirect("/admin/overtime/auth?next=/admin/overtime");
-  }
-
+  const session = await requireManager("/admin/overtime");
   const sp = await searchParams;
   const filter = sp.status === "all" ? "all" : "pending";
   const reviewed = sp.reviewed === "1";
@@ -66,7 +62,6 @@ export default async function AdminOvertimePage({
     monthApprovedAgg,
     pendingRequests,
     allRequests,
-    managers,
   ] = await Promise.all([
     prisma.overtimeRequest.count({ where: { status: "submitted" } }),
     prisma.overtimeRequest.count({
@@ -98,10 +93,6 @@ export default async function AdminOvertimePage({
       orderBy: [{ workDate: "desc" }, { createdAt: "desc" }],
       take: 100,
     }),
-    prisma.user.findMany({
-      where: { role: "manager" },
-      orderBy: { name: "asc" },
-    }),
   ]);
 
   const monthApprovedMinutes = monthApprovedAgg._sum.durationMinutes ?? 0;
@@ -109,24 +100,26 @@ export default async function AdminOvertimePage({
   const rows = filter === "all" ? allRequests : pendingRequests;
 
   return (
-    <main className="container-wide">
-      <header className="header">
-        <div>
-          <h1 className="title">残業申請 承認キュー</h1>
-          <span className="subtitle">事前/事後申請の承認・差戻</span>
-        </div>
-        <div className="ot-admin-actions">
-          <Link href="/admin/overtime/report" className="link">
-            月次レポート
-          </Link>
-          <Link href="/admin/settings/overtime" className="link">
-            設定
-          </Link>
-          <Link href="/admin" className="link">
-            ← 管理
-          </Link>
-        </div>
-      </header>
+    <>
+      <AppHeader user={session} />
+      <main className="container-wide">
+        <header className="header">
+          <div>
+            <h1 className="title">残業申請 承認キュー</h1>
+            <span className="subtitle">事前/事後申請の承認・差戻</span>
+          </div>
+          <div className="ot-admin-actions">
+            <Link href="/admin/overtime/report" className="link">
+              月次レポート
+            </Link>
+            <Link href="/admin/settings/overtime" className="link">
+              設定
+            </Link>
+            <Link href="/admin" className="link">
+              ← 管理
+            </Link>
+          </div>
+        </header>
 
       {reviewed && (
         <div className="ot-banner ot-banner-success" role="status">
@@ -213,12 +206,6 @@ export default async function AdminOvertimePage({
         </div>
 
         <div className="ot-admin-toolbar">
-          <ReviewerSelect
-            managers={managers.map((u) => ({ id: u.id, name: u.name }))}
-          />
-
-          <div className="ot-toolbar-spacer" />
-
           <div className="ot-filter-tabs" role="tablist" aria-label="ステータスフィルタ">
             <Link
               href="/admin/overtime"
@@ -244,22 +231,6 @@ export default async function AdminOvertimePage({
             </Link>
           </div>
         </div>
-
-        {managers.length === 0 && (
-          <div className="ot-banner ot-banner-warn" role="status">
-            <span className="ot-banner-icon" aria-hidden="true">
-              !
-            </span>
-            <div className="ot-banner-body">
-              <div style={{ fontWeight: 700 }}>
-                承認者ロールのユーザーが登録されていません
-              </div>
-              <div style={{ fontSize: 12, marginTop: 2 }}>
-                User.role を <code>manager</code> に変更すると承認者として選択できます
-              </div>
-            </div>
-          </div>
-        )}
 
         {rows.length === 0 ? (
           <div className="ot-empty">
@@ -308,7 +279,8 @@ export default async function AdminOvertimePage({
             </table>
           </div>
         )}
-      </section>
-    </main>
+        </section>
+      </main>
+    </>
   );
 }

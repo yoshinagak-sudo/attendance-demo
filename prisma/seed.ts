@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaLibSQL } from "@prisma/adapter-libsql";
+import { hashPassword, randomPasswordHumanFriendly } from "../lib/password";
 
 function makePrisma(): PrismaClient {
   const url = process.env.TURSO_DATABASE_URL;
@@ -13,24 +14,24 @@ function makePrisma(): PrismaClient {
 
 const prisma = makePrisma();
 
-const USERS: { name: string; role: "member" | "manager" }[] = [
+const USERS: { name: string; loginId: string; role: "member" | "manager" }[] = [
   // ニナウ（経営層・管理職）
-  { name: "髙山 澄人", role: "manager" },
-  { name: "保志 光秀", role: "manager" },
-  { name: "武藤 飛翔", role: "manager" },
-  { name: "本郷 拓也", role: "manager" },
-  { name: "渡辺 翼", role: "manager" },
-  { name: "比佐 京太", role: "manager" },
+  { name: "髙山 澄人", loginId: "takayama", role: "manager" },
+  { name: "保志 光秀", loginId: "hoshi", role: "manager" },
+  { name: "武藤 飛翔", loginId: "mutoh", role: "manager" },
+  { name: "本郷 拓也", loginId: "hongo", role: "manager" },
+  { name: "渡辺 翼", loginId: "watanabe_tsubasa", role: "manager" },
+  { name: "比佐 京太", loginId: "hisa", role: "manager" },
   // ニナウ（社員）
-  { name: "澤野 大和", role: "member" },
-  { name: "原田 良輔", role: "member" },
-  { name: "藤巻 卓優", role: "member" },
-  { name: "渡邉 史仁", role: "member" },
+  { name: "澤野 大和", loginId: "sawano", role: "member" },
+  { name: "原田 良輔", loginId: "harada", role: "member" },
+  { name: "藤巻 卓優", loginId: "fujimaki", role: "member" },
+  { name: "渡邉 史仁", loginId: "watanabe_fumihito", role: "member" },
   // 蛸と衣
-  { name: "沼倉 友香", role: "member" },
-  { name: "森下 加奈", role: "member" },
-  { name: "岡本 みち子", role: "member" },
-  { name: "森下 陽奈", role: "member" },
+  { name: "沼倉 友香", loginId: "numakura", role: "member" },
+  { name: "森下 加奈", loginId: "morishita_kana", role: "member" },
+  { name: "岡本 みち子", loginId: "okamoto", role: "member" },
+  { name: "森下 陽奈", loginId: "morishita_hina", role: "member" },
 ];
 
 const WORK_SITES = [
@@ -47,14 +48,48 @@ const APP_SETTINGS: { key: string; value: string }[] = [
 ];
 
 async function main() {
+  const credentials: { name: string; loginId: string; password: string }[] = [];
+  const now = new Date();
+
   for (const u of USERS) {
-    await prisma.user.upsert({
-      where: { id: u.name },
-      update: { role: u.role },
-      create: { id: u.name, name: u.name, role: u.role },
-    });
+    const existing = await prisma.user.findUnique({ where: { loginId: u.loginId } });
+    if (existing?.passwordHash) {
+      // 既にパスワードが発行されている場合は role/name のみ更新（パスワード保持）
+      await prisma.user.update({
+        where: { loginId: u.loginId },
+        data: { name: u.name, role: u.role, isActive: true },
+      });
+      continue;
+    }
+
+    const password = randomPasswordHumanFriendly();
+    const passwordHash = hashPassword(password);
+
+    if (existing) {
+      await prisma.user.update({
+        where: { loginId: u.loginId },
+        data: {
+          name: u.name,
+          role: u.role,
+          passwordHash,
+          passwordUpdatedAt: now,
+          isActive: true,
+        },
+      });
+    } else {
+      await prisma.user.create({
+        data: {
+          name: u.name,
+          role: u.role,
+          loginId: u.loginId,
+          passwordHash,
+          passwordUpdatedAt: now,
+          isActive: true,
+        },
+      });
+    }
+    credentials.push({ name: u.name, loginId: u.loginId, password });
   }
-  console.log(`Seeded ${USERS.length} users (${USERS.filter((u) => u.role === "manager").length} managers)`);
 
   for (const name of WORK_SITES) {
     await prisma.workSite.upsert({
@@ -63,7 +98,6 @@ async function main() {
       create: { name },
     });
   }
-  console.log(`Seeded ${WORK_SITES.length} work sites`);
 
   for (const setting of APP_SETTINGS) {
     await prisma.appSetting.upsert({
@@ -72,7 +106,19 @@ async function main() {
       create: setting,
     });
   }
-  console.log(`Seeded ${APP_SETTINGS.length} app settings`);
+
+  console.log(`Seeded ${USERS.length} users / ${WORK_SITES.length} work sites / ${APP_SETTINGS.length} settings`);
+
+  if (credentials.length > 0) {
+    console.log("\n=== 初期パスワード（紙にコピーして配布、画面では再表示できません） ===");
+    console.log(`${"name".padEnd(14)}  ${"loginId".padEnd(20)}  password`);
+    for (const c of credentials) {
+      console.log(`${c.name.padEnd(14)}  ${c.loginId.padEnd(20)}  ${c.password}`);
+    }
+    console.log("=== ここまで ===\n");
+  } else {
+    console.log("(既存ユーザーのみ、パスワードは保持されました)");
+  }
 }
 
 main()

@@ -12,10 +12,31 @@ model User {
   id                       String            @id @default(cuid())
   name                     String
   role                     String            @default("member")
+  loginId                  String?           @unique
+  passwordHash             String?
+  passwordUpdatedAt        DateTime?
+  isActive                 Boolean           @default(true)
+  lastLoginAt              DateTime?
   createdAt                DateTime          @default(now())
   records                  TimeRecord[]
   overtimeRequests         OvertimeRequest[] @relation("Applicant")
   overtimeReviewedRequests OvertimeRequest[] @relation("Reviewer")
+  loginAttempts            LoginAttempt[]
+}
+
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  loginId   String
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  success   Boolean
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([loginId, createdAt])
+  @@index([ip, createdAt])
+  @@index([createdAt])
 }
 
 model TimeRecord {

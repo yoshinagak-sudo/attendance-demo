@@ -1,43 +1,44 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { SESSION_COOKIE_NAME, verifySessionEdge } from "@/lib/session-edge";
 
-const PUBLIC_PATHS = [
-  "/favicon.ico",
-  "/robots.txt",
-];
+const PUBLIC_PATHS = ["/login", "/favicon.ico", "/robots.txt"];
+const PUBLIC_API_PREFIXES = ["/api/auth/login", "/api/auth/logout"];
 
-export function proxy(request: NextRequest) {
+function isPublicPath(pathname: string): boolean {
+  if (PUBLIC_PATHS.includes(pathname)) return true;
+  if (pathname.startsWith("/_next")) return true;
+  for (const p of PUBLIC_API_PREFIXES) {
+    if (pathname === p || pathname.startsWith(p + "/")) return true;
+  }
+  return false;
+}
+
+export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  if (PUBLIC_PATHS.includes(pathname)) return NextResponse.next();
+  if (isPublicPath(pathname)) return NextResponse.next();
 
-  const user = process.env.BASIC_AUTH_USER;
-  const pass = process.env.BASIC_AUTH_PASS;
-  if (!user || !pass) return NextResponse.next();
+  const cookie = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  const payload = cookie ? await verifySessionEdge(cookie) : null;
 
-  const auth = request.headers.get("authorization");
-  if (auth) {
-    const [scheme, encoded] = auth.split(" ");
-    if (scheme === "Basic" && encoded) {
-      try {
-        const decoded = atob(encoded);
-        const sep = decoded.indexOf(":");
-        if (sep > 0) {
-          const u = decoded.slice(0, sep);
-          const p = decoded.slice(sep + 1);
-          if (u === user && p === pass) return NextResponse.next();
-        }
-      } catch {
-        // fall through to 401
-      }
+  if (!payload) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.search = "";
+    if (pathname !== "/") {
+      url.searchParams.set("next", pathname + request.nextUrl.search);
     }
+    return NextResponse.redirect(url);
   }
 
-  return new NextResponse("Authentication required", {
-    status: 401,
-    headers: {
-      "WWW-Authenticate": 'Basic realm="attendance-demo"',
-    },
-  });
+  if (pathname.startsWith("/admin") && payload.rl !== "manager") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {

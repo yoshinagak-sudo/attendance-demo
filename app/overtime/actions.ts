@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { hasAdminAccess } from "@/lib/admin-auth";
+import { getSession } from "@/lib/session";
 import {
   REVIEW_COMMENT_MAX_CHARS,
   codePointLength,
@@ -17,7 +17,10 @@ export type ActionResult =
   | { ok: true; id: string }
   | { ok: false; errors: ValidationErrors; formError?: string };
 
-async function persistRequest(input: CreateOvertimeInput, parentId: string | null): Promise<ActionResult> {
+async function persistRequest(
+  input: CreateOvertimeInput,
+  parentId: string | null,
+): Promise<ActionResult> {
   const validated = validateCreateOvertimeInput(input);
   if (!validated.ok) return { ok: false, errors: validated.errors };
   const v = validated.value;
@@ -62,9 +65,9 @@ async function persistRequest(input: CreateOvertimeInput, parentId: string | nul
   return { ok: true, id: created.id };
 }
 
-function readFormInput(formData: FormData): CreateOvertimeInput {
+function readFormInput(formData: FormData, userId: string): CreateOvertimeInput {
   return {
-    userId: String(formData.get("userId") ?? ""),
+    userId,
     workDate: String(formData.get("workDate") ?? ""),
     startAt: String(formData.get("startAt") ?? ""),
     endAt: String(formData.get("endAt") ?? ""),
@@ -79,7 +82,11 @@ export async function createOvertimeRequest(
   _prev: ActionResult | null,
   formData: FormData,
 ): Promise<ActionResult> {
-  const input = readFormInput(formData);
+  const session = await getSession();
+  if (!session) {
+    return { ok: false, errors: {}, formError: "ログインしてください" };
+  }
+  const input = readFormInput(formData, session.id);
   const result = await persistRequest(input, null);
   if (result.ok) {
     redirect(`/overtime/${result.id}?submitted=1`);
@@ -91,18 +98,24 @@ export async function createResubmission(
   _prev: ActionResult | null,
   formData: FormData,
 ): Promise<ActionResult> {
+  const session = await getSession();
+  if (!session) {
+    return { ok: false, errors: {}, formError: "ログインしてください" };
+  }
+
   const parentId = String(formData.get("parentId") ?? "");
   if (!parentId) return { ok: false, errors: {}, formError: "再申請対象が見つかりません" };
 
   const parent = await prisma.overtimeRequest.findUnique({ where: { id: parentId } });
   if (!parent) return { ok: false, errors: {}, formError: "元の申請が見つかりません" };
+  if (parent.userId !== session.id) {
+    return { ok: false, errors: {}, formError: "他人の申請は再申請できません" };
+  }
   if (parent.status !== "sent_back") {
     return { ok: false, errors: {}, formError: "差戻状態の申請のみ再申請できます" };
   }
 
-  const input = readFormInput(formData);
-  if (!input.userId) input.userId = parent.userId;
-
+  const input = readFormInput(formData, session.id);
   const result = await persistRequest(input, parent.id);
   if (result.ok) {
     redirect(`/overtime/${result.id}?submitted=1`);
@@ -111,19 +124,20 @@ export async function createResubmission(
 }
 
 export async function withdrawRequest(formData: FormData): Promise<void> {
+  const session = await getSession();
+  if (!session) return;
   const id = String(formData.get("id") ?? "");
-  const userId = String(formData.get("userId") ?? "");
-  if (!id || !userId) return;
+  if (!id) return;
 
   const target = await prisma.overtimeRequest.findUnique({ where: { id } });
   if (!target) return;
-  if (target.userId !== userId) return;
+  if (target.userId !== session.id) return;
   if (target.status !== "submitted") return;
 
   await prisma.overtimeRequest.delete({ where: { id } });
   revalidatePath("/overtime");
   revalidatePath("/admin/overtime");
-  redirect(`/overtime?actor=${encodeURIComponent(userId)}&withdrawn=1`);
+  redirect("/overtime?withdrawn=1");
 }
 
 export type ReviewActionResult =
@@ -136,9 +150,6 @@ async function applyReview(
   nextStatus: "approved" | "rejected" | "sent_back",
   comment: string | null,
 ): Promise<ReviewActionResult> {
-  if (!(await hasAdminAccess())) {
-    return { ok: false, error: "管理者認証が必要です" };
-  }
   if (nextStatus !== "approved" && (!comment || comment.trim().length === 0)) {
     return { ok: false, error: "コメントを入力してください" };
   }
@@ -147,7 +158,7 @@ async function applyReview(
   }
 
   const reviewer = await prisma.user.findUnique({ where: { id: reviewerId } });
-  if (!reviewer || reviewer.role !== "manager") {
+  if (!reviewer || reviewer.role !== "manager" || !reviewer.isActive) {
     return { ok: false, error: "承認権限がありません" };
   }
 
@@ -182,17 +193,23 @@ async function applyReview(
 }
 
 export async function approveRequestAction(formData: FormData): Promise<void> {
+  const session = await getSession();
+  if (!session || session.role !== "manager") {
+    redirect("/login?next=/admin/overtime");
+  }
   const id = String(formData.get("id") ?? "");
-  const reviewerId = String(formData.get("reviewerId") ?? "");
-  await applyReview(id, reviewerId, "approved", null);
+  await applyReview(id, session!.id, "approved", null);
   redirect("/admin/overtime?reviewed=1");
 }
 
 export async function rejectRequestAction(formData: FormData): Promise<void> {
+  const session = await getSession();
+  if (!session || session.role !== "manager") {
+    redirect("/login?next=/admin/overtime");
+  }
   const id = String(formData.get("id") ?? "");
-  const reviewerId = String(formData.get("reviewerId") ?? "");
   const comment = String(formData.get("comment") ?? "");
-  const result = await applyReview(id, reviewerId, "rejected", comment);
+  const result = await applyReview(id, session!.id, "rejected", comment);
   if (!result.ok) {
     redirect(`/admin/overtime?id=${id}&error=${encodeURIComponent(result.error)}`);
   }
@@ -200,10 +217,13 @@ export async function rejectRequestAction(formData: FormData): Promise<void> {
 }
 
 export async function sendBackRequestAction(formData: FormData): Promise<void> {
+  const session = await getSession();
+  if (!session || session.role !== "manager") {
+    redirect("/login?next=/admin/overtime");
+  }
   const id = String(formData.get("id") ?? "");
-  const reviewerId = String(formData.get("reviewerId") ?? "");
   const comment = String(formData.get("comment") ?? "");
-  const result = await applyReview(id, reviewerId, "sent_back", comment);
+  const result = await applyReview(id, session!.id, "sent_back", comment);
   if (!result.ok) {
     redirect(`/admin/overtime?id=${id}&error=${encodeURIComponent(result.error)}`);
   }
@@ -211,8 +231,9 @@ export async function sendBackRequestAction(formData: FormData): Promise<void> {
 }
 
 export async function updateRegularEndTime(formData: FormData): Promise<void> {
-  if (!(await hasAdminAccess())) {
-    redirect("/admin/overtime/auth?next=/admin/settings/overtime");
+  const session = await getSession();
+  if (!session || session.role !== "manager") {
+    redirect("/login?next=/admin/settings/overtime");
   }
   const value = String(formData.get("value") ?? "").trim();
   try {
@@ -231,8 +252,9 @@ export async function updateRegularEndTime(formData: FormData): Promise<void> {
 }
 
 export async function upsertWorkSite(formData: FormData): Promise<void> {
-  if (!(await hasAdminAccess())) {
-    redirect("/admin/overtime/auth?next=/admin/settings/overtime");
+  const session = await getSession();
+  if (!session || session.role !== "manager") {
+    redirect("/login?next=/admin/settings/overtime");
   }
   const name = String(formData.get("name") ?? "").trim().normalize("NFKC");
   if (name.length === 0) {
@@ -249,8 +271,9 @@ export async function upsertWorkSite(formData: FormData): Promise<void> {
 }
 
 export async function deactivateWorkSite(formData: FormData): Promise<void> {
-  if (!(await hasAdminAccess())) {
-    redirect("/admin/overtime/auth?next=/admin/settings/overtime");
+  const session = await getSession();
+  if (!session || session.role !== "manager") {
+    redirect("/login?next=/admin/settings/overtime");
   }
   const id = String(formData.get("id") ?? "");
   if (!id) return;

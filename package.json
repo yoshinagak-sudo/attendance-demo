@@ -9,8 +9,9 @@
     "dev:pm2:logs": "pm2 logs attendance-dev",
     "dev:pm2:status": "pm2 status",
     "dev:pm2:monit": "pm2 monit",
-    "build": "next build",
-    "start": "next start"
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@libsql/client": "^0.17.3",

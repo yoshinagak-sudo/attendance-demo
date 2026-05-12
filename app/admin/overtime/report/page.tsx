@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { hasAdminAccess } from "@/lib/admin-auth";
+import { requireManager } from "@/lib/session";
 import {
   buildMonthlyOvertimeRows,
   buildMonthlyTotals,
@@ -12,6 +11,7 @@ import {
   formatJSTYmd,
 } from "@/lib/time";
 import { formatDuration, formatDurationJa } from "@/lib/overtime";
+import { AppHeader } from "@/app/_components/AppHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -22,10 +22,7 @@ export default async function AdminOvertimeReportPage({
 }: {
   searchParams: SearchParams;
 }) {
-  if (!(await hasAdminAccess())) {
-    redirect("/admin/overtime/auth?next=/admin/overtime/report");
-  }
-
+  const session = await requireManager("/admin/overtime/report");
   const sp = await searchParams;
   const now = new Date();
   const todayYm = formatJSTYmd(now).slice(0, 7);
@@ -59,24 +56,26 @@ export default async function AdminOvertimeReportPage({
   const monthLabel = `${y}年${m}月`;
 
   return (
-    <main className="container-wide">
-      <header className="header">
-        <div>
-          <h1 className="title">残業 月次レポート</h1>
-          <span className="subtitle">実労働 vs 申請残業の突合</span>
-        </div>
-        <div className="ot-admin-actions">
-          <Link href="/admin/overtime" className="link">
-            承認キュー
-          </Link>
-          <Link href="/admin/settings/overtime" className="link">
-            設定
-          </Link>
-          <Link href="/admin" className="link">
-            ← 管理
-          </Link>
-        </div>
-      </header>
+    <>
+      <AppHeader user={session} />
+      <main className="container-wide">
+        <header className="header">
+          <div>
+            <h1 className="title">残業 月次レポート</h1>
+            <span className="subtitle">実労働 vs 申請残業の突合</span>
+          </div>
+          <div className="ot-admin-actions">
+            <Link href="/admin/overtime" className="link">
+              承認キュー
+            </Link>
+            <Link href="/admin/settings/overtime" className="link">
+              設定
+            </Link>
+            <Link href="/admin" className="link">
+              ← 管理
+            </Link>
+          </div>
+        </header>
 
       {/* 月切替 + CSVボタン */}
       <section
@@ -302,8 +301,9 @@ export default async function AdminOvertimeReportPage({
             </table>
           </div>
         )}
-      </section>
-    </main>
+        </section>
+      </main>
+    </>
   );
 }
 
