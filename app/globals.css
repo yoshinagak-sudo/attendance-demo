@@ -4731,3 +4731,103 @@ body {
   }
 }
 
+/* =========================================================================
+   ボトムタブバー（固定ナビゲーション）
+   - ログイン中のみ表示
+   - 4タブ（member）/ 5タブ（manager）
+   - モバイル/PC 共通で画面下部に固定
+   ========================================================================= */
+
+/* ログイン中はページ本体の下端にタブバー分の余白を確保 */
+body.has-bottom-tab-bar {
+  padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+}
+
+.bottom-tab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: repeat(var(--bottom-tab-count, 4), 1fr);
+  background: var(--surface);
+  border-top: 1px solid var(--divider);
+  box-shadow: 0 -2px 8px rgba(31, 42, 28, 0.04);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ログイン画面では非表示（client側でnullを返すが念のためCSSでも保険） */
+.bottom-tab-bar[hidden] {
+  display: none;
+}
+
+.bottom-tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 60px;
+  min-width: 0;
+  padding: 8px 4px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border-top: 2px solid transparent;
+  transition: background-color 0.12s ease, color 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-tab-item:hover {
+  background: var(--surface-hover);
+  color: var(--text-sub);
+}
+
+.bottom-tab-item:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -4px;
+}
+
+.bottom-tab-item.is-active {
+  color: var(--primary);
+  background: var(--primary-soft);
+  border-top-color: var(--primary);
+}
+
+.bottom-tab-item.is-active .bottom-tab-icon {
+  transform: translateY(-1px);
+}
+
+.bottom-tab-icon {
+  font-size: 20px;
+  line-height: 1;
+  display: inline-block;
+  transition: transform 0.12s ease;
+  filter: grayscale(0.2);
+}
+
+.bottom-tab-item.is-active .bottom-tab-icon {
+  filter: none;
+}
+
+.bottom-tab-label {
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* タブが多いとき（5タブ＝manager）の端末狭幅対策 */
+@media (max-width: 360px) {
+  .bottom-tab-icon {
+    font-size: 18px;
+  }
+  .bottom-tab-label {
+    font-size: 10px;
+  }
+}
+

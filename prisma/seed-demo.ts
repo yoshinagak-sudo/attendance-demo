@@ -264,6 +264,7 @@ async function main() {
       model: "ハイエース",
       depot: "仙台営業所",
       inspectionDueDate: inDays(120),
+      vehicleInspectionDueDate: inDays(540), // 約1年半
     },
   });
   const v2 = await prisma.vehicle.create({
@@ -271,7 +272,8 @@ async function main() {
       plate: "宮城500あ56-78",
       model: "ハイエース",
       depot: "仙台営業所",
-      inspectionDueDate: inDays(18), // 警告対象
+      inspectionDueDate: inDays(18), // 点検警告対象
+      vehicleInspectionDueDate: inDays(45), // 車検警告対象
     },
   });
   const v3 = await prisma.vehicle.create({
@@ -280,6 +282,7 @@ async function main() {
       model: "キャラバン",
       depot: "名取出張所",
       inspectionDueDate: inDays(220),
+      vehicleInspectionDueDate: inDays(28), // 車検警告対象（30日以内）
     },
   });
   const v4 = await prisma.vehicle.create({
@@ -288,6 +291,7 @@ async function main() {
       model: "軽トラ（ハイゼット）",
       depot: "仙台営業所",
       inspectionDueDate: null,
+      vehicleInspectionDueDate: inDays(380),
     },
   });
   const v5 = await prisma.vehicle.create({
@@ -296,6 +300,7 @@ async function main() {
       model: "プロボックス",
       depot: "仙台営業所",
       inspectionDueDate: inDays(60),
+      vehicleInspectionDueDate: inDays(7), // 車検警告対象・緊急
     },
   });
 

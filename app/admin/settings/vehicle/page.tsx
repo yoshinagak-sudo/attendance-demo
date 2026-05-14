@@ -70,6 +70,11 @@ export default async function AdminSettingsVehiclePage({
               <label className="ot-field-label" htmlFor="inspectionDueDate">次回点検期限（任意）</label>
               <input id="inspectionDueDate" name="inspectionDueDate" type="date" className="ot-input" />
             </div>
+            <div className="ot-field">
+              <label className="ot-field-label" htmlFor="vehicleInspectionDueDate">次回車検期限（任意）</label>
+              <input id="vehicleInspectionDueDate" name="vehicleInspectionDueDate" type="date" className="ot-input" />
+              <p className="ot-field-help">期限の30日前から警告表示します</p>
+            </div>
             <button type="submit" className="ot-btn-primary">追加</button>
           </form>
         </section>
@@ -87,6 +92,7 @@ export default async function AdminSettingsVehiclePage({
                       <th>車両</th>
                       <th>拠点</th>
                       <th>点検期限</th>
+                      <th>車検期限</th>
                       <th>状態</th>
                       <th></th>
                     </tr>
@@ -100,6 +106,7 @@ export default async function AdminSettingsVehiclePage({
                         </td>
                         <td>{v.depot}</td>
                         <td className="num">{v.inspectionDueDate ? formatJSTYmd(v.inspectionDueDate) : "—"}</td>
+                        <td className="num">{v.vehicleInspectionDueDate ? formatJSTYmd(v.vehicleInspectionDueDate) : "—"}</td>
                         <td>
                           {v.isActive ? (
                             <span className="ot-site-badge-active">有効</span>
@@ -146,6 +153,7 @@ export default async function AdminSettingsVehiclePage({
                         <span>{v.model}</span>
                         <span>{v.depot}</span>
                         {v.inspectionDueDate && <span>点検 {formatJSTYmd(v.inspectionDueDate)}</span>}
+                        {v.vehicleInspectionDueDate && <span>車検 {formatJSTYmd(v.vehicleInspectionDueDate)}</span>}
                         {v.isActive ? (
                           <span className="ot-site-badge-active">有効</span>
                         ) : (

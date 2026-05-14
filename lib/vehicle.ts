@@ -45,12 +45,14 @@ export type UpsertVehicleInput = {
   model: string;
   depot: string;
   inspectionDueDate: string | null;
+  vehicleInspectionDueDate: string | null;
 };
 export type ValidatedUpsertVehicleInput = {
   plate: string;
   model: string;
   depot: string;
   inspectionDueDate: Date | null;
+  vehicleInspectionDueDate: Date | null;
 };
 
 export function validateUpsertVehicleInput(
@@ -85,8 +87,21 @@ export function validateUpsertVehicleInput(
     }
   }
 
+  let vehicleInspectionDueDate: Date | null = null;
+  if (input.vehicleInspectionDueDate && input.vehicleInspectionDueDate.length > 0) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(input.vehicleInspectionDueDate)) {
+      errors.vehicleInspectionDueDate = "車検期限の形式が不正です";
+    } else {
+      try {
+        vehicleInspectionDueDate = parseYmdJST(input.vehicleInspectionDueDate);
+      } catch {
+        errors.vehicleInspectionDueDate = "車検期限の形式が不正です";
+      }
+    }
+  }
+
   if (Object.keys(errors).length > 0) return { ok: false, errors };
-  return { ok: true, value: { plate, model, depot, inspectionDueDate } };
+  return { ok: true, value: { plate, model, depot, inspectionDueDate, vehicleInspectionDueDate } };
 }
 
 // ===== 走行（出発）=====
@@ -317,7 +332,7 @@ export function inspectionsDueWithin(args: {
   now?: Date;
 }): { vehicle: Vehicle; daysLeft: number }[] {
   const now = (args.now ?? new Date()).getTime();
-  const windowMs = (args.windowDays ?? DEFAULT_INSPECTION_WARN_DAYS) * 24 * 60 * 60 * 1000;
+  const window = args.windowDays ?? DEFAULT_INSPECTION_WARN_DAYS;
   return args.vehicles
     .filter((v) => v.isActive && v.inspectionDueDate)
     .map((v) => {
@@ -325,10 +340,53 @@ export function inspectionsDueWithin(args: {
       const daysLeft = Math.ceil((dueMs - now) / (24 * 60 * 60 * 1000));
       return { vehicle: v, daysLeft };
     })
-    .filter((x) => x.daysLeft <= (args.windowDays ?? DEFAULT_INSPECTION_WARN_DAYS) / 1)
-    .filter((x) => x.daysLeft >= -365)
+    .filter((x) => x.daysLeft <= window && x.daysLeft >= -365)
     .sort((a, b) => a.daysLeft - b.daysLeft);
 }
+
+export function vehicleInspectionsDueWithin(args: {
+  vehicles: Vehicle[];
+  windowDays?: number;
+  now?: Date;
+}): { vehicle: Vehicle; daysLeft: number }[] {
+  const now = (args.now ?? new Date()).getTime();
+  const window = args.windowDays ?? DEFAULT_INSPECTION_WARN_DAYS;
+  return args.vehicles
+    .filter((v) => v.isActive && v.vehicleInspectionDueDate)
+    .map((v) => {
+      const dueMs = v.vehicleInspectionDueDate!.getTime();
+      const daysLeft = Math.ceil((dueMs - now) / (24 * 60 * 60 * 1000));
+      return { vehicle: v, daysLeft };
+    })
+    .filter((x) => x.daysLeft <= window && x.daysLeft >= -365)
+    .sort((a, b) => a.daysLeft - b.daysLeft);
+}
+
+export type AlertKind = "inspection" | "vehicleInspection";
+export type VehicleAlert = {
+  vehicle: Vehicle;
+  daysLeft: number;
+  kind: AlertKind;
+};
+
+export function allVehicleAlertsWithin(args: {
+  vehicles: Vehicle[];
+  windowDays?: number;
+  now?: Date;
+}): VehicleAlert[] {
+  const insp = inspectionsDueWithin(args).map(
+    (x) => ({ ...x, kind: "inspection" as const }),
+  );
+  const sha = vehicleInspectionsDueWithin(args).map(
+    (x) => ({ ...x, kind: "vehicleInspection" as const }),
+  );
+  return [...insp, ...sha].sort((a, b) => a.daysLeft - b.daysLeft);
+}
+
+export const ALERT_LABEL: Record<AlertKind, string> = {
+  inspection: "点検",
+  vehicleInspection: "車検",
+};
 
 export function formatDistanceKm(km: number | null | undefined): string {
   if (km === null || km === undefined) return "—";

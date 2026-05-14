@@ -103,21 +103,23 @@ model WorkSite {
 }
 
 model Vehicle {
-  id                String              @id @default(cuid())
-  plate             String              @unique
-  model             String
-  depot             String
-  inspectionDueDate DateTime?
-  isActive          Boolean             @default(true)
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  id                       String              @id @default(cuid())
+  plate                    String              @unique
+  model                    String
+  depot                    String
+  inspectionDueDate        DateTime?
+  vehicleInspectionDueDate DateTime?
+  isActive                 Boolean             @default(true)
+  createdAt                DateTime            @default(now())
+  updatedAt                DateTime            @updatedAt
 
-  assignments       VehicleAssignment[]
-  drivingLogs       DrivingLog[]
-  refuelingLogs     RefuelingLog[]
+  assignments              VehicleAssignment[]
+  drivingLogs              DrivingLog[]
+  refuelingLogs            RefuelingLog[]
 
   @@index([isActive])
   @@index([inspectionDueDate])
+  @@index([vehicleInspectionDueDate])
 }
 
 model VehicleAssignment {

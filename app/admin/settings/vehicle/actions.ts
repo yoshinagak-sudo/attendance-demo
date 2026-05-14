@@ -17,6 +17,7 @@ export async function upsertVehicle(formData: FormData): Promise<void> {
     model: String(formData.get("model") ?? ""),
     depot: String(formData.get("depot") ?? ""),
     inspectionDueDate: (formData.get("inspectionDueDate") as string) || null,
+    vehicleInspectionDueDate: (formData.get("vehicleInspectionDueDate") as string) || null,
   };
   const validated = validateUpsertVehicleInput(input);
   if (!validated.ok) {
@@ -32,6 +33,7 @@ export async function upsertVehicle(formData: FormData): Promise<void> {
         model: v.model,
         depot: v.depot,
         inspectionDueDate: v.inspectionDueDate,
+        vehicleInspectionDueDate: v.vehicleInspectionDueDate,
         isActive: true,
       },
     });
@@ -42,6 +44,7 @@ export async function upsertVehicle(formData: FormData): Promise<void> {
         model: v.model,
         depot: v.depot,
         inspectionDueDate: v.inspectionDueDate,
+        vehicleInspectionDueDate: v.vehicleInspectionDueDate,
       },
     });
   }

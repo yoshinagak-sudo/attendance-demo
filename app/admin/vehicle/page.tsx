@@ -5,7 +5,8 @@ import { AppHeader } from "@/app/_components/AppHeader";
 import { startOfTodayJST, formatJSTHHmm, formatJSTYmd } from "@/lib/time";
 import {
   DRIVING_STATUS_LABEL,
-  inspectionsDueWithin,
+  allVehicleAlertsWithin,
+  ALERT_LABEL,
   formatDistanceKm,
   type DrivingStatus,
 } from "@/lib/vehicle";
@@ -39,7 +40,8 @@ export default async function AdminVehiclePage() {
     }),
   ]);
 
-  const warns = inspectionsDueWithin({ vehicles });
+  const alerts = allVehicleAlertsWithin({ vehicles });
+  const hasCritical = alerts.some((a) => a.daysLeft < 0 || a.daysLeft <= 7);
 
   return (
     <>
@@ -48,7 +50,7 @@ export default async function AdminVehiclePage() {
         <header className="header">
           <div>
             <h1 className="title">車両管理</h1>
-            <span className="subtitle">{formatJSTYmd(today)}・進行中・点検期限警告</span>
+            <span className="subtitle">{formatJSTYmd(today)}・進行中・点検/車検アラート</span>
           </div>
           <div className="ot-admin-actions">
             <Link href="/admin/vehicle/report" className="link">月次レポート</Link>
@@ -57,21 +59,39 @@ export default async function AdminVehiclePage() {
           </div>
         </header>
 
-        {warns.length > 0 && (
-          <div className="ot-banner ot-banner-warn" role="alert">
+        {alerts.length > 0 && (
+          <div className={`ot-banner ${hasCritical ? "ot-banner-danger" : "ot-banner-warn"}`} role="alert">
             <span className="ot-banner-icon" aria-hidden="true">⚠</span>
             <div className="ot-banner-body">
-              <strong>点検期限が近い車両があります</strong>
+              <strong>点検・車検の期限が近い車両があります</strong>
               <ul style={{ margin: "6px 0 0", paddingLeft: 20 }}>
-                {warns.slice(0, 5).map((w) => (
-                  <li key={w.vehicle.id}>
-                    {w.vehicle.plate}（{w.vehicle.model}）
-                    {w.daysLeft < 0
-                      ? ` — ${Math.abs(w.daysLeft)}日超過`
-                      : ` — あと ${w.daysLeft} 日`}
-                  </li>
-                ))}
-                {warns.length > 5 && <li>他 {warns.length - 5} 台</li>}
+                {alerts.slice(0, 6).map((a, idx) => {
+                  const badge = a.kind === "vehicleInspection" ? "車検" : "点検";
+                  const badgeColor = a.kind === "vehicleInspection" ? "var(--danger)" : "var(--warn)";
+                  return (
+                    <li key={`${a.vehicle.id}-${a.kind}`}>
+                      <span style={{
+                        display: "inline-block",
+                        minWidth: 36,
+                        textAlign: "center",
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: "#fff",
+                        background: badgeColor,
+                        padding: "1px 6px",
+                        borderRadius: 4,
+                        marginRight: 6,
+                      }}>{badge}</span>
+                      {a.vehicle.plate}（{a.vehicle.model}）
+                      {a.daysLeft < 0
+                        ? ` — ${Math.abs(a.daysLeft)}日超過`
+                        : a.daysLeft === 0
+                          ? " — 本日が期限"
+                          : ` — あと ${a.daysLeft} 日`}
+                    </li>
+                  );
+                })}
+                {alerts.length > 6 && <li>他 {alerts.length - 6} 件</li>}
               </ul>
             </div>
           </div>

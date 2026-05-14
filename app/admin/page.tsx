@@ -4,7 +4,7 @@ import { requireManager } from "@/lib/session";
 import { startOfTodayJST, formatJSTDateTime } from "@/lib/time";
 import { buildDailyStats, generateAiSummary } from "@/lib/attendance";
 import { formatDurationJa } from "@/lib/overtime";
-import { inspectionsDueWithin } from "@/lib/vehicle";
+import { allVehicleAlertsWithin } from "@/lib/vehicle";
 import { AppHeader } from "@/app/_components/AppHeader";
 import { SummaryCards } from "./summary-cards";
 import { GanttChart } from "./gantt-chart";
@@ -49,7 +49,9 @@ export default async function AdminPage() {
   const dateLabel = formatDateJP(now);
   const pendingCount = pendingOvertime.length;
   const pendingMinutes = pendingOvertime.reduce((s, r) => s + r.durationMinutes, 0);
-  const inspectionWarns = inspectionsDueWithin({ vehicles, now });
+  const vehicleAlerts = allVehicleAlertsWithin({ vehicles, now });
+  const inspectionWarnCount = vehicleAlerts.filter((a) => a.kind === "inspection").length;
+  const vehicleInspectionWarnCount = vehicleAlerts.filter((a) => a.kind === "vehicleInspection").length;
 
   return (
     <>
@@ -96,8 +98,11 @@ export default async function AdminPage() {
           <div className="admin-quick-card-title">車両管理</div>
           <div className="admin-quick-card-body">
             <span className="num">{inProgressDriving}</span> 件 進行中
-            {inspectionWarns.length > 0 && (
-              <span className="admin-quick-card-warn">・点検期限警告 {inspectionWarns.length} 台</span>
+            {vehicleInspectionWarnCount > 0 && (
+              <span className="admin-quick-card-warn">・車検警告 {vehicleInspectionWarnCount} 台</span>
+            )}
+            {inspectionWarnCount > 0 && (
+              <span className="admin-quick-card-warn">・点検警告 {inspectionWarnCount} 台</span>
             )}
           </div>
         </Link>
