@@ -54,7 +54,23 @@ type Props = {
   latestAt: string | null;
   todayRecords: RecordItem[];
   serverNow: string;
+  isManager: boolean;
 };
+
+type ShortcutDef = {
+  href: string;
+  icon: string;
+  title: string;
+  sub: string;
+  managerOnly?: boolean;
+};
+
+const SHORTCUTS: ShortcutDef[] = [
+  { href: "/overtime", icon: "⏱", title: "残業申請", sub: "事前/事後の申請・履歴" },
+  { href: "/vehicle", icon: "🚐", title: "車両管理", sub: "車両の使用記録・点検" },
+  { href: "/report", icon: "📝", title: "日報", sub: "本日の業務報告を作成" },
+  { href: "/admin", icon: "📊", title: "管理画面", sub: "勤怠・申請の管理", managerOnly: true },
+];
 
 export function PunchPanel({
   userName,
@@ -62,6 +78,7 @@ export function PunchPanel({
   latestAt,
   todayRecords,
   serverNow: _serverNow,
+  isManager,
 }: Props) {
   const router = useRouter();
   const [now, setNow] = useState<Date | null>(null);
@@ -199,17 +216,21 @@ export function PunchPanel({
         </button>
       </div>
 
-      {/* 関連動線: 残業申請 */}
-      <div className="punch-secondary-actions">
-        <Link href="/overtime" className="punch-secondary-btn">
-          <span className="punch-secondary-icon" aria-hidden="true">＋</span>
-          <span className="punch-secondary-body">
-            <span className="punch-secondary-title">残業申請へ</span>
-            <span className="punch-secondary-sub">事前/事後の申請・履歴確認</span>
-          </span>
-          <span className="punch-secondary-arrow" aria-hidden="true">→</span>
-        </Link>
-      </div>
+      {/* 関連動線: メニューショートカット */}
+      <nav className="home-shortcuts-grid" aria-label="メニュー">
+        {SHORTCUTS.filter((s) => !s.managerOnly || isManager).map((s) => (
+          <Link key={s.href} href={s.href} className="home-shortcut-card">
+            <span className="home-shortcut-icon" aria-hidden="true">
+              {s.icon}
+            </span>
+            <span className="home-shortcut-body">
+              <span className="home-shortcut-title">{s.title}</span>
+              <span className="home-shortcut-sub">{s.sub}</span>
+            </span>
+            <span className="home-shortcut-arrow" aria-hidden="true">→</span>
+          </Link>
+        ))}
+      </nav>
 
       {/* 本日の自分の打刻履歴（全件） */}
       <section className="recent" aria-label="本日の自分の打刻履歴">
