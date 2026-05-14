@@ -19,7 +19,7 @@ export default async function TodayReportPage({
   const sp = await searchParams;
   const today = startOfTodayJST();
 
-  const [existing, sites, todayRecords, user] = await Promise.all([
+  const [existing, sites, todayRecords, user, drivingLogs] = await Promise.all([
     prisma.dailyReport.findUnique({
       where: { userId_reportDate: { userId: session.id, reportDate: today } },
       include: { items: { orderBy: { orderIndex: "asc" } } },
@@ -39,11 +39,19 @@ export default async function TodayReportPage({
       orderBy: { timestamp: "asc" },
     }),
     prisma.user.findUnique({ where: { id: session.id } }),
+    prisma.drivingLog.findMany({
+      where: {
+        userId: session.id,
+        workDate: today,
+      },
+      orderBy: { startAt: "asc" },
+    }),
   ]);
 
   let items: ItemDraft[];
   let progressNote = "";
   let status: "draft" | "submitted" | "acknowledged" = "draft";
+  let fromDriving = false;
 
   if (existing) {
     progressNote = existing.progressNote;
@@ -62,7 +70,9 @@ export default async function TodayReportPage({
       reportDate: today,
       user: user!,
       records: todayRecords,
+      drivingLogs,
     });
+    fromDriving = defaults.warnings.includes("from_driving");
     items = defaults.items.map((it, idx) => ({
       key: `init-${idx}`,
       orderIndex: idx,
@@ -90,6 +100,15 @@ export default async function TodayReportPage({
           <div className="ot-banner ot-banner-danger" role="alert">
             <span className="ot-banner-icon" aria-hidden="true">!</span>
             <div className="ot-banner-body">{sp.error}</div>
+          </div>
+        )}
+
+        {fromDriving && (
+          <div className="ot-banner ot-banner-success" role="status">
+            <span className="ot-banner-icon" aria-hidden="true">✓</span>
+            <div className="ot-banner-body">
+              本日の車両走行ログから作業アイテムを自動で取り込みました。必要に応じて編集してください。
+            </div>
           </div>
         )}
 

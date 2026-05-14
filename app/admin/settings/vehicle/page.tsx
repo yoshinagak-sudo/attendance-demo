@@ -108,6 +108,14 @@ export default async function AdminSettingsVehiclePage({
                           )}
                         </td>
                         <td className="ot-row-actions-end">
+                          <Link
+                            href={`/vehicle/qr/${v.id}`}
+                            className="ot-btn-ghost ot-btn-sm"
+                            style={{ marginRight: 4 }}
+                            target="_blank"
+                          >
+                            QR
+                          </Link>
                           {v.isActive ? (
                             <form action={deactivateVehicle} style={{ display: "inline-flex" }}>
                               <input type="hidden" name="id" value={v.id} />
@@ -145,21 +153,30 @@ export default async function AdminSettingsVehiclePage({
                         )}
                       </div>
                     </div>
-                    {v.isActive ? (
-                      <form action={deactivateVehicle}>
-                        <input type="hidden" name="id" value={v.id} />
-                        <button type="submit" className="ot-btn-ghost ot-btn-sm" style={{ color: "var(--warn)" }}>
-                          無効化
-                        </button>
-                      </form>
-                    ) : (
-                      <form action={reactivateVehicle}>
-                        <input type="hidden" name="id" value={v.id} />
-                        <button type="submit" className="ot-btn-ghost ot-btn-sm">
-                          再有効化
-                        </button>
-                      </form>
-                    )}
+                    <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+                      <Link
+                        href={`/vehicle/qr/${v.id}`}
+                        className="ot-btn-ghost ot-btn-sm"
+                        target="_blank"
+                      >
+                        QR
+                      </Link>
+                      {v.isActive ? (
+                        <form action={deactivateVehicle}>
+                          <input type="hidden" name="id" value={v.id} />
+                          <button type="submit" className="ot-btn-ghost ot-btn-sm" style={{ color: "var(--warn)" }}>
+                            無効化
+                          </button>
+                        </form>
+                      ) : (
+                        <form action={reactivateVehicle}>
+                          <input type="hidden" name="id" value={v.id} />
+                          <button type="submit" className="ot-btn-ghost ot-btn-sm">
+                            再有効化
+                          </button>
+                        </form>
+                      )}
+                    </div>
                   </li>
                 ))}
               </ul>

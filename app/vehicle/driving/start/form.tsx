@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import { startDriving, type ActionResult } from "@/app/vehicle/actions";
+import { OdometerCamera } from "@/app/vehicle/_components/OdometerCamera";
 
 const initial: ActionResult | null = null;
 
@@ -17,6 +18,7 @@ export function StartDrivingForm({
   const [state, formAction, pending] = useActionState(startDriving, initial);
   const errors = state && !state.ok ? state.errors : {};
   const formError = state && !state.ok ? state.formError : null;
+  const odoInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <form action={formAction} className="ot-form">
@@ -33,6 +35,7 @@ export function StartDrivingForm({
           出発時メーター（km）
         </label>
         <input
+          ref={odoInputRef}
           id="startOdometer"
           name="startOdometer"
           type="number"
@@ -42,6 +45,14 @@ export function StartDrivingForm({
           required
           defaultValue={initialOdometer ?? undefined}
           className="ot-input"
+        />
+        <OdometerCamera
+          onResult={(v) => {
+            if (odoInputRef.current) {
+              odoInputRef.current.value = String(v);
+              odoInputRef.current.focus();
+            }
+          }}
         />
         {errors.startOdometer && <p className="ot-field-error">{errors.startOdometer}</p>}
         {initialOdometer !== null && (

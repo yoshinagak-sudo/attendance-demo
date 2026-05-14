@@ -14,11 +14,14 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@google/genai": "^2.2.0",
     "@libsql/client": "^0.17.3",
     "@prisma/adapter-libsql": "^6.19.3",
     "@prisma/client": "^6.19.3",
+    "@types/qrcode": "^1.5.6",
     "next": "16.2.4",
     "prisma": "^6.19.3",
+    "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },

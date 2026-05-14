@@ -1,6 +1,7 @@
 import type {
   DailyReport,
   DailyReportItem,
+  DrivingLog,
   TimeRecord,
   User,
 } from "@prisma/client";
@@ -268,10 +269,35 @@ export function deriveReportDefaults(args: {
   reportDate: Date;
   user: User;
   records: TimeRecord[];
+  drivingLogs?: DrivingLog[];
 }): DeriveReportDefaultsResult {
   const warnings: string[] = [];
   const dayStart = startOfDateJST(args.reportDate).getTime();
   const dayEnd = dayStart + 30 * 60 * 60 * 1000;
+
+  // 走行ログ（completed）から作業アイテムを優先的に生成
+  // 同日・自分の・帰着済みのみ
+  const drivingItems: DeriveReportItemDefault[] = (args.drivingLogs ?? [])
+    .filter((d) => d.userId === args.user.id && d.status === "completed" && d.endAt)
+    .filter((d) => {
+      const t = d.startAt.getTime();
+      return t >= dayStart && t < dayEnd;
+    })
+    .sort((a, b) => a.startAt.getTime() - b.startAt.getTime())
+    .map((d, idx) => ({
+      orderIndex: idx,
+      startTime: formatJSTHHmm(d.startAt),
+      endTime: d.endAt ? formatJSTHHmm(d.endAt) : "",
+      description: d.purpose,
+      workSiteName: d.workSiteName,
+      workSiteId: d.workSiteId,
+    }));
+
+  if (drivingItems.length > 0) {
+    return { items: drivingItems, warnings: ["from_driving"] };
+  }
+
+  // 走行ログ無し → 打刻セッションから雛形（時刻のみ）
   const dayRecords = args.records.filter((r) => {
     const t = r.timestamp.getTime();
     return t >= dayStart && t < dayEnd && r.userId === args.user.id;

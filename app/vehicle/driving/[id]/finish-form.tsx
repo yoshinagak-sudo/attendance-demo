@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import { finishDriving, type ActionResult } from "@/app/vehicle/actions";
+import { OdometerCamera } from "@/app/vehicle/_components/OdometerCamera";
 
 const initial: ActionResult | null = null;
 
@@ -15,6 +16,7 @@ export function FinishDrivingForm({
   const [state, formAction, pending] = useActionState(finishDriving, initial);
   const errors = state && !state.ok ? state.errors : {};
   const formError = state && !state.ok ? state.formError : null;
+  const odoInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <form action={formAction} className="ot-form">
@@ -31,6 +33,7 @@ export function FinishDrivingForm({
           帰着時メーター（km）
         </label>
         <input
+          ref={odoInputRef}
           id="endOdometer"
           name="endOdometer"
           type="number"
@@ -39,6 +42,14 @@ export function FinishDrivingForm({
           step={1}
           required
           className="ot-input"
+        />
+        <OdometerCamera
+          onResult={(v) => {
+            if (odoInputRef.current) {
+              odoInputRef.current.value = String(v);
+              odoInputRef.current.focus();
+            }
+          }}
         />
         <p className="ot-field-help">
           出発時: <strong className="num">{startOdometer.toLocaleString()}</strong> km 以上を入力

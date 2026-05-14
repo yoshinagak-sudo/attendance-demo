@@ -4581,3 +4581,35 @@ body {
 .dr-badge-acknowledged::before {
   background: #fff;
 }
+
+/* === メーターOCR === */
+.vh-ocr-block {
+  margin-top: 8px;
+}
+.vh-ocr-btn {
+  font-size: 13px;
+  padding: 10px 14px;
+  min-height: 44px;
+}
+.vh-ocr-msg {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+.vh-ocr-msg-uploading {
+  color: var(--muted);
+  background: var(--surface-alt);
+}
+.vh-ocr-msg-success {
+  color: var(--primary-hover);
+  background: var(--primary-soft);
+  border: 1px solid var(--primary);
+}
+.vh-ocr-msg-error {
+  color: var(--danger);
+  background: var(--danger-bg, #fee2e2);
+  border: 1px solid var(--danger);
+}
+
