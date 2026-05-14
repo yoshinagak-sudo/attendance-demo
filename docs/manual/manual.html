@@ -811,9 +811,75 @@
   <div class="screenshot-caption">日報 月次サマリ（社員別・現場別）</div>
 </section>
 
-<!-- ============== 13. FAQ ============== -->
+<!-- ============== 13. 入力負担を減らす工夫 ============== -->
+<section class="page">
+  <h1 class="section-title"><span class="num">13</span>入力負担を減らす3つの工夫</h1>
+
+  <p class="lead">
+    現場社員は両手で作業しています。少しでも「アプリの操作」に取られる時間を減らすため、
+    車両管理・日報まわりに3つのショートカットを用意しました。
+  </p>
+
+  <h2>① 車両QRコードでワンタッチ割当</h2>
+  <div class="two-col">
+    <div>
+      <p>
+        各車両のキーケースやダッシュボードに専用QRコードを貼り付け、
+        スマホでスキャンするだけで自動的に「この車両を使う」画面に遷移します。
+        ログイン中ならその場で割当完了。
+      </p>
+      <ol class="steps">
+        <li>管理画面 → 「車両マスタ」 → 各行の「QR」ボタンで印刷用ページを開く</li>
+        <li>A6サイズで印刷、車両にラミネートして貼付</li>
+        <li>社員はカメラアプリでQRをスキャン → そのまま割当画面へ</li>
+      </ol>
+    </div>
+    <div>
+      <img src="screenshots/23-vehicle-qr.png" alt="QRコード印刷" class="screenshot">
+      <div class="screenshot-caption">車両ごとのQRコード印刷ページ</div>
+    </div>
+  </div>
+
+  <h2>② メーター撮影で自動入力（AI画像認識）</h2>
+  <div class="two-col">
+    <div>
+      <p>
+        出発・帰着時のメーター入力欄に「<strong>📷 メーターを撮影</strong>」ボタンを配置。
+        スマホのカメラでメーターを撮影すると、Google Gemini Vision AIが
+        積算走行距離(ODO)を自動で読み取って入力欄に反映します。
+      </p>
+      <ul style="margin: 6px 0 6px 18px; font-size: 9.5pt;">
+        <li>確信度（高/中/低）を表示。低い場合は手入力を案内</li>
+        <li>手袋を外さずに撮影だけで完結</li>
+        <li>誤入力（5桁目を打ち忘れ等）の防止に有効</li>
+      </ul>
+      <div class="note">
+        <strong>注：</strong>暗所・反射・極端な斜め撮影では読み取れない場合があります。
+        その場合は従来通り手入力できます。
+      </div>
+    </div>
+    <div>
+      <img src="screenshots/24-vehicle-driving-start-ocr.png" alt="OCRボタン" class="screenshot">
+      <div class="screenshot-caption">出発登録画面のOCR撮影ボタン</div>
+    </div>
+  </div>
+
+  <h2>③ 車両走行ログから日報を自動下書き</h2>
+  <p>
+    日報の作成画面を開くと、当日の車両走行ログ（出発・帰着）から作業アイテムが自動で雛形化されます。
+    現場名・目的・時刻が既に入った状態でフォームが開くので、社員は「作業内容の一言」を足すだけ。
+    <strong>1日3〜4現場を回る業態でも、日報作成は1〜2分</strong>で完了します。
+  </p>
+  <ul style="margin: 6px 0 6px 18px; font-size: 9.5pt;">
+    <li>走行ログがない日は、打刻からの時刻のみが自動入力されます</li>
+    <li>自動入力後に編集・追加・削除は自由</li>
+    <li>「車両走行から取り込みました」バナーで成功表示</li>
+  </ul>
+</section>
+
+<!-- ============== 14. FAQ ============== -->
 <section class="page faq">
-  <h1 class="section-title"><span class="num">13</span>よくある質問</h1>
+  <h1 class="section-title"><span class="num">14</span>よくある質問</h1>
 
   <dl class="faq-list">
     <dt>Q. スマホ以外でも使えますか？</dt>
