@@ -63,7 +63,7 @@ export default async function Home() {
           latestAt={latestAt}
           todayRecords={todayRecords}
           serverNow={serverNow}
-          isManager={session.role === "manager"}
+          isManager={false}
           vehicleStatus={vehicleStatus}
         />
       </main>
