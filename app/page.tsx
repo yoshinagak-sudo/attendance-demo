@@ -12,6 +12,9 @@ export default async function Home() {
   if (!session) {
     redirect("/login");
   }
+  if (session.role === "manager") {
+    redirect("/admin");
+  }
 
   const since = startOfTodayJST();
   const [records, inProgressDriving] = await Promise.all([
