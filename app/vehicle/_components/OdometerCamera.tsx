@@ -1,5 +1,6 @@
 "use client";
 
+import { Camera } from "lucide-react";
 import { useRef, useState } from "react";
 
 type Status = "idle" | "uploading" | "success" | "error";
@@ -66,7 +67,21 @@ export function OdometerCamera({
         onClick={handleClick}
         disabled={status === "uploading"}
       >
-        {status === "uploading" ? "解析中…" : "📷 メーターを撮影して自動入力"}
+        {status === "uploading" ? (
+          "解析中…"
+        ) : (
+          <>
+            <Camera
+              width={16}
+              height={16}
+              strokeWidth={1.9}
+              aria-hidden="true"
+              focusable="false"
+              style={{ verticalAlign: "-3px", marginRight: 6 }}
+            />
+            メーターを撮影して自動入力
+          </>
+        )}
       </button>
       <input
         ref={inputRef}
