@@ -2,13 +2,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { ComponentType, SVGProps } from "react";
+import {
+  HomeIcon,
+  OvertimeIcon,
+  VehicleIcon,
+  ReportIcon,
+  AdminIcon,
+} from "./icons";
 
 type Role = "member" | "manager";
+
+/** lucide-react のアイコンコンポーネントが受け取れる props 型 */
+type LucideIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
 type Tab = {
   href: string;
   label: string;
-  icon: string;
+  Icon: LucideIcon;
   /** active 判定: 完全一致のみで判定するか（"/" 用） */
   exact?: boolean;
   /** manager のみに表示するタブ */
@@ -16,11 +27,11 @@ type Tab = {
 };
 
 const TABS: Tab[] = [
-  { href: "/", label: "ホーム", icon: "🏠", exact: true },
-  { href: "/overtime", label: "残業", icon: "⏱" },
-  { href: "/vehicle", label: "車両", icon: "🚐" },
-  { href: "/report", label: "日報", icon: "📝" },
-  { href: "/admin", label: "管理", icon: "📊", managerOnly: true },
+  { href: "/", label: "ホーム", Icon: HomeIcon, exact: true },
+  { href: "/overtime", label: "残業", Icon: OvertimeIcon },
+  { href: "/vehicle", label: "車両", Icon: VehicleIcon },
+  { href: "/report", label: "日報", Icon: ReportIcon },
+  { href: "/admin", label: "管理", Icon: AdminIcon, managerOnly: true },
 ];
 
 function isActive(pathname: string, tab: Tab): boolean {
@@ -47,6 +58,7 @@ export function BottomTabBar({ role }: { role: Role }) {
     >
       {visible.map((tab) => {
         const active = isActive(pathname, tab);
+        const Icon = tab.Icon;
         return (
           <Link
             key={tab.href}
@@ -55,7 +67,13 @@ export function BottomTabBar({ role }: { role: Role }) {
             aria-current={active ? "page" : undefined}
           >
             <span className="bottom-tab-icon" aria-hidden="true">
-              {tab.icon}
+              <Icon
+                width={22}
+                height={22}
+                strokeWidth={active ? 2.25 : 1.75}
+                aria-hidden="true"
+                focusable="false"
+              />
             </span>
             <span className="bottom-tab-label">{tab.label}</span>
           </Link>

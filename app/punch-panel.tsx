@@ -2,7 +2,22 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+  type ComponentType,
+  type SVGProps,
+} from "react";
+import {
+  OvertimeIcon,
+  VehicleIcon,
+  ReportIcon,
+  AdminIcon,
+} from "./_components/icons";
+
+type LucideIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
 type RecordItem = {
   id: string;
@@ -59,17 +74,17 @@ type Props = {
 
 type ShortcutDef = {
   href: string;
-  icon: string;
+  Icon: LucideIcon;
   title: string;
   sub: string;
   managerOnly?: boolean;
 };
 
 const SHORTCUTS: ShortcutDef[] = [
-  { href: "/overtime", icon: "⏱", title: "残業申請", sub: "事前/事後の申請・履歴" },
-  { href: "/vehicle", icon: "🚐", title: "車両管理", sub: "車両の使用記録・点検" },
-  { href: "/report", icon: "📝", title: "日報", sub: "本日の業務報告を作成" },
-  { href: "/admin", icon: "📊", title: "管理画面", sub: "勤怠・申請の管理", managerOnly: true },
+  { href: "/overtime", Icon: OvertimeIcon, title: "残業申請", sub: "事前/事後の申請・履歴" },
+  { href: "/vehicle", Icon: VehicleIcon, title: "車両管理", sub: "車両の使用記録・点検" },
+  { href: "/report", Icon: ReportIcon, title: "日報", sub: "本日の業務報告を作成" },
+  { href: "/admin", Icon: AdminIcon, title: "管理画面", sub: "勤怠・申請の管理", managerOnly: true },
 ];
 
 export function PunchPanel({
@@ -218,18 +233,27 @@ export function PunchPanel({
 
       {/* 関連動線: メニューショートカット */}
       <nav className="home-shortcuts-grid" aria-label="メニュー">
-        {SHORTCUTS.filter((s) => !s.managerOnly || isManager).map((s) => (
-          <Link key={s.href} href={s.href} className="home-shortcut-card">
-            <span className="home-shortcut-icon" aria-hidden="true">
-              {s.icon}
-            </span>
-            <span className="home-shortcut-body">
-              <span className="home-shortcut-title">{s.title}</span>
-              <span className="home-shortcut-sub">{s.sub}</span>
-            </span>
-            <span className="home-shortcut-arrow" aria-hidden="true">→</span>
-          </Link>
-        ))}
+        {SHORTCUTS.filter((s) => !s.managerOnly || isManager).map((s) => {
+          const Icon = s.Icon;
+          return (
+            <Link key={s.href} href={s.href} className="home-shortcut-card">
+              <span className="home-shortcut-icon" aria-hidden="true">
+                <Icon
+                  width={20}
+                  height={20}
+                  strokeWidth={1.9}
+                  aria-hidden="true"
+                  focusable="false"
+                />
+              </span>
+              <span className="home-shortcut-body">
+                <span className="home-shortcut-title">{s.title}</span>
+                <span className="home-shortcut-sub">{s.sub}</span>
+              </span>
+              <span className="home-shortcut-arrow" aria-hidden="true">→</span>
+            </Link>
+          );
+        })}
       </nav>
 
       {/* 本日の自分の打刻履歴（全件） */}

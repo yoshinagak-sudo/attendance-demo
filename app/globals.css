@@ -4653,11 +4653,17 @@ body {
   height: 40px;
   border-radius: 50%;
   background: var(--primary-soft);
+  color: var(--primary);
   display: grid;
   place-items: center;
-  font-size: 20px;
   line-height: 1;
   flex-shrink: 0;
+}
+.home-shortcut-icon > svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
 }
 .home-shortcut-body {
   min-width: 0;
@@ -4711,7 +4717,10 @@ body {
   .home-shortcut-icon {
     width: 36px;
     height: 36px;
-    font-size: 18px;
+  }
+  .home-shortcut-icon > svg {
+    width: 18px;
+    height: 18px;
   }
   .home-shortcut-title {
     font-size: 14px;
@@ -4802,15 +4811,21 @@ body.has-bottom-tab-bar {
 }
 
 .bottom-tab-icon {
-  font-size: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
   line-height: 1;
-  display: inline-block;
+  color: currentColor;
   transition: transform 0.12s ease;
-  filter: grayscale(0.2);
 }
 
-.bottom-tab-item.is-active .bottom-tab-icon {
-  filter: none;
+.bottom-tab-icon > svg {
+  display: block;
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
 }
 
 .bottom-tab-label {
@@ -4824,7 +4839,12 @@ body.has-bottom-tab-bar {
 /* タブが多いとき（5タブ＝manager）の端末狭幅対策 */
 @media (max-width: 360px) {
   .bottom-tab-icon {
-    font-size: 18px;
+    width: 22px;
+    height: 22px;
+  }
+  .bottom-tab-icon > svg {
+    width: 20px;
+    height: 20px;
   }
   .bottom-tab-label {
     font-size: 10px;
