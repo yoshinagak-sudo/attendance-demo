@@ -4851,3 +4851,184 @@ body.has-bottom-tab-bar {
   }
 }
 
+/* =========================================================================
+   ホーム: 自分の車両ステータスカード
+   - CTAより目立たず、ショートカットより先に視界に入る中間階層
+   - driving: 強調（primary-soft 背景 + primary 左3pxボーダー）
+   - assigned: 控えめ（surface 背景 + primary 左3pxボーダー、ショートカット相当）
+   ========================================================================= */
+.home-vehicle-card {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  margin: 8px 0 16px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--primary);
+  background: var(--surface);
+}
+.home-vehicle-card-driving {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  border-left-color: var(--primary);
+}
+.home-vehicle-card-assigned {
+  background: var(--surface);
+}
+
+.home-vehicle-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--primary-hover);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+.home-vehicle-card-driving .home-vehicle-icon {
+  background: #fff;
+  border-color: var(--primary);
+}
+.home-vehicle-icon > svg {
+  display: block;
+  stroke: currentColor;
+}
+
+.home-vehicle-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.home-vehicle-badge {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--primary);
+  color: #fff;
+  line-height: 1.4;
+}
+.home-vehicle-badge-soft {
+  background: var(--primary-soft);
+  color: var(--primary-hover);
+  border: 1px solid var(--primary);
+}
+.home-vehicle-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.home-vehicle-card-driving .home-vehicle-title {
+  color: var(--primary-hover);
+}
+.home-vehicle-meta {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.home-vehicle-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.home-vehicle-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: var(--r-md);
+  background: var(--primary);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  border: 1px solid var(--primary);
+  transition: background 0.12s, border-color 0.12s, transform 0.05s;
+  white-space: nowrap;
+}
+.home-vehicle-cta:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+.home-vehicle-cta:active {
+  transform: translateY(1px);
+}
+.home-vehicle-cta:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.home-vehicle-sublink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary-hover);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.home-vehicle-sublink:hover {
+  color: var(--text);
+}
+.home-vehicle-sublink:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+/* スマホ: アクションを下段にスタック、CTA はカード幅いっぱい */
+@media (max-width: 640px) {
+  .home-vehicle-card {
+    grid-template-columns: 40px 1fr;
+    grid-template-areas:
+      "icon main"
+      "actions actions";
+    gap: 12px 12px;
+    padding: 14px;
+  }
+  .home-vehicle-icon {
+    grid-area: icon;
+    width: 40px;
+    height: 40px;
+  }
+  .home-vehicle-icon > svg {
+    width: 20px;
+    height: 20px;
+  }
+  .home-vehicle-main {
+    grid-area: main;
+  }
+  .home-vehicle-actions {
+    grid-area: actions;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+  }
+  .home-vehicle-cta {
+    flex: 1;
+    min-height: 48px;
+  }
+  .home-vehicle-title {
+    font-size: 14px;
+  }
+}
+

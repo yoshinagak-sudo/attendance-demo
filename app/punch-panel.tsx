@@ -63,6 +63,37 @@ function formatAgo(iso: string, now: Date): string {
   return `${hr}時間${min % 60}分前`;
 }
 
+// 「経過 N時間NN分」表記（1分未満は「経過 1分未満」）
+function formatElapsed(iso: string, now: Date): string {
+  const diff = Math.max(0, now.getTime() - new Date(iso).getTime());
+  const totalMin = Math.floor(diff / 60000);
+  if (totalMin < 1) return "経過 1分未満";
+  const hr = Math.floor(totalMin / 60);
+  const min = totalMin % 60;
+  if (hr === 0) return `経過 ${min}分`;
+  return `経過 ${hr}時間${String(min).padStart(2, "0")}分`;
+}
+
+export type VehicleStatus =
+  | {
+      kind: "driving";
+      drivingLogId: string;
+      vehicleId: string;
+      plate: string;
+      model: string;
+      purpose: string;
+      workSiteName: string;
+      startAt: string;
+      startOdometer: number;
+    }
+  | {
+      kind: "assigned";
+      assignmentId: string;
+      vehicleId: string;
+      plate: string;
+      model: string;
+    };
+
 type Props = {
   userName: string;
   latestType: "IN" | "OUT" | null;
@@ -70,6 +101,7 @@ type Props = {
   todayRecords: RecordItem[];
   serverNow: string;
   isManager: boolean;
+  vehicleStatus: VehicleStatus | null;
 };
 
 type ShortcutDef = {
@@ -94,6 +126,7 @@ export function PunchPanel({
   todayRecords,
   serverNow: _serverNow,
   isManager,
+  vehicleStatus,
 }: Props) {
   const router = useRouter();
   const [now, setNow] = useState<Date | null>(null);
@@ -230,6 +263,84 @@ export function PunchPanel({
           )}
         </button>
       </div>
+
+      {/* 自分の車両ステータス（運行中 / 担当のみ）。該当なしの場合は描画しない */}
+      {vehicleStatus && (
+        <section
+          className={
+            vehicleStatus.kind === "driving"
+              ? "home-vehicle-card home-vehicle-card-driving"
+              : "home-vehicle-card home-vehicle-card-assigned"
+          }
+          aria-label="自分の車両ステータス"
+        >
+          <span className="home-vehicle-icon" aria-hidden="true">
+            <VehicleIcon
+              width={22}
+              height={22}
+              strokeWidth={1.9}
+              aria-hidden="true"
+              focusable="false"
+            />
+          </span>
+
+          <div className="home-vehicle-main">
+            {vehicleStatus.kind === "driving" ? (
+              <>
+                <div className="home-vehicle-badge">運行中</div>
+                <div className="home-vehicle-title">
+                  {vehicleStatus.plate}（{vehicleStatus.model}）で運行中
+                </div>
+                <div className="home-vehicle-meta">
+                  {vehicleStatus.workSiteName}・{vehicleStatus.purpose}
+                </div>
+                <div
+                  className="home-vehicle-meta tabular"
+                  suppressHydrationWarning
+                >
+                  {formatHM(vehicleStatus.startAt)} 出発
+                  {now ? ` ・ ${formatElapsed(vehicleStatus.startAt, now)}` : ""}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="home-vehicle-badge home-vehicle-badge-soft">
+                  本日担当
+                </div>
+                <div className="home-vehicle-title">
+                  {vehicleStatus.plate}（{vehicleStatus.model}）を本日担当
+                </div>
+                <div className="home-vehicle-meta">
+                  まだ出発登録していません
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="home-vehicle-actions">
+            {vehicleStatus.kind === "driving" ? (
+              <>
+                <Link
+                  href={`/vehicle/driving/${vehicleStatus.drivingLogId}`}
+                  className="home-vehicle-cta"
+                >
+                  帰着を登録する
+                </Link>
+                <Link href="/vehicle" className="home-vehicle-sublink">
+                  車両管理を開く
+                </Link>
+              </>
+            ) : (
+              <Link
+                href={`/vehicle/driving/start?vehicleId=${vehicleStatus.vehicleId}`}
+                className="home-vehicle-cta"
+              >
+                出発を登録する
+              </Link>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* 関連動線: メニューショートカット */}
       <nav className="home-shortcuts-grid" aria-label="メニュー">

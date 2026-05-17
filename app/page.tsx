@@ -14,10 +14,21 @@ export default async function Home() {
   }
 
   const since = startOfTodayJST();
-  const records = await prisma.timeRecord.findMany({
-    where: { userId: session.id, timestamp: { gte: since } },
-    orderBy: { timestamp: "desc" },
-  });
+  const [records, activeAssignment, inProgressDriving] = await Promise.all([
+    prisma.timeRecord.findMany({
+      where: { userId: session.id, timestamp: { gte: since } },
+      orderBy: { timestamp: "desc" },
+    }),
+    prisma.vehicleAssignment.findFirst({
+      where: { userId: session.id, releasedAt: null, assignDate: since },
+      include: { vehicle: true },
+    }),
+    prisma.drivingLog.findFirst({
+      where: { userId: session.id, status: "in_progress" },
+      include: { vehicle: true },
+      orderBy: { startAt: "desc" },
+    }),
+  ]);
 
   const todayRecords = records.map((r) => ({
     id: r.id,
@@ -28,6 +39,28 @@ export default async function Home() {
   const latestType = (records[0]?.type as "IN" | "OUT" | undefined) ?? null;
   const latestAt = records[0]?.timestamp.toISOString() ?? null;
   const serverNow = new Date().toISOString();
+
+  const vehicleStatus = inProgressDriving
+    ? {
+        kind: "driving" as const,
+        drivingLogId: inProgressDriving.id,
+        vehicleId: inProgressDriving.vehicleId,
+        plate: inProgressDriving.vehicle.plate,
+        model: inProgressDriving.vehicle.model,
+        purpose: inProgressDriving.purpose,
+        workSiteName: inProgressDriving.workSiteName,
+        startAt: inProgressDriving.startAt.toISOString(),
+        startOdometer: inProgressDriving.startOdometer,
+      }
+    : activeAssignment
+      ? {
+          kind: "assigned" as const,
+          assignmentId: activeAssignment.id,
+          vehicleId: activeAssignment.vehicleId,
+          plate: activeAssignment.vehicle.plate,
+          model: activeAssignment.vehicle.model,
+        }
+      : null;
 
   return (
     <>
@@ -40,6 +73,7 @@ export default async function Home() {
           todayRecords={todayRecords}
           serverNow={serverNow}
           isManager={session.role === "manager"}
+          vehicleStatus={vehicleStatus}
         />
       </main>
     </>
