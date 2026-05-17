@@ -18,24 +18,35 @@ export default async function StartDrivingPage({
   const sp = await searchParams;
   const today = startOfTodayJST();
 
-  const myAssignment = await prisma.vehicleAssignment.findFirst({
-    where: { userId: session.id, releasedAt: null, assignDate: today },
-    include: { vehicle: true },
-  });
+  const [vehicles, sites] = await Promise.all([
+    prisma.vehicle.findMany({
+      where: { isActive: true },
+      orderBy: [{ plate: "asc" }],
+    }),
+    prisma.workSite.findMany({
+      where: { isActive: true },
+      orderBy: [{ usageCount: "desc" }, { name: "asc" }],
+    }),
+  ]);
 
-  const sites = await prisma.workSite.findMany({
-    where: { isActive: true },
-    orderBy: [{ usageCount: "desc" }, { name: "asc" }],
+  // 各車両の前回帰着メーター（出発時の初期値候補）
+  const lastLogs = await prisma.drivingLog.findMany({
+    where: { status: "completed", vehicleId: { in: vehicles.map((v) => v.id) } },
+    orderBy: { endAt: "desc" },
+    take: 50,
   });
+  const lastOdoByVehicle: Record<string, number> = {};
+  for (const log of lastLogs) {
+    if (lastOdoByVehicle[log.vehicleId] === undefined && log.endOdometer !== null) {
+      lastOdoByVehicle[log.vehicleId] = log.endOdometer;
+    }
+  }
 
-  const lastLog = myAssignment
-    ? await prisma.drivingLog.findFirst({
-        where: { vehicleId: myAssignment.vehicleId, status: "completed" },
-        orderBy: { endAt: "desc" },
-      })
+  const preselectedVehicleId = sp.vehicleId && vehicles.some((v) => v.id === sp.vehicleId)
+    ? sp.vehicleId
     : null;
 
-  if (!myAssignment) {
+  if (vehicles.length === 0) {
     return (
       <>
         <AppHeader user={session} />
@@ -48,14 +59,12 @@ export default async function StartDrivingPage({
             <Link href="/vehicle" className="link">← 戻る</Link>
           </header>
           <div className="ot-banner ot-banner-warn">
-            <div className="ot-banner-body">先に「車両管理」から車両を割り当ててください</div>
+            <div className="ot-banner-body">利用可能な車両が登録されていません</div>
           </div>
         </main>
       </>
     );
   }
-
-  const initialOdometer = lastLog?.endOdometer ?? null;
 
   return (
     <>
@@ -64,17 +73,20 @@ export default async function StartDrivingPage({
         <header className="header">
           <div>
             <h1 className="title">出発登録</h1>
-            <span className="subtitle">
-              {myAssignment.vehicle.plate} ・ {myAssignment.vehicle.model}
-            </span>
+            <span className="subtitle">{formatJSTYmd(today)}</span>
           </div>
           <Link href="/vehicle" className="link">← 戻る</Link>
         </header>
 
         <StartDrivingForm
-          vehicleId={myAssignment.vehicleId}
+          vehicles={vehicles.map((v) => ({
+            id: v.id,
+            plate: v.plate,
+            model: v.model,
+            lastOdometer: lastOdoByVehicle[v.id] ?? null,
+          }))}
+          preselectedVehicleId={preselectedVehicleId}
           sites={sites.map((s) => ({ id: s.id, name: s.name }))}
-          initialOdometer={initialOdometer}
         />
       </main>
     </>

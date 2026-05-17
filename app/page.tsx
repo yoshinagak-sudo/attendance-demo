@@ -14,14 +14,10 @@ export default async function Home() {
   }
 
   const since = startOfTodayJST();
-  const [records, activeAssignment, inProgressDriving] = await Promise.all([
+  const [records, inProgressDriving] = await Promise.all([
     prisma.timeRecord.findMany({
       where: { userId: session.id, timestamp: { gte: since } },
       orderBy: { timestamp: "desc" },
-    }),
-    prisma.vehicleAssignment.findFirst({
-      where: { userId: session.id, releasedAt: null, assignDate: since },
-      include: { vehicle: true },
     }),
     prisma.drivingLog.findFirst({
       where: { userId: session.id, status: "in_progress" },
@@ -52,15 +48,7 @@ export default async function Home() {
         startAt: inProgressDriving.startAt.toISOString(),
         startOdometer: inProgressDriving.startOdometer,
       }
-    : activeAssignment
-      ? {
-          kind: "assigned" as const,
-          assignmentId: activeAssignment.id,
-          vehicleId: activeAssignment.vehicleId,
-          plate: activeAssignment.vehicle.plate,
-          model: activeAssignment.vehicle.model,
-        }
-      : null;
+    : null;
 
   return (
     <>

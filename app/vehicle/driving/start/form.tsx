@@ -1,34 +1,73 @@
 "use client";
 
-import { useActionState, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { startDriving, type ActionResult } from "@/app/vehicle/actions";
 import { OdometerCamera } from "@/app/vehicle/_components/OdometerCamera";
 
 const initial: ActionResult | null = null;
 
+type VehicleOption = {
+  id: string;
+  plate: string;
+  model: string;
+  lastOdometer: number | null;
+};
+
 export function StartDrivingForm({
-  vehicleId,
+  vehicles,
+  preselectedVehicleId,
   sites,
-  initialOdometer,
 }: {
-  vehicleId: string;
+  vehicles: VehicleOption[];
+  preselectedVehicleId: string | null;
   sites: { id: string; name: string }[];
-  initialOdometer: number | null;
 }) {
   const [state, formAction, pending] = useActionState(startDriving, initial);
   const errors = state && !state.ok ? state.errors : {};
   const formError = state && !state.ok ? state.formError : null;
   const odoInputRef = useRef<HTMLInputElement>(null);
+  const [selectedId, setSelectedId] = useState<string>(
+    preselectedVehicleId ?? "",
+  );
+  const selected = vehicles.find((v) => v.id === selectedId) ?? null;
+
+  // 車両切替時に前回帰着メーターをデフォルトに
+  useEffect(() => {
+    if (!odoInputRef.current) return;
+    if (selected?.lastOdometer != null) {
+      odoInputRef.current.value = String(selected.lastOdometer);
+    } else {
+      odoInputRef.current.value = "";
+    }
+  }, [selectedId, selected?.lastOdometer]);
 
   return (
     <form action={formAction} className="ot-form">
-      <input type="hidden" name="vehicleId" value={vehicleId} />
-
       {formError && (
         <div className="ot-banner ot-banner-danger" role="alert">
           <div className="ot-banner-body">{formError}</div>
         </div>
       )}
+
+      <div className="ot-field">
+        <label className="ot-field-label" htmlFor="vehicleId">車両</label>
+        <select
+          id="vehicleId"
+          name="vehicleId"
+          required
+          className="ot-input"
+          value={selectedId}
+          onChange={(e) => setSelectedId(e.target.value)}
+        >
+          <option value="">選択してください</option>
+          {vehicles.map((v) => (
+            <option key={v.id} value={v.id}>
+              {v.plate}（{v.model}）
+            </option>
+          ))}
+        </select>
+        {errors.vehicleId && <p className="ot-field-error">{errors.vehicleId}</p>}
+      </div>
 
       <div className="ot-field">
         <label className="ot-field-label" htmlFor="startOdometer">
@@ -43,7 +82,7 @@ export function StartDrivingForm({
           min={0}
           step={1}
           required
-          defaultValue={initialOdometer ?? undefined}
+          defaultValue={selected?.lastOdometer ?? undefined}
           className="ot-input"
         />
         <OdometerCamera
@@ -55,9 +94,9 @@ export function StartDrivingForm({
           }}
         />
         {errors.startOdometer && <p className="ot-field-error">{errors.startOdometer}</p>}
-        {initialOdometer !== null && (
+        {selected?.lastOdometer != null && (
           <p className="ot-field-help">
-            前回帰着時: <strong className="num">{initialOdometer.toLocaleString()}</strong> km
+            前回帰着時: <strong className="num">{selected.lastOdometer.toLocaleString()}</strong> km
           </p>
         )}
       </div>

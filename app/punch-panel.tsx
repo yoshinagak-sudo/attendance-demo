@@ -74,25 +74,17 @@ function formatElapsed(iso: string, now: Date): string {
   return `経過 ${hr}時間${String(min).padStart(2, "0")}分`;
 }
 
-export type VehicleStatus =
-  | {
-      kind: "driving";
-      drivingLogId: string;
-      vehicleId: string;
-      plate: string;
-      model: string;
-      purpose: string;
-      workSiteName: string;
-      startAt: string;
-      startOdometer: number;
-    }
-  | {
-      kind: "assigned";
-      assignmentId: string;
-      vehicleId: string;
-      plate: string;
-      model: string;
-    };
+export type VehicleStatus = {
+  kind: "driving";
+  drivingLogId: string;
+  vehicleId: string;
+  plate: string;
+  model: string;
+  purpose: string;
+  workSiteName: string;
+  startAt: string;
+  startOdometer: number;
+};
 
 type Props = {
   userName: string;
@@ -264,14 +256,10 @@ export function PunchPanel({
         </button>
       </div>
 
-      {/* 自分の車両ステータス（運行中 / 担当のみ）。該当なしの場合は描画しない */}
+      {/* 自分の運行中走行（あれば表示）。なければ描画しない */}
       {vehicleStatus && (
         <section
-          className={
-            vehicleStatus.kind === "driving"
-              ? "home-vehicle-card home-vehicle-card-driving"
-              : "home-vehicle-card home-vehicle-card-assigned"
-          }
+          className="home-vehicle-card home-vehicle-card-driving"
           aria-label="自分の車両ステータス"
         >
           <span className="home-vehicle-icon" aria-hidden="true">
@@ -285,59 +273,32 @@ export function PunchPanel({
           </span>
 
           <div className="home-vehicle-main">
-            {vehicleStatus.kind === "driving" ? (
-              <>
-                <div className="home-vehicle-badge">運行中</div>
-                <div className="home-vehicle-title">
-                  {vehicleStatus.plate}（{vehicleStatus.model}）で運行中
-                </div>
-                <div className="home-vehicle-meta">
-                  {vehicleStatus.workSiteName}・{vehicleStatus.purpose}
-                </div>
-                <div
-                  className="home-vehicle-meta tabular"
-                  suppressHydrationWarning
-                >
-                  {formatHM(vehicleStatus.startAt)} 出発
-                  {now ? ` ・ ${formatElapsed(vehicleStatus.startAt, now)}` : ""}
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="home-vehicle-badge home-vehicle-badge-soft">
-                  本日担当
-                </div>
-                <div className="home-vehicle-title">
-                  {vehicleStatus.plate}（{vehicleStatus.model}）を本日担当
-                </div>
-                <div className="home-vehicle-meta">
-                  まだ出発登録していません
-                </div>
-              </>
-            )}
+            <div className="home-vehicle-badge">運行中</div>
+            <div className="home-vehicle-title">
+              {vehicleStatus.plate}（{vehicleStatus.model}）で運行中
+            </div>
+            <div className="home-vehicle-meta">
+              {vehicleStatus.workSiteName}・{vehicleStatus.purpose}
+            </div>
+            <div
+              className="home-vehicle-meta tabular"
+              suppressHydrationWarning
+            >
+              {formatHM(vehicleStatus.startAt)} 出発
+              {now ? ` ・ ${formatElapsed(vehicleStatus.startAt, now)}` : ""}
+            </div>
           </div>
 
           <div className="home-vehicle-actions">
-            {vehicleStatus.kind === "driving" ? (
-              <>
-                <Link
-                  href={`/vehicle/driving/${vehicleStatus.drivingLogId}`}
-                  className="home-vehicle-cta"
-                >
-                  帰着を登録する
-                </Link>
-                <Link href="/vehicle" className="home-vehicle-sublink">
-                  車両管理を開く
-                </Link>
-              </>
-            ) : (
-              <Link
-                href={`/vehicle/driving/start?vehicleId=${vehicleStatus.vehicleId}`}
-                className="home-vehicle-cta"
-              >
-                出発を登録する
-              </Link>
-            )}
+            <Link
+              href={`/vehicle/driving/${vehicleStatus.drivingLogId}`}
+              className="home-vehicle-cta"
+            >
+              帰着を登録する
+            </Link>
+            <Link href="/vehicle" className="home-vehicle-sublink">
+              車両管理を開く
+            </Link>
           </div>
         </section>
       )}

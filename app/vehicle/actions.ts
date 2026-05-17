@@ -19,58 +19,6 @@ export type ActionResult =
   | { ok: true; id: string }
   | { ok: false; errors: ValidationErrors; formError?: string };
 
-export async function assignVehicle(
-  _prev: ActionResult | null,
-  formData: FormData,
-): Promise<ActionResult> {
-  const session = await getSession();
-  if (!session) return { ok: false, errors: {}, formError: "ログインしてください" };
-  const vehicleId = String(formData.get("vehicleId") ?? "");
-  if (!vehicleId) return { ok: false, errors: { vehicleId: "車両を選択してください" } };
-
-  const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } });
-  if (!vehicle || !vehicle.isActive)
-    return { ok: false, errors: { vehicleId: "車両が見つかりません" } };
-
-  const today = startOfTodayJST();
-
-  await prisma.vehicleAssignment.updateMany({
-    where: { userId: session.id, releasedAt: null },
-    data: { releasedAt: new Date() },
-  });
-  await prisma.vehicleAssignment.updateMany({
-    where: { vehicleId, releasedAt: null },
-    data: { releasedAt: new Date() },
-  });
-
-  const created = await prisma.vehicleAssignment.create({
-    data: { vehicleId, userId: session.id, assignDate: today },
-  });
-
-  revalidatePath("/vehicle");
-  revalidatePath("/admin/vehicle");
-  redirect(`/vehicle?assigned=${vehicleId}`);
-  return { ok: true, id: created.id };
-}
-
-export async function releaseAssignment(formData: FormData): Promise<void> {
-  const session = await getSession();
-  if (!session) return;
-  const id = String(formData.get("id") ?? "");
-  if (!id) return;
-  const a = await prisma.vehicleAssignment.findUnique({ where: { id } });
-  if (!a) return;
-  if (a.userId !== session.id && session.role !== "manager") return;
-  if (a.releasedAt) return;
-  await prisma.vehicleAssignment.update({
-    where: { id },
-    data: { releasedAt: new Date() },
-  });
-  revalidatePath("/vehicle");
-  revalidatePath("/admin/vehicle");
-  redirect("/vehicle?released=1");
-}
-
 export async function startDriving(
   _prev: ActionResult | null,
   formData: FormData,
@@ -88,13 +36,22 @@ export async function startDriving(
   if (!validated.ok) return { ok: false, errors: validated.errors };
   const v = validated.value;
 
-  const assignment = await prisma.vehicleAssignment.findFirst({
-    where: { vehicleId: v.vehicleId, userId: session.id, releasedAt: null },
+  const vehicle = await prisma.vehicle.findUnique({ where: { id: v.vehicleId } });
+  if (!vehicle || !vehicle.isActive) {
+    return { ok: false, errors: { vehicleId: "車両が見つかりません" } };
+  }
+
+  // 同じユーザーに進行中の走行があれば警告（ブロックはしない、複数並走を想定外として後段で気づきやすく）
+  // 実用上は1人1運行が基本なので進行中があれば既存を完了するよう促す方が良いが、
+  // ここではアプリ層で進行中の重複だけ防ぐ
+  const existingInProgress = await prisma.drivingLog.findFirst({
+    where: { userId: session.id, status: "in_progress" },
   });
-  if (!assignment) {
+  if (existingInProgress) {
     return {
       ok: false,
-      errors: { vehicleId: "この車両は自分に割り当てられていません" },
+      errors: {},
+      formError: "未帰着の走行があります。先に帰着登録を済ませてください",
     };
   }
 

@@ -1,6 +1,5 @@
 import type {
   Vehicle,
-  VehicleAssignment,
   DrivingLog,
   RefuelingLog,
   User,
@@ -401,19 +400,6 @@ export function formatLiters(l: number | null | undefined): string {
 export function formatJpy(amount: number | null | undefined): string {
   if (amount === null || amount === undefined) return "—";
   return `¥${amount.toLocaleString()}`;
-}
-
-export type ActiveAssignmentMap = Map<string, { vehicleId: string; userId: string; userName: string }>;
-
-export function activeAssignmentsByVehicle(
-  assignments: (VehicleAssignment & { user: User })[],
-): ActiveAssignmentMap {
-  const map: ActiveAssignmentMap = new Map();
-  for (const a of assignments) {
-    if (a.releasedAt) continue;
-    map.set(a.vehicleId, { vehicleId: a.vehicleId, userId: a.userId, userName: a.user.name });
-  }
-  return map;
 }
 
 export function todayJST(now?: Date): Date {

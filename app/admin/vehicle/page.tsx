@@ -18,13 +18,8 @@ export default async function AdminVehiclePage() {
   const today = startOfTodayJST();
   const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
 
-  const [vehicles, todayAssignments, inProgress, todayCompleted] = await Promise.all([
+  const [vehicles, inProgress, todayCompleted] = await Promise.all([
     prisma.vehicle.findMany({ orderBy: [{ isActive: "desc" }, { plate: "asc" }] }),
-    prisma.vehicleAssignment.findMany({
-      where: { assignDate: today, releasedAt: null },
-      include: { user: true, vehicle: true },
-      orderBy: { createdAt: "asc" },
-    }),
     prisma.drivingLog.findMany({
       where: { status: "in_progress" },
       include: { user: true, vehicle: true },
@@ -96,37 +91,6 @@ export default async function AdminVehiclePage() {
             </div>
           </div>
         )}
-
-        <section className="section">
-          <div className="section-head">
-            <h2 className="section-title">今日の割当</h2>
-            <span className="section-sub tabular">{todayAssignments.length} 件</span>
-          </div>
-          {todayAssignments.length === 0 ? (
-            <div className="ot-empty"><div className="ot-empty-title">本日の割当はまだありません</div></div>
-          ) : (
-            <div className="table-wrap">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>車両</th>
-                    <th>運転者</th>
-                    <th>拠点</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {todayAssignments.map((a) => (
-                    <tr key={a.id}>
-                      <td><strong>{a.vehicle.plate}</strong>（{a.vehicle.model}）</td>
-                      <td>{a.user.name}</td>
-                      <td>{a.vehicle.depot}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
 
         <section className="section">
           <div className="section-head">

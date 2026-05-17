@@ -5,22 +5,18 @@ import { AppHeader } from "@/app/_components/AppHeader";
 import { startOfTodayJST, formatJSTHHmm, formatJSTYmd } from "@/lib/time";
 import {
   DRIVING_STATUS_LABEL,
-  activeAssignmentsByVehicle,
   formatDistanceKm,
   formatLiters,
   formatJpy,
   type DrivingStatus,
 } from "@/lib/vehicle";
-import { assignVehicleSimple, releaseAssignmentSimple } from "./simple-actions";
 
 export const dynamic = "force-dynamic";
 
 type SearchParams = Promise<{
-  assigned?: string;
   completed?: string;
   cancelled?: string;
   refueled?: string;
-  released?: string;
 }>;
 
 export default async function VehicleIndexPage({
@@ -31,47 +27,31 @@ export default async function VehicleIndexPage({
   const session = await requireSession("/vehicle");
   const sp = await searchParams;
   const today = startOfTodayJST();
-  const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
 
-  const [vehicles, todayAssignments, myInProgress, myHistory, myRecentRefuels] =
-    await Promise.all([
-      prisma.vehicle.findMany({
-        where: { isActive: true },
-        orderBy: [{ plate: "asc" }],
-      }),
-      prisma.vehicleAssignment.findMany({
-        where: { assignDate: today },
-        include: { user: true },
-      }),
-      prisma.drivingLog.findMany({
-        where: { userId: session.id, status: "in_progress" },
-        orderBy: { startAt: "desc" },
-        take: 3,
-      }),
-      prisma.drivingLog.findMany({
-        where: { userId: session.id, status: "completed" },
-        orderBy: { workDate: "desc" },
-        take: 5,
-        include: { vehicle: true },
-      }),
-      prisma.refuelingLog.findMany({
-        where: { userId: session.id },
-        orderBy: { refuelDate: "desc" },
-        take: 3,
-        include: { vehicle: true },
-      }),
-    ]);
-
-  const activeMap = activeAssignmentsByVehicle(todayAssignments);
-  const myAssignmentToday = todayAssignments.find(
-    (a) => a.userId === session.id && !a.releasedAt,
-  );
-  const myVehicle = myAssignmentToday
-    ? vehicles.find((v) => v.id === myAssignmentToday.vehicleId)
-    : null;
-  const myInProgressForMyVehicle = myVehicle
-    ? myInProgress.find((d) => d.vehicleId === myVehicle.id)
-    : null;
+  const [vehicles, myInProgress, myHistory, myRecentRefuels] = await Promise.all([
+    prisma.vehicle.findMany({
+      where: { isActive: true },
+      orderBy: [{ plate: "asc" }],
+    }),
+    prisma.drivingLog.findMany({
+      where: { userId: session.id, status: "in_progress" },
+      orderBy: { startAt: "desc" },
+      take: 3,
+      include: { vehicle: true },
+    }),
+    prisma.drivingLog.findMany({
+      where: { userId: session.id, status: "completed" },
+      orderBy: { workDate: "desc" },
+      take: 5,
+      include: { vehicle: true },
+    }),
+    prisma.refuelingLog.findMany({
+      where: { userId: session.id },
+      orderBy: { refuelDate: "desc" },
+      take: 3,
+      include: { vehicle: true },
+    }),
+  ]);
 
   return (
     <>
@@ -80,14 +60,11 @@ export default async function VehicleIndexPage({
         <header className="header">
           <div>
             <h1 className="title">車両管理</h1>
-            <span className="subtitle">割当→出発→帰着の順に登録。給油も記録できます</span>
+            <span className="subtitle">出発→帰着→給油を記録</span>
           </div>
           <Link href="/" className="link">← 打刻画面</Link>
         </header>
 
-        {sp.assigned && (
-          <div className="ot-toast" role="status">車両を割り当てました</div>
-        )}
         {sp.completed && (
           <div className="ot-toast" role="status">帰着を登録しました</div>
         )}
@@ -97,112 +74,83 @@ export default async function VehicleIndexPage({
         {sp.refueled && (
           <div className="ot-toast" role="status">給油を登録しました</div>
         )}
-        {sp.released && (
-          <div className="ot-toast" role="status">割当を解除しました</div>
-        )}
 
-        <section className="section" aria-labelledby="vh-my-heading">
+        <section className="section" aria-labelledby="vh-actions-heading">
           <div className="section-head">
-            <h2 id="vh-my-heading" className="section-title">今日の自分の車両</h2>
+            <h2 id="vh-actions-heading" className="section-title">運行を記録</h2>
             <span className="section-sub">{formatJSTYmd(today)}</span>
           </div>
-          {myVehicle ? (
+          {myInProgress.length > 0 ? (
             <div className="vh-mycard card">
               <div className="vh-mycard-head">
-                <span className="vh-plate-strong">{myVehicle.plate}</span>
-                <span className="vh-model">{myVehicle.model}</span>
+                <span className="vh-plate-strong">{myInProgress[0].vehicle.plate}</span>
+                <span className="vh-model">{myInProgress[0].vehicle.model}</span>
               </div>
-              <div className="vh-mycard-meta">{myVehicle.depot}</div>
-              {myInProgressForMyVehicle ? (
-                <div className="vh-progress-block">
-                  <div className="vh-progress-line">
-                    <span className="badge vh-badge-in-progress">進行中</span>
-                    <span className="num">{formatJSTHHmm(myInProgressForMyVehicle.startAt)} 出発</span>
-                  </div>
-                  <div className="vh-progress-detail">
-                    {myInProgressForMyVehicle.workSiteName}・{myInProgressForMyVehicle.purpose}
-                  </div>
-                  <Link
-                    href={`/vehicle/driving/${myInProgressForMyVehicle.id}`}
-                    className="ot-btn-primary ot-btn-lg ot-btn-block"
-                  >
-                    帰着を登録する
-                  </Link>
+              <div className="vh-progress-block">
+                <div className="vh-progress-line">
+                  <span className="badge vh-badge-in-progress">運行中</span>
+                  <span className="num">{formatJSTHHmm(myInProgress[0].startAt)} 出発</span>
                 </div>
-              ) : (
-                <div className="vh-cta-row">
-                  <Link
-                    href={`/vehicle/driving/start?vehicleId=${myVehicle.id}`}
-                    className="ot-btn-primary ot-btn-lg ot-btn-block"
-                  >
-                    出発を登録する
-                  </Link>
-                  <Link
-                    href={`/vehicle/refueling/new?vehicleId=${myVehicle.id}`}
-                    className="ot-btn-ghost ot-btn-lg ot-btn-block"
-                  >
-                    給油を登録する
-                  </Link>
+                <div className="vh-progress-detail">
+                  {myInProgress[0].workSiteName}・{myInProgress[0].purpose}
                 </div>
-              )}
-              <form action={releaseAssignmentSimple} className="vh-release-form">
-                <input type="hidden" name="id" value={myAssignmentToday?.id ?? ""} />
-                <button type="submit" className="link vh-release-btn">割当を解除する</button>
-              </form>
+                <Link
+                  href={`/vehicle/driving/${myInProgress[0].id}`}
+                  className="ot-btn-primary ot-btn-lg ot-btn-block"
+                >
+                  帰着を登録する
+                </Link>
+              </div>
             </div>
           ) : (
-            <div className="ot-empty">
-              <div className="ot-empty-title">本日の割当はありません</div>
-              <div>下から「使う」を押して車両を割り当ててください</div>
+            <div className="vh-cta-row">
+              <Link
+                href="/vehicle/driving/start"
+                className="ot-btn-primary ot-btn-lg ot-btn-block"
+              >
+                出発を登録する
+              </Link>
+              <Link
+                href="/vehicle/refueling/new"
+                className="ot-btn-ghost ot-btn-lg ot-btn-block"
+              >
+                給油を登録する
+              </Link>
             </div>
           )}
         </section>
 
         <section className="section" aria-labelledby="vh-list-heading">
           <div className="section-head">
-            <h2 id="vh-list-heading" className="section-title">割当可能な車両</h2>
+            <h2 id="vh-list-heading" className="section-title">利用可能な車両</h2>
             <span className="section-sub tabular">全 {vehicles.length} 台</span>
           </div>
           <div className="vh-vehicle-list">
-            {vehicles.map((v) => {
-              const ass = activeMap.get(v.id);
-              const isMine = ass?.userId === session.id;
-              return (
-                <div key={v.id} className={`vh-vehicle-card card${ass ? " is-assigned" : ""}`}>
-                  <div className="vh-vehicle-head">
-                    <span className="vh-plate-strong">{v.plate}</span>
-                    <span className="vh-model">{v.model}</span>
-                  </div>
-                  <div className="vh-vehicle-meta">
-                    <span>{v.depot}</span>
-                    {v.inspectionDueDate && (
-                      <span style={{ color: "var(--muted)" }}>
-                        点検期限 {formatJSTYmd(v.inspectionDueDate)}
-                      </span>
-                    )}
-                  </div>
-                  <div className="vh-vehicle-status">
-                    {ass ? (
-                      isMine ? (
-                        <span className="badge vh-badge-mine">あなたが使用中</span>
-                      ) : (
-                        <span className="badge vh-badge-busy">{ass.userName} さんが使用中</span>
-                      )
-                    ) : (
-                      <span className="badge vh-badge-free">空き</span>
-                    )}
-                  </div>
-                  {!ass && (
-                    <form action={assignVehicleSimple}>
-                      <input type="hidden" name="vehicleId" value={v.id} />
-                      <button type="submit" className="ot-btn-primary ot-btn-block">
-                        この車両を使う
-                      </button>
-                    </form>
+            {vehicles.map((v) => (
+              <Link
+                key={v.id}
+                href={`/vehicle/driving/start?vehicleId=${v.id}`}
+                className="vh-vehicle-card card"
+              >
+                <div className="vh-vehicle-head">
+                  <span className="vh-plate-strong">{v.plate}</span>
+                  <span className="vh-model">{v.model}</span>
+                </div>
+                <div className="vh-vehicle-meta">
+                  <span>{v.depot}</span>
+                  {v.inspectionDueDate && (
+                    <span style={{ color: "var(--muted)" }}>
+                      点検期限 {formatJSTYmd(v.inspectionDueDate)}
+                    </span>
                   )}
                 </div>
-              );
-            })}
+                <div className="vh-vehicle-status">
+                  <span style={{ color: "var(--primary)", fontSize: 13, fontWeight: 600 }}>
+                    この車両で出発する →
+                  </span>
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
 
