@@ -13,27 +13,15 @@ type DemoUser = {
 const DEMO_USERS: DemoUser[] = [
   {
     loginId: "takayama",
-    roleLabel: "代表取締役",
-    hint: "経営層として全体を俯瞰",
-    variant: "manager",
-  },
-  {
-    loginId: "hisa",
-    roleLabel: "課長",
-    hint: "残業承認の動きを体験",
+    roleLabel: "管理者",
+    hint: "全体俯瞰・承認・車両/日報の確認",
     variant: "manager",
   },
   {
     loginId: "sawano",
-    roleLabel: "現場社員",
-    hint: "現場から残業申請する側",
+    roleLabel: "一般ユーザー",
+    hint: "現場から打刻・申請・日報を入力",
     variant: "member",
-  },
-  {
-    loginId: "numakura",
-    roleLabel: "蛸と衣 社員",
-    hint: "店舗運営側のメンバー",
-    variant: "part",
   },
 ];
 

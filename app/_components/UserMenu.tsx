@@ -6,10 +6,8 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import type { SessionUser } from "@/lib/session";
 
 const DEMO_SWITCH = [
-  { loginId: "takayama", label: "代表取締役（manager）" },
-  { loginId: "hisa", label: "課長（manager）" },
-  { loginId: "sawano", label: "現場社員（member）" },
-  { loginId: "numakura", label: "蛸と衣 社員（member）" },
+  { loginId: "takayama", label: "管理者で試す" },
+  { loginId: "sawano", label: "一般ユーザーで試す" },
 ];
 
 export function UserMenu({ user }: { user: SessionUser }) {
