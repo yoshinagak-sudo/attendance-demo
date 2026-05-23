@@ -30,4 +30,4 @@ npm run dev
 
 ---
 
-Built by [Keigo Yoshinaga](https://github.com/yoshinagak-sudo) — CEO of Butai Farm. Used as a sales demo for Japanese SMEs evaluating paperless attendance.
+Built by [Keigo Yoshinaga](https://github.com/yoshinagak-sudo) — Project Lead, Future Strategy Dept @ Butai Farm. Used as a sales demo for Japanese SMEs evaluating paperless attendance.
