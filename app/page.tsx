@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { startOfTodayJST } from "@/lib/time";
-import { getSession } from "@/lib/session";
+import { getSession, isAdminRole } from "@/lib/session";
 import { AppHeader } from "./_components/AppHeader";
 import { PunchPanel } from "./punch-panel";
 
@@ -12,7 +12,7 @@ export default async function Home() {
   if (!session) {
     redirect("/login");
   }
-  if (session.role === "manager") {
+  if (isAdminRole(session.role)) {
     redirect("/admin");
   }
 

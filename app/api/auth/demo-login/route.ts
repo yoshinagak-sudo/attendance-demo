@@ -37,7 +37,12 @@ export async function POST(req: Request) {
     data: { lastLoginAt: new Date() },
   });
 
-  const role = user.role === "manager" ? "manager" : "member";
+  const role: "member" | "manager" | "developer" =
+    user.role === "developer"
+      ? "developer"
+      : user.role === "manager"
+        ? "manager"
+        : "member";
   const session = issueSession({ userId: user.id, role });
   const store = await cookies();
   store.set(SESSION_COOKIE_NAME, session.cookieValue, {

@@ -5,6 +5,12 @@ import { prisma } from "@/lib/prisma";
 import { requireManager } from "@/lib/session";
 import { hashPassword, randomPasswordHumanFriendly } from "@/lib/password";
 
+type RoleValue = "member" | "manager" | "developer";
+
+function isRoleValue(v: unknown): v is RoleValue {
+  return v === "member" || v === "manager" || v === "developer";
+}
+
 export type ResetPasswordState =
   | { ok: true; password: string; userId: string; userName: string }
   | { ok: false; error: string }
@@ -79,15 +85,17 @@ export async function toggleUserActiveAction(
 
   const nextActive = !target.isActive;
 
-  // active な manager が target を inactive にしようとしている → 最後の1人保護
-  if (!nextActive && target.role === "manager" && target.isActive) {
-    const activeManagerCount = await prisma.user.count({
-      where: { role: "manager", isActive: true },
+  // active な管理者(manager/developer)が target を inactive にしようとしている → 最後の1人保護
+  const isTargetActiveAdmin =
+    (target.role === "manager" || target.role === "developer") && target.isActive;
+  if (!nextActive && isTargetActiveAdmin) {
+    const activeAdminCount = await prisma.user.count({
+      where: { isActive: true, role: { in: ["manager", "developer"] } },
     });
-    if (activeManagerCount <= 1) {
+    if (activeAdminCount <= 1) {
       return {
         ok: false,
-        error: "最後の有効な管理者は無効化できません",
+        error: "最後の有効な管理者(manager/developer)は無効化できません",
       };
     }
   }
@@ -107,4 +115,65 @@ export async function toggleUserActiveAction(
   revalidatePath("/admin/users");
 
   return { ok: true, userId, isActive: nextActive };
+}
+
+export type ChangeRoleState =
+  | { ok: true; userId: string; newRole: RoleValue }
+  | { ok: false; error: string }
+  | null;
+
+/**
+ * ユーザーの role を変更する（member / manager / developer）。
+ * 制約:
+ *  - 自分自身の role は変更できない（権限剥奪事故防止）
+ *  - 最後の有効な管理者(manager+developer)を一般に降格できない
+ */
+export async function changeUserRoleAction(
+  _prev: ChangeRoleState,
+  formData: FormData,
+): Promise<ChangeRoleState> {
+  const session = await requireManager("/admin/users");
+  const userId = String(formData.get("userId") ?? "").trim();
+  const newRoleRaw = String(formData.get("newRole") ?? "").trim();
+  if (!userId) {
+    return { ok: false, error: "ユーザーIDが不正です" };
+  }
+  if (!isRoleValue(newRoleRaw)) {
+    return { ok: false, error: "ロール指定が不正です" };
+  }
+  const newRole: RoleValue = newRoleRaw;
+
+  const target = await prisma.user.findUnique({ where: { id: userId } });
+  if (!target) {
+    return { ok: false, error: "対象ユーザーが見つかりません" };
+  }
+  if (target.role === newRole) {
+    return { ok: true, userId, newRole };
+  }
+  if (target.id === session.id) {
+    return { ok: false, error: "自分自身のロールは変更できません" };
+  }
+
+  // 管理者(manager+developer)が target の場合、最後の1人を降格しようとしていないか確認
+  const isTargetAdmin = target.role === "manager" || target.role === "developer";
+  const isNewAdmin = newRole === "manager" || newRole === "developer";
+  if (isTargetAdmin && !isNewAdmin && target.isActive) {
+    const activeAdminCount = await prisma.user.count({
+      where: { isActive: true, role: { in: ["manager", "developer"] } },
+    });
+    if (activeAdminCount <= 1) {
+      return {
+        ok: false,
+        error: "最後の有効な管理者(manager/developer)を降格できません",
+      };
+    }
+  }
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { role: newRole },
+  });
+  revalidatePath("/admin/users");
+
+  return { ok: true, userId, newRole };
 }

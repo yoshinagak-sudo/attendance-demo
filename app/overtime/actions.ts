@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { getSession, isAdminRole } from "@/lib/session";
 import {
   REVIEW_COMMENT_MAX_CHARS,
   codePointLength,
@@ -158,7 +158,7 @@ async function applyReview(
   }
 
   const reviewer = await prisma.user.findUnique({ where: { id: reviewerId } });
-  if (!reviewer || reviewer.role !== "manager" || !reviewer.isActive) {
+  if (!reviewer || !isAdminRole(reviewer.role) || !reviewer.isActive) {
     return { ok: false, error: "承認権限がありません" };
   }
 
@@ -194,7 +194,7 @@ async function applyReview(
 
 export async function approveRequestAction(formData: FormData): Promise<void> {
   const session = await getSession();
-  if (!session || session.role !== "manager") {
+  if (!session || !isAdminRole(session.role)) {
     redirect("/login?next=/admin/overtime");
   }
   const id = String(formData.get("id") ?? "");
@@ -204,7 +204,7 @@ export async function approveRequestAction(formData: FormData): Promise<void> {
 
 export async function rejectRequestAction(formData: FormData): Promise<void> {
   const session = await getSession();
-  if (!session || session.role !== "manager") {
+  if (!session || !isAdminRole(session.role)) {
     redirect("/login?next=/admin/overtime");
   }
   const id = String(formData.get("id") ?? "");
@@ -218,7 +218,7 @@ export async function rejectRequestAction(formData: FormData): Promise<void> {
 
 export async function sendBackRequestAction(formData: FormData): Promise<void> {
   const session = await getSession();
-  if (!session || session.role !== "manager") {
+  if (!session || !isAdminRole(session.role)) {
     redirect("/login?next=/admin/overtime");
   }
   const id = String(formData.get("id") ?? "");
@@ -232,7 +232,7 @@ export async function sendBackRequestAction(formData: FormData): Promise<void> {
 
 export async function updateRegularEndTime(formData: FormData): Promise<void> {
   const session = await getSession();
-  if (!session || session.role !== "manager") {
+  if (!session || !isAdminRole(session.role)) {
     redirect("/login?next=/admin/settings/overtime");
   }
   const value = String(formData.get("value") ?? "").trim();
@@ -253,7 +253,7 @@ export async function updateRegularEndTime(formData: FormData): Promise<void> {
 
 export async function upsertWorkSite(formData: FormData): Promise<void> {
   const session = await getSession();
-  if (!session || session.role !== "manager") {
+  if (!session || !isAdminRole(session.role)) {
     redirect("/login?next=/admin/settings/overtime");
   }
   const name = String(formData.get("name") ?? "").trim().normalize("NFKC");
@@ -272,7 +272,7 @@ export async function upsertWorkSite(formData: FormData): Promise<void> {
 
 export async function deactivateWorkSite(formData: FormData): Promise<void> {
   const session = await getSession();
-  if (!session || session.role !== "manager") {
+  if (!session || !isAdminRole(session.role)) {
     redirect("/login?next=/admin/settings/overtime");
   }
   const id = String(formData.get("id") ?? "");

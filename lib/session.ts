@@ -1,14 +1,30 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { SESSION_COOKIE_NAME, verifySessionNode } from "@/lib/session-node";
+import {
+  SESSION_COOKIE_NAME,
+  verifySessionNode,
+  type SessionRole,
+} from "@/lib/session-node";
 
 export type SessionUser = {
   id: string;
   name: string;
   loginId: string;
-  role: "member" | "manager";
+  role: SessionRole;
 };
+
+export function normalizeRole(raw: string): SessionRole {
+  if (raw === "developer") return "developer";
+  if (raw === "manager") return "manager";
+  return "member";
+}
+
+// 管理画面に入れる権限（manager + developer）
+// 引数は DB から取った生の文字列でも受け取れるよう string で受ける。
+export function isAdminRole(role: string): boolean {
+  return role === "manager" || role === "developer";
+}
 
 export async function getSession(): Promise<SessionUser | null> {
   const store = await cookies();
@@ -27,7 +43,7 @@ export async function getSession(): Promise<SessionUser | null> {
     id: user.id,
     name: user.name,
     loginId: user.loginId,
-    role: (user.role === "manager" ? "manager" : "member") as "member" | "manager",
+    role: normalizeRole(user.role),
   };
 }
 
@@ -39,9 +55,10 @@ export async function requireSession(nextPath: string = "/"): Promise<SessionUse
   return session;
 }
 
+// 管理画面ガード: manager と developer を通す
 export async function requireManager(nextPath: string = "/admin"): Promise<SessionUser> {
   const session = await requireSession(nextPath);
-  if (session.role !== "manager") {
+  if (!isAdminRole(session.role)) {
     redirect("/");
   }
   return session;

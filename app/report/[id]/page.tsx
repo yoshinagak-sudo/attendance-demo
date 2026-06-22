@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { requireSession } from "@/lib/session";
+import { requireSession, isAdminRole } from "@/lib/session";
 import { AppHeader } from "@/app/_components/AppHeader";
 import { formatJSTHHmm, formatJSTYmd, formatJSTYmdHm } from "@/lib/time";
 import {
@@ -28,7 +28,7 @@ export default async function ReportDetailPage({ params }: { params: Params }) {
     },
   });
   if (!report) notFound();
-  if (report.userId !== session.id && session.role !== "manager") notFound();
+  if (report.userId !== session.id && !isAdminRole(session.role)) notFound();
 
   const isOwner = report.userId === session.id;
   const status = report.status as ReportStatus;

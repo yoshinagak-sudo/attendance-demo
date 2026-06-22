@@ -17,7 +17,8 @@ export default async function LoginPage({
   const requestedNext = sanitizeNext(params.next);
 
   if (session) {
-    const fallback = session.role === "manager" ? "/admin" : "/";
+    const fallback =
+      session.role === "manager" || session.role === "developer" ? "/admin" : "/";
     const target = requestedNext === "/" ? fallback : requestedNext;
     redirect(target);
   }

@@ -5,9 +5,11 @@ export const SESSION_COOKIE_NAME = "att_session";
 const TTL_HOURS = Number(process.env.SESSION_TTL_HOURS) || 12;
 export const SESSION_TTL_SECONDS = TTL_HOURS * 60 * 60;
 
+export type SessionRole = "member" | "manager" | "developer";
+
 export type SessionPayload = {
   uid: string;
-  rl: "member" | "manager";
+  rl: SessionRole;
   iat: number;
   exp: number;
 };
@@ -29,7 +31,7 @@ function signNode(payloadB64: string): string {
 
 export function issueSession(args: {
   userId: string;
-  role: "member" | "manager";
+  role: SessionRole;
   now?: Date;
 }): { cookieValue: string; maxAge: number; expiresAt: Date } {
   const now = args.now ?? new Date();

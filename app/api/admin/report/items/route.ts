@@ -1,4 +1,4 @@
-import { getSession } from "@/lib/session";
+import { getSession, isAdminRole } from "@/lib/session";
 import { csvResponseHeaders, serializeCsv } from "@/lib/csv";
 import { prisma } from "@/lib/prisma";
 import {
@@ -16,7 +16,7 @@ import {
 
 export async function GET(req: Request) {
   const session = await getSession();
-  if (!session || session.role !== "manager") {
+  if (!session || !isAdminRole(session.role)) {
     return new Response("unauthorized", { status: 401 });
   }
   const url = new URL(req.url);

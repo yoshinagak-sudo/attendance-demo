@@ -3,12 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { getSession, isAdminRole } from "@/lib/session";
 import { validateUpsertVehicleInput, type UpsertVehicleInput } from "@/lib/vehicle";
 
 export async function upsertVehicle(formData: FormData): Promise<void> {
   const session = await getSession();
-  if (!session || session.role !== "manager") {
+  if (!session || !isAdminRole(session.role)) {
     redirect("/login?next=/admin/settings/vehicle");
   }
   const id = String(formData.get("id") ?? "");
@@ -56,7 +56,7 @@ export async function upsertVehicle(formData: FormData): Promise<void> {
 
 export async function deactivateVehicle(formData: FormData): Promise<void> {
   const session = await getSession();
-  if (!session || session.role !== "manager") {
+  if (!session || !isAdminRole(session.role)) {
     redirect("/login?next=/admin/settings/vehicle");
   }
   const id = String(formData.get("id") ?? "");
@@ -74,7 +74,7 @@ export async function deactivateVehicle(formData: FormData): Promise<void> {
 
 export async function reactivateVehicle(formData: FormData): Promise<void> {
   const session = await getSession();
-  if (!session || session.role !== "manager") {
+  if (!session || !isAdminRole(session.role)) {
     redirect("/login?next=/admin/settings/vehicle");
   }
   const id = String(formData.get("id") ?? "");

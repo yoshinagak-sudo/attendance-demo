@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { getSession, isAdminRole } from "@/lib/session";
 import {
   validateAckInput,
   type AckInput,
@@ -11,7 +11,7 @@ import {
 
 export async function acknowledgeReport(formData: FormData): Promise<void> {
   const session = await getSession();
-  if (!session || session.role !== "manager") {
+  if (!session || !isAdminRole(session.role)) {
     redirect("/login?next=/admin/report");
   }
   const input: AckInput = {
@@ -45,7 +45,7 @@ export async function acknowledgeReport(formData: FormData): Promise<void> {
 
 export async function unacknowledgeReport(formData: FormData): Promise<void> {
   const session = await getSession();
-  if (!session || session.role !== "manager") {
+  if (!session || !isAdminRole(session.role)) {
     redirect("/login?next=/admin/report");
   }
   const id = String(formData.get("id") ?? "");

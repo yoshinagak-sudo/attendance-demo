@@ -16,7 +16,7 @@ export function UserMenu({ user }: { user: SessionUser }) {
   const [isPending, startTransition] = useTransition();
   const [loggingOut, setLoggingOut] = useState(false);
   const [switching, setSwitching] = useState<string | null>(null);
-  const isManager = user.role === "manager";
+  const isManager = user.role === "manager" || user.role === "developer";
   const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 
   const close = () => {
@@ -75,7 +75,7 @@ export function UserMenu({ user }: { user: SessionUser }) {
         | { user?: { role?: string } }
         | null;
       const role = data?.user?.role;
-      const target = role === "manager" ? "/admin" : "/";
+      const target = role === "manager" || role === "developer" ? "/admin" : "/";
       close();
       startTransition(() => {
         router.replace(target);

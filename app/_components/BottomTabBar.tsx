@@ -11,7 +11,7 @@ import {
   AdminIcon,
 } from "./icons";
 
-type Role = "member" | "manager";
+type Role = "member" | "manager" | "developer";
 
 /** lucide-react のアイコンコンポーネントが受け取れる props 型 */
 type LucideIcon = ComponentType<SVGProps<SVGSVGElement>>;
@@ -47,7 +47,8 @@ export function BottomTabBar({ role }: { role: Role }) {
     return null;
   }
 
-  const visible = TABS.filter((t) => (t.managerOnly ? role === "manager" : true));
+  const isAdmin = role === "manager" || role === "developer";
+  const visible = TABS.filter((t) => (t.managerOnly ? isAdmin : true));
 
   return (
     <nav

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { requireSession } from "@/lib/session";
+import { requireSession, isAdminRole } from "@/lib/session";
 import {
   STATUS_LABEL,
   REQUEST_TYPE_LABEL,
@@ -66,9 +66,9 @@ export default async function OvertimeDetailPage({
   }
 
   const isOwner = target.userId === session.id;
-  const isManager = session.role === "manager";
+  const isManager = isAdminRole(session.role);
 
-  // 本人 or manager のみ閲覧可
+  // 本人 or 管理者(manager/developer) のみ閲覧可
   if (!isOwner && !isManager) {
     notFound();
   }

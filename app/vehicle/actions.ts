@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { getSession, isAdminRole } from "@/lib/session";
 import {
   validateStartDrivingInput,
   validateFinishDrivingInput,
@@ -106,7 +106,7 @@ export async function finishDriving(
 
   const log = await prisma.drivingLog.findUnique({ where: { id: v.drivingLogId } });
   if (!log) return { ok: false, errors: { drivingLogId: "走行ログが見つかりません" } };
-  if (log.userId !== session.id && session.role !== "manager") {
+  if (log.userId !== session.id && !isAdminRole(session.role)) {
     return { ok: false, errors: {}, formError: "この走行ログは編集できません" };
   }
   if (log.status !== "in_progress") {

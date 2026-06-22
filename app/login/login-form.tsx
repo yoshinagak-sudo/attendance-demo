@@ -40,7 +40,7 @@ export function LoginForm({ next }: { next: string }) {
           | { user?: { role?: string } }
           | null;
         const role = data?.user?.role;
-        const fallback = role === "manager" ? "/admin" : "/";
+        const fallback = role === "manager" || role === "developer" ? "/admin" : "/";
         const target = !next || next === "/" ? fallback : next;
         router.replace(target);
         router.refresh();

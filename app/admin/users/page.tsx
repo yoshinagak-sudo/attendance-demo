@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireManager } from "@/lib/session";
 import { formatJSTYmdHm } from "@/lib/time";
 import { AppHeader } from "@/app/_components/AppHeader";
-import { UserRowActions } from "./user-row-actions";
+import { UserRowActions, RoleSelector } from "./user-row-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -13,8 +13,9 @@ export default async function AdminUsersPage() {
   const users = await prisma.user.findMany({
     orderBy: [{ isActive: "desc" }, { role: "desc" }, { name: "asc" }],
   });
-  const activeManagerCount = users.filter(
-    (u) => u.role === "manager" && u.isActive,
+  const isAdminRoleStr = (r: string) => r === "manager" || r === "developer";
+  const activeAdminCount = users.filter(
+    (u) => isAdminRoleStr(u.role) && u.isActive,
   ).length;
 
   return (
@@ -41,7 +42,7 @@ export default async function AdminUsersPage() {
               全ユーザー
             </h2>
             <span className="section-sub tabular">
-              全 {users.length} 名・有効 manager {activeManagerCount} 名
+              全 {users.length} 名・有効 管理者(manager+developer) {activeAdminCount} 名
             </span>
           </div>
 
@@ -61,10 +62,15 @@ export default async function AdminUsersPage() {
               <tbody>
                 {users.map((u) => {
                   const isSelf = u.id === session.id;
-                  const isLastActiveManager =
-                    u.role === "manager" &&
-                    u.isActive &&
-                    activeManagerCount <= 1;
+                  const uIsAdmin = isAdminRoleStr(u.role);
+                  const isLastActiveAdmin =
+                    uIsAdmin && u.isActive && activeAdminCount <= 1;
+                  const roleNormalized: "member" | "manager" | "developer" =
+                    u.role === "developer"
+                      ? "developer"
+                      : u.role === "manager"
+                        ? "manager"
+                        : "member";
                   return (
                     <tr
                       key={u.id}
@@ -82,15 +88,15 @@ export default async function AdminUsersPage() {
                         </span>
                       </td>
                       <td>
-                        <span
-                          className={
-                            u.role === "manager"
-                              ? "admin-users-role-manager"
-                              : "admin-users-role-member"
+                        <RoleSelector
+                          userId={u.id}
+                          currentRole={roleNormalized}
+                          disabled={isSelf}
+                          disabledReason={
+                            isSelf ? "自分自身のロールは変更できません" : undefined
                           }
-                        >
-                          {u.role === "manager" ? "manager" : "member"}
-                        </span>
+                          lockedToAdmin={isLastActiveAdmin && uIsAdmin}
+                        />
                       </td>
                       <td>
                         {u.lastLoginAt ? (
@@ -116,12 +122,12 @@ export default async function AdminUsersPage() {
                           userName={u.name}
                           isActive={u.isActive}
                           hasLoginId={!!u.loginId}
-                          disableDeactivate={isSelf || isLastActiveManager}
+                          disableDeactivate={isSelf || isLastActiveAdmin}
                           disableDeactivateReason={
                             isSelf
                               ? "自分自身は無効化できません"
-                              : isLastActiveManager
-                                ? "最後の有効な管理者は無効化できません"
+                              : isLastActiveAdmin
+                                ? "最後の有効な管理者(manager/developer)は無効化できません"
                                 : undefined
                           }
                         />

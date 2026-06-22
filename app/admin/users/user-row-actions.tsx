@@ -4,9 +4,13 @@ import { useActionState, useEffect, useState } from "react";
 import {
   resetPasswordAction,
   toggleUserActiveAction,
+  changeUserRoleAction,
   type ResetPasswordState,
   type ToggleActiveState,
+  type ChangeRoleState,
 } from "./actions";
+
+type RoleValue = "member" | "manager" | "developer";
 
 type Props = {
   userId: string;
@@ -228,5 +232,115 @@ function PasswordRevealModal({
         </div>
       </div>
     </div>
+  );
+}
+
+type RoleSelectorProps = {
+  userId: string;
+  currentRole: RoleValue;
+  disabled: boolean;
+  disabledReason?: string;
+  /** 最後の管理者の降格を抑止（member 選択肢を不可化） */
+  lockedToAdmin: boolean;
+};
+
+const ROLE_OPTIONS: { value: RoleValue; label: string; className: string }[] = [
+  { value: "developer", label: "開発者", className: "admin-users-role-developer" },
+  { value: "manager", label: "管理者", className: "admin-users-role-manager" },
+  { value: "member", label: "一般", className: "admin-users-role-member" },
+];
+
+export function RoleSelector({
+  userId,
+  currentRole,
+  disabled,
+  disabledReason,
+  lockedToAdmin,
+}: RoleSelectorProps) {
+  const [state, formAction, pending] = useActionState<ChangeRoleState, FormData>(
+    changeUserRoleAction,
+    null,
+  );
+
+  const [pendingRole, setPendingRole] = useState<RoleValue | null>(null);
+  const errorForThisRow = state && !state.ok ? state.error : null;
+
+  const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newRole = e.target.value as RoleValue;
+    if (newRole === currentRole) return;
+    setPendingRole(newRole);
+    const fd = new FormData();
+    fd.set("userId", userId);
+    fd.set("newRole", newRole);
+    formAction(fd);
+  };
+
+  // 完了したら pending 表示をクリア
+  useEffect(() => {
+    if (!pending) setPendingRole(null);
+  }, [pending]);
+
+  const effectiveRole = pendingRole ?? currentRole;
+  const currentClass =
+    ROLE_OPTIONS.find((o) => o.value === effectiveRole)?.className ??
+    "admin-users-role-member";
+
+  return (
+    <span style={{ display: "inline-flex", flexDirection: "column", gap: 2 }}>
+      <span className={currentClass} style={{ position: "relative" }}>
+        <select
+          value={effectiveRole}
+          onChange={onChange}
+          disabled={disabled || pending}
+          title={disabled ? disabledReason : undefined}
+          aria-label="ロールを変更"
+          style={{
+            appearance: "none",
+            background: "transparent",
+            border: "none",
+            color: "inherit",
+            font: "inherit",
+            cursor: disabled || pending ? "not-allowed" : "pointer",
+            padding: "0 14px 0 0",
+          }}
+        >
+          {ROLE_OPTIONS.map((opt) => (
+            <option
+              key={opt.value}
+              value={opt.value}
+              disabled={
+                lockedToAdmin &&
+                opt.value === "member" &&
+                (currentRole === "manager" || currentRole === "developer")
+              }
+            >
+              {opt.label}（{opt.value}）
+            </option>
+          ))}
+        </select>
+        <span
+          aria-hidden
+          style={{
+            position: "absolute",
+            right: 2,
+            top: "50%",
+            transform: "translateY(-50%)",
+            fontSize: 10,
+            opacity: 0.6,
+            pointerEvents: "none",
+          }}
+        >
+          ▼
+        </span>
+      </span>
+      {errorForThisRow && (
+        <span
+          role="alert"
+          style={{ fontSize: 11, color: "var(--danger)", fontWeight: 600 }}
+        >
+          {errorForThisRow}
+        </span>
+      )}
+    </span>
   );
 }
