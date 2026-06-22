@@ -62,25 +62,24 @@ export function LoginForm({ next }: { next: string }) {
 
       <div className="login-field">
         <label htmlFor={loginIdId} className="login-label">
-          ログインID
+          メールアドレス
         </label>
         <input
           id={loginIdId}
           name="loginId"
-          type="text"
+          type="email"
           className="login-input"
           value={loginId}
           onChange={(e) => setLoginId(e.target.value)}
-          autoComplete="username"
+          autoComplete="email"
           autoCapitalize="off"
           autoCorrect="off"
           spellCheck={false}
-          inputMode="text"
-          pattern="[a-z0-9_\-]+"
+          inputMode="email"
           required
           aria-invalid={invalid ? "true" : undefined}
           disabled={pending}
-          placeholder="例: hongo"
+          placeholder="例: hongo_takuya@ninau.jp"
         />
       </div>
 
