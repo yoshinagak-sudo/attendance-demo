@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { unstable_noStore as noStore } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireManager } from "@/lib/session";
 import { formatJSTYmdHm } from "@/lib/time";
@@ -6,8 +7,11 @@ import { AppHeader } from "@/app/_components/AppHeader";
 import { UserRowActions, RoleSelector } from "./user-row-actions";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 
 export default async function AdminUsersPage() {
+  noStore();
   const session = await requireManager("/admin/users");
 
   const users = await prisma.user.findMany({

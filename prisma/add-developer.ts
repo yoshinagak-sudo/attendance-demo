@@ -9,11 +9,14 @@ import { hashPassword } from "../lib/password";
 function makePrisma(): PrismaClient {
   const url = process.env.TURSO_DATABASE_URL;
   const authToken = process.env.TURSO_AUTH_TOKEN;
-  if (url) {
-    const adapter = new PrismaLibSQL({ url, authToken });
-    return new PrismaClient({ adapter });
+  if (!url) {
+    throw new Error(
+      "TURSO_DATABASE_URL が未設定です。本番DBへ書き込むスクリプトのため、" +
+        "Turso URL/Token を export してから実行してください。" +
+        "（vercel env pull で取れない場合は turso db shell で直接 SQL を流すのが確実）",
+    );
   }
-  return new PrismaClient();
+  return new PrismaClient({ adapter: new PrismaLibSQL({ url, authToken }) });
 }
 
 const prisma = makePrisma();

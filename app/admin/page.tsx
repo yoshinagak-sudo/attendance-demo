@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { unstable_noStore as noStore } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireManager } from "@/lib/session";
 import { startOfTodayJST, formatJSTDateTime } from "@/lib/time";
@@ -23,6 +24,7 @@ function formatDateJP(d: Date): string {
 }
 
 export default async function AdminPage() {
+  noStore();
   const session = await requireManager("/admin");
   const now = new Date();
   const since = startOfTodayJST();
