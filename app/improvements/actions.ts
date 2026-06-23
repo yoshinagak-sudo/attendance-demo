@@ -3,8 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireSession, requireManager } from "@/lib/session";
+import { postSlackFeedback, buildImprovementMessage } from "@/lib/notify";
 
 const MAX_BODY = 1000;
+
+function resolveAppUrl(): string {
+  const url = process.env.APP_PUBLIC_URL || process.env.VERCEL_URL;
+  if (!url) return "https://attendance-demo-dun.vercel.app";
+  return url.startsWith("http") ? url : `https://${url}`;
+}
 
 export type SubmitState =
   | { ok: true; id: string }
@@ -27,6 +34,18 @@ export async function submitImprovementAction(
   const created = await prisma.improvement.create({
     data: { authorId: session.id, body },
   });
+
+  // Slack 通知（失敗してもユーザー体験は壊さない）。awaitしない fire-and-forget でも良いが、
+  // Vercel の serverless はレスポンス後の処理が打ち切られるので await して待つ。
+  await postSlackFeedback(
+    buildImprovementMessage({
+      authorName: session.name,
+      authorRole: session.role,
+      body,
+      improvementId: created.id,
+      appUrl: resolveAppUrl(),
+    }),
+  );
 
   revalidatePath("/improvements");
   revalidatePath("/admin/improvements");
