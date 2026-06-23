@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { startOfTodayJST } from "@/lib/time";
-import { getSession, isAdminRole } from "@/lib/session";
+import { getSession } from "@/lib/session";
 import { AppHeader } from "./_components/AppHeader";
 import { PunchPanel } from "./punch-panel";
 
@@ -12,9 +12,8 @@ export default async function Home() {
   if (!session) {
     redirect("/login");
   }
-  if (isAdminRole(session.role)) {
-    redirect("/admin");
-  }
+  // 管理者/開発者もホームから自分の打刻パネルを使えるようにする（強制リダイレクトしない）。
+  // ログイン直後の遷移先は login/login-form.tsx の fallback=/admin で吸収する。
 
   const since = startOfTodayJST();
   const [records, inProgressDriving] = await Promise.all([

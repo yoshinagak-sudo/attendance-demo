@@ -5045,3 +5045,315 @@ body.has-bottom-tab-bar {
   }
 }
 
+/* =========================================================================
+   改善依頼 (/improvements, /admin/improvements)
+   既存トークン (badge/.ot-btn-* / .ot-form-card / .ot-charcount) と整合させる
+   ========================================================================= */
+
+/* --- ステータスバッジ（4色） ---
+   badge ベース + 状態色。意味:
+     open        = 未対応 (amber/warn)
+     in_progress = 対応中 (accent/blue)
+     done        = 対応完了 (primary/green)
+     wontfix     = 見送り (muted/gray)
+*/
+.imp-status-open {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+.imp-status-open::before { background: var(--warn); }
+
+.imp-status-in_progress {
+  background: var(--accent-soft);
+  color: #0e6a82;
+}
+.imp-status-in_progress::before { background: var(--accent); }
+
+.imp-status-done {
+  background: var(--primary-soft);
+  color: var(--primary-hover);
+}
+.imp-status-done::before { background: var(--primary); }
+
+.imp-status-wontfix {
+  background: var(--surface-alt);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.imp-status-wontfix::before { background: var(--muted-2); }
+
+/* --- ステータス別 件数カウントカード（4列） --- */
+.imp-counts {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+@media (max-width: 640px) {
+  .imp-counts { grid-template-columns: repeat(2, 1fr); }
+}
+
+.imp-count-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.imp-count-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.imp-count-card-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+.imp-count-card-value {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.imp-count-card-unit {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* --- 一覧テーブル（一般ユーザー履歴・管理画面全件） --- */
+.imp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.imp-table thead { background: var(--surface-alt); }
+.imp-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.imp-table td {
+  padding: 12px;
+  border-top: 1px solid var(--divider);
+  color: var(--text-sub);
+  vertical-align: top;
+}
+.imp-table tbody tr:first-child td { border-top: none; }
+.imp-table tbody tr:hover { background: var(--surface-hover); }
+
+.imp-cell-date {
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  width: 1%;
+}
+.imp-cell-user {
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--text);
+  width: 1%;
+}
+.imp-cell-body {
+  color: var(--text);
+  line-height: 1.55;
+  word-break: break-word;
+  white-space: pre-wrap;
+  min-width: 240px;
+}
+.imp-cell-body-clamp {
+  /* 履歴の本文を 3 行で省略 */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.imp-cell-status { white-space: nowrap; width: 1%; }
+.imp-cell-handler {
+  white-space: nowrap;
+  width: 1%;
+  color: var(--text-sub);
+}
+.imp-cell-handler-empty { color: var(--muted-2); }
+.imp-cell-actions {
+  white-space: nowrap;
+  width: 1%;
+}
+
+/* --- 投稿フォーム（client） --- */
+.imp-submit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.imp-submit-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+@media (max-width: 640px) {
+  .imp-submit-actions { flex-direction: column-reverse; align-items: stretch; }
+  .imp-submit-actions > .ot-btn-primary { width: 100%; }
+}
+
+/* 投稿後のインライントースト（フォーム直下に出す success バナーの軽量版） */
+.imp-success {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--primary-soft);
+  color: var(--primary-hover);
+  border: 1px solid #b9dad6;
+  border-radius: var(--r-md);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.imp-success-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* --- 管理画面: ステータス変更アクション（行内） --- */
+.imp-status-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+.imp-status-actions-error {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--danger);
+  font-weight: 600;
+}
+.imp-status-btn {
+  min-height: 28px;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-sub);
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.01em;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+.imp-status-btn:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+.imp-status-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.imp-status-btn.is-current {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary-hover);
+}
+
+/* --- カード（管理画面: モバイルでテーブル代替） --- */
+.imp-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.imp-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.imp-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.imp-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.imp-card-user {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.imp-card-date {
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.imp-card-body {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.imp-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--divider);
+  padding-top: 10px;
+}
+.imp-card-handler {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+.imp-card-handler strong {
+  color: var(--text-sub);
+  font-weight: 600;
+}
+
+/* --- レスポンシブ表示切替（管理画面） --- */
+.imp-desktop-only { display: block; }
+.imp-mobile-only { display: none; }
+@media (max-width: 720px) {
+  .imp-desktop-only { display: none; }
+  .imp-mobile-only { display: block; }
+}

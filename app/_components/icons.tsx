@@ -14,4 +14,5 @@ export {
   Truck as VehicleIcon,
   ClipboardList as ReportIcon,
   LayoutDashboard as AdminIcon,
+  Lightbulb as ImprovementIcon,
 } from "lucide-react";

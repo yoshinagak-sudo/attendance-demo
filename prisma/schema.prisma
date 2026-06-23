@@ -27,6 +27,8 @@ model User {
   refuelingLogs            RefuelingLog[]      @relation("RefuelingLogUser")
   dailyReports             DailyReport[]       @relation("DailyReportUser")
   dailyReportsAcknowledged DailyReport[]       @relation("DailyReportAck")
+  improvements             Improvement[]       @relation("ImprovementAuthor")
+  improvementsHandled      Improvement[]       @relation("ImprovementHandler")
 }
 
 model LoginAttempt {
@@ -224,4 +226,21 @@ model AppSetting {
   key       String   @id
   value     String
   updatedAt DateTime @updatedAt
+}
+
+// 現場からの改善依頼。誰でも投稿可、manager/developer が status を切り替える。
+model Improvement {
+  id          String   @id @default(cuid())
+  authorId    String
+  author      User     @relation("ImprovementAuthor", fields: [authorId], references: [id])
+  body        String
+  status      String   @default("open") // open / in_progress / done / wontfix
+  handledById String?
+  handledBy   User?    @relation("ImprovementHandler", fields: [handledById], references: [id])
+  handlerNote String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([authorId, createdAt])
+  @@index([status, createdAt])
 }
