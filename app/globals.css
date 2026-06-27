@@ -5419,3 +5419,201 @@ body.has-bottom-tab-bar {
   .imp-desktop-only { display: none; }
   .imp-mobile-only { display: block; }
 }
+
+/* =========================================================================
+   アカウント連携設定 (/settings/account)
+   既存トークンに合わせ、新色は足さない。LINE 緑のみ既存 .login-line-btn を流用
+   ========================================================================= */
+
+/* --- アカウント情報 4セル ---
+   PC: 4列、SP: 1〜2列に自動畳み */
+.settings-info-grid {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.settings-info-cell {
+  background: var(--surface);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.settings-info-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.settings-info-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.4;
+  margin: 0;
+  overflow-wrap: anywhere;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 22px;
+}
+.settings-info-value-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+/* --- 連携方法カードのリスト --- */
+.settings-method-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-method-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  min-width: 0;
+}
+
+.settings-method-icon {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-md);
+  background: var(--surface-alt);
+  color: var(--text-sub);
+}
+.settings-method-icon-line {
+  background: #e8f9ef;
+  color: #06c755;
+}
+.settings-method-icon-photo {
+  background: transparent;
+  padding: 0;
+  overflow: hidden;
+}
+.settings-line-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  background: var(--surface-alt);
+}
+
+.settings-method-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.settings-method-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.settings-method-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+.settings-method-sub {
+  font-size: 12px;
+  color: var(--text-sub);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.settings-method-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.02em;
+}
+
+.settings-method-action {
+  flex: none;
+  display: flex;
+  align-items: center;
+}
+.settings-method-action-empty {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--muted-2);
+  padding: 0 8px;
+}
+
+.settings-action-form {
+  margin: 0;
+}
+
+/* LINE と連携する: 既存 .login-line-btn の幅を 100% から「コンパクトな inline」へ調整 */
+.settings-link-btn {
+  width: auto;
+  min-height: 40px;
+  padding: 10px 18px;
+  font-size: 13px;
+  border-radius: var(--r-md);
+}
+.settings-link-btn > svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* 解除ボタンは既存 .ot-btn-danger に幅だけ揃える */
+.settings-unlink-btn {
+  white-space: nowrap;
+}
+
+/* 未連携バッジ: muted 系 pill。新色追加せず admin-users-role-member と同型で */
+.settings-badge-unlinked {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--r-pill);
+  background: var(--surface-alt);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  letter-spacing: 0.02em;
+}
+
+/* --- レスポンシブ（〜640px）: 行を縦積み、アクションは全幅 --- */
+@media (max-width: 640px) {
+  .settings-method-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px;
+  }
+  .settings-method-action {
+    width: 100%;
+  }
+  .settings-action-form {
+    width: 100%;
+  }
+  .settings-link-btn,
+  .settings-unlink-btn {
+    width: 100%;
+  }
+  .settings-method-action-empty {
+    display: none;
+  }
+}

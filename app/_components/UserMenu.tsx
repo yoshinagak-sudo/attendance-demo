@@ -165,6 +165,14 @@ export function UserMenu({ user }: { user: SessionUser }) {
           </>
         )}
         <div className="user-menu-divider" role="separator" aria-hidden="true" />
+        <Link
+          href="/settings/account"
+          className="user-menu-item"
+          role="menuitem"
+          onClick={close}
+        >
+          設定
+        </Link>
         <button
           type="button"
           className="user-menu-item user-menu-item-danger"

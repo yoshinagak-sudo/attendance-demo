@@ -23,11 +23,21 @@ export function getLineConfig(): LineConfig | null {
   return { channelId, channelSecret, redirectUri };
 }
 
+function getStateSecret(): string {
+  const s = process.env.SESSION_SECRET;
+  if (!s || s.length < 16) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("SESSION_SECRET is required in production (>=16 chars)");
+    }
+    return "dev-only-secret-do-not-use-in-production";
+  }
+  return s;
+}
+
 /** state は CSRF対策に必須。HMAC で署名して cookie に置く */
 export function issueState(): { state: string; signed: string } {
   const state = randomBytes(16).toString("base64url");
-  const secret = process.env.SESSION_SECRET ?? "dev";
-  const sig = createHmac("sha256", secret).update(state).digest("base64url");
+  const sig = createHmac("sha256", getStateSecret()).update(state).digest("base64url");
   return { state, signed: `${state}.${sig}` };
 }
 
@@ -36,8 +46,7 @@ export function verifyState(signedFromCookie: string, stateFromQuery: string): b
   if (parts.length !== 2) return false;
   const [s, sig] = parts;
   if (s !== stateFromQuery) return false;
-  const secret = process.env.SESSION_SECRET ?? "dev";
-  const expected = createHmac("sha256", secret).update(s).digest("base64url");
+  const expected = createHmac("sha256", getStateSecret()).update(s).digest("base64url");
   const a = Buffer.from(sig);
   const b = Buffer.from(expected);
   if (a.length !== b.length) return false;

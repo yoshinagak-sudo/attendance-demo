@@ -11,6 +11,7 @@ import {
 
 const STATE_COOKIE = "line_oauth_state";
 const NONCE_COOKIE = "line_oauth_nonce";
+const MODE_COOKIE = "line_oauth_mode";
 const TTL_SECONDS = 5 * 60;
 
 export async function startLineLoginAction(): Promise<void> {
@@ -33,6 +34,7 @@ export async function startLineLoginAction(): Promise<void> {
   };
   store.set(STATE_COOKIE, signed, cookieOpts);
   store.set(NONCE_COOKIE, nonce, cookieOpts);
+  store.set(MODE_COOKIE, "login", cookieOpts);
 
   redirect(authorizeUrl);
 }
