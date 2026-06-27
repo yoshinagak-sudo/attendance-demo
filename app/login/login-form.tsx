@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
+import { startLineLoginAction } from "./line-action";
 
 const GENERIC_ERROR =
   "ログイン情報が正しくないか、ロックされています";
@@ -161,18 +162,16 @@ export function LoginForm({ next, lineError }: LoginFormProps) {
         <span>または</span>
       </div>
 
-      <a
-        href="/api/auth/line/start"
-        className="login-line-btn"
-        aria-disabled={pending ? "true" : undefined}
-        tabIndex={pending ? -1 : undefined}
-        onClick={(e) => {
-          if (pending) e.preventDefault();
-        }}
-      >
-        <LineIcon />
-        <span>LINEでログイン</span>
-      </a>
+      <form action={startLineLoginAction} style={{ margin: 0 }}>
+        <button
+          type="submit"
+          className="login-line-btn"
+          disabled={pending}
+        >
+          <LineIcon />
+          <span>LINEでログイン</span>
+        </button>
+      </form>
 
       <p className="login-help">
         ログイン情報を忘れた場合は管理者にお問い合わせください
