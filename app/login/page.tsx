@@ -5,7 +5,7 @@ import { QuickLogin } from "./quick-login";
 
 export const dynamic = "force-dynamic";
 
-type SearchParams = Promise<{ next?: string }>;
+type SearchParams = Promise<{ next?: string; error?: string }>;
 
 export default async function LoginPage({
   searchParams,
@@ -15,6 +15,7 @@ export default async function LoginPage({
   const session = await getSession();
   const params = await searchParams;
   const requestedNext = sanitizeNext(params.next);
+  const lineError = resolveLineError(params.error);
 
   if (session) {
     const fallback =
@@ -42,10 +43,22 @@ export default async function LoginPage({
       {demoMode ? (
         <QuickLogin next={requestedNext} />
       ) : (
-        <LoginForm next={requestedNext} />
+        <LoginForm next={requestedNext} lineError={lineError} />
       )}
     </main>
   );
+}
+
+function resolveLineError(value: string | undefined): string | null {
+  if (!value) return null;
+  if (!value.startsWith("line_")) return null;
+  if (value === "line_state_mismatch") {
+    return "セッション検証に失敗しました。もう一度お試しください";
+  }
+  if (value === "line_verify_failed") {
+    return "LINE認証に失敗しました";
+  }
+  return "LINEログインで問題が発生しました";
 }
 
 function sanitizeNext(value: string | undefined): string {

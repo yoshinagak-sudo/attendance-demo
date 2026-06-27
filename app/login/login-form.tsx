@@ -6,7 +6,30 @@ import { useId, useState } from "react";
 const GENERIC_ERROR =
   "ログイン情報が正しくないか、ロックされています";
 
-export function LoginForm({ next }: { next: string }) {
+type LoginFormProps = {
+  next: string;
+  lineError?: string | null;
+};
+
+function LineIcon() {
+  // LINE風の吹き出し型アイコン（商標ロゴは使わない・自前で描画）
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        fill="currentColor"
+        d="M12 3C6.48 3 2 6.69 2 11.24c0 4.08 3.55 7.5 8.34 8.13.32.07.77.21.88.49.1.25.07.65.03.91l-.14.86c-.04.25-.21.99.87.54 1.07-.45 5.81-3.42 7.93-5.86 1.47-1.62 2.09-3.27 2.09-5.07C22 6.69 17.52 3 12 3z"
+      />
+    </svg>
+  );
+}
+
+export function LoginForm({ next, lineError }: LoginFormProps) {
   const router = useRouter();
   const loginIdId = useId();
   const passwordId = useId();
@@ -59,6 +82,11 @@ export function LoginForm({ next }: { next: string }) {
 
   return (
     <form className="login-card" onSubmit={onSubmit} noValidate>
+      {lineError && (
+        <div className="login-error" role="alert" aria-live="polite">
+          {lineError}
+        </div>
+      )}
       {error && (
         <div className="login-error" role="alert" aria-live="polite">
           {error}
@@ -128,6 +156,23 @@ export function LoginForm({ next }: { next: string }) {
       >
         {pending ? "ログイン中…" : "ログイン"}
       </button>
+
+      <div className="login-divider" role="separator" aria-label="または">
+        <span>または</span>
+      </div>
+
+      <a
+        href="/api/auth/line/start"
+        className="login-line-btn"
+        aria-disabled={pending ? "true" : undefined}
+        tabIndex={pending ? -1 : undefined}
+        onClick={(e) => {
+          if (pending) e.preventDefault();
+        }}
+      >
+        <LineIcon />
+        <span>LINEでログイン</span>
+      </a>
 
       <p className="login-help">
         ログイン情報を忘れた場合は管理者にお問い合わせください

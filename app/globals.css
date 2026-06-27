@@ -2367,6 +2367,68 @@ body {
   letter-spacing: 0.02em;
 }
 
+/* --- 「または」区切り（ログイン手段の選択肢を分ける） --- */
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+.login-divider::before,
+.login-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.login-divider > span {
+  flex: none;
+}
+
+/* --- LINEログインボタン（ブランド緑、ニナウ primary とは分離） --- */
+.login-line-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 56px;
+  padding: 14px 20px;
+  background: #06c755;
+  color: #ffffff;
+  border: 1px solid #06c755;
+  border-radius: var(--r-md);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
+}
+.login-line-btn:hover {
+  background: #05b84b;
+  border-color: #05b84b;
+}
+.login-line-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(6, 199, 85, 0.28);
+}
+.login-line-btn[aria-disabled="true"] {
+  opacity: 0.55;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+.login-line-btn > svg {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+
 /* --- 共通アプリヘッダー --- */
 .header-app {
   background: var(--surface);

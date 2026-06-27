@@ -18,6 +18,8 @@ model User {
   isActive                 Boolean           @default(true)
   lastLoginAt              DateTime?
   createdAt                DateTime          @default(now())
+  lineUserId               String?           @unique
+  linePictureUrl           String?
   records                  TimeRecord[]
   overtimeRequests         OvertimeRequest[] @relation("Applicant")
   overtimeReviewedRequests OvertimeRequest[] @relation("Reviewer")
