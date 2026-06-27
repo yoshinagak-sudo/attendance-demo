@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { startLineLoginAction } from "./line-action";
@@ -171,13 +172,22 @@ export function LoginForm({ next, lineError }: LoginFormProps) {
           disabled={pending}
         >
           <LineIcon />
-          <span>LINEでログイン</span>
+          <span>LINEでログイン / 新規登録</span>
         </button>
       </form>
+      <p className="login-line-hint">初回利用時は自動で登録されます</p>
 
-      <p className="login-help">
-        ログイン情報を忘れた場合は管理者にお問い合わせください
-      </p>
+      <div className="login-help-stack">
+        <p className="login-help" style={{ margin: 0 }}>
+          初めての方は{" "}
+          <Link href="/signup" className="login-help-link">
+            新規登録
+          </Link>
+        </p>
+        <p className="login-help" style={{ margin: 0 }}>
+          ログイン情報を忘れた場合は管理者にお問い合わせください
+        </p>
+      </div>
     </div>
   );
 }

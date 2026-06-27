@@ -2367,6 +2367,86 @@ body {
   letter-spacing: 0.02em;
 }
 
+/* --- ログイン/新規登録の補助リンク（ログイン画面下部・signup下部） --- */
+.login-help-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+}
+.login-help-link {
+  color: var(--primary-hover);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+.login-help-link:hover {
+  text-decoration: underline;
+}
+.login-help-link:focus-visible {
+  outline: none;
+  text-decoration: underline;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.18);
+  border-radius: var(--r-sm);
+}
+
+/* --- LINEボタン補足文（初回利用時の説明） --- */
+.login-line-hint {
+  margin: -8px 0 0;
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+/* --- signup ページ「すでにアカウントをお持ちの方は」リンク --- */
+.login-secondary-link {
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+.login-secondary-link-anchor {
+  color: var(--primary-hover);
+  font-weight: 700;
+  text-decoration: none;
+}
+.login-secondary-link-anchor:hover {
+  text-decoration: underline;
+}
+.login-secondary-link-anchor:focus-visible {
+  outline: none;
+  text-decoration: underline;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.18);
+  border-radius: var(--r-sm);
+}
+
+/* --- signup ラベル左の小アイコン（lucide-react） --- */
+.login-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.login-label-icon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--muted);
+}
+
+/* --- 入力欄直下の補助テキスト（signup の「8文字以上...」など） --- */
+.login-field-help {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+}
+
 /* --- 「または」区切り（ログイン手段の選択肢を分ける） --- */
 .login-divider {
   display: flex;
