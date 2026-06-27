@@ -2,7 +2,7 @@ export const SESSION_COOKIE_NAME = "att_session";
 
 export type SessionPayloadEdge = {
   uid: string;
-  rl: "member" | "manager";
+  rl: "member" | "manager" | "developer";
   iat: number;
   exp: number;
 };

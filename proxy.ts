@@ -2,8 +2,13 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { SESSION_COOKIE_NAME, verifySessionEdge } from "@/lib/session-edge";
 
-const PUBLIC_PATHS = ["/login", "/favicon.ico", "/robots.txt"];
-const PUBLIC_API_PREFIXES = ["/api/auth/login", "/api/auth/logout", "/api/auth/demo-login"];
+const PUBLIC_PATHS = ["/login", "/signup", "/favicon.ico", "/robots.txt"];
+const PUBLIC_API_PREFIXES = [
+  "/api/auth/login",
+  "/api/auth/logout",
+  "/api/auth/demo-login",
+  "/api/auth/line",
+];
 
 function isPublicPath(pathname: string): boolean {
   if (PUBLIC_PATHS.includes(pathname)) return true;
@@ -31,7 +36,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (pathname.startsWith("/admin") && payload.rl !== "manager") {
+  if (pathname.startsWith("/admin") && payload.rl !== "manager" && payload.rl !== "developer") {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     url.search = "";
