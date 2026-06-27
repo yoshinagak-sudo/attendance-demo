@@ -82,7 +82,7 @@ export function LoginForm({ next, lineError }: LoginFormProps) {
   const invalid = !!error;
 
   return (
-    <form className="login-card" onSubmit={onSubmit} noValidate>
+    <div className="login-card">
       {lineError && (
         <div className="login-error" role="alert" aria-live="polite">
           {lineError}
@@ -93,6 +93,7 @@ export function LoginForm({ next, lineError }: LoginFormProps) {
           {error}
         </div>
       )}
+      <form onSubmit={onSubmit} noValidate style={{ display: "contents" }}>
 
       <div className="login-field">
         <label htmlFor={loginIdId} className="login-label">
@@ -157,6 +158,7 @@ export function LoginForm({ next, lineError }: LoginFormProps) {
       >
         {pending ? "ログイン中…" : "ログイン"}
       </button>
+      </form>
 
       <div className="login-divider" role="separator" aria-label="または">
         <span>または</span>
@@ -176,6 +178,6 @@ export function LoginForm({ next, lineError }: LoginFormProps) {
       <p className="login-help">
         ログイン情報を忘れた場合は管理者にお問い合わせください
       </p>
-    </form>
+    </div>
   );
 }
