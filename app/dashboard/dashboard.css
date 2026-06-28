@@ -115,6 +115,25 @@
   text-transform: uppercase;
 }
 
+.dash-nav-scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 4px;
+}
+.dash-nav-group + .dash-nav-group {
+  margin-top: 8px;
+}
+.dash-nav-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #6f7e66;
+  text-transform: uppercase;
+  padding: 8px 12px 4px;
+}
 .dash-nav-list {
   display: flex;
   flex-direction: column;
@@ -122,7 +141,6 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  flex: 1;
 }
 
 .dash-nav-link {

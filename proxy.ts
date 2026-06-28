@@ -124,6 +124,13 @@ function rewriteToDashboard(request: NextRequest, pathname: string) {
   if (pathname.startsWith("/api/dashboard/")) {
     return NextResponse.next();
   }
+  // 既存の admin 機能群はサブドメイン経由でもそのまま使えるよう rewrite しない
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    return NextResponse.next();
+  }
+  if (pathname.startsWith("/api/admin/")) {
+    return NextResponse.next();
+  }
   // それ以外はサブドメイン内では /dashboard 配下の同名ルートに rewrite
   const url = request.nextUrl.clone();
   url.pathname = pathname === "/" ? "/dashboard" : `/dashboard${pathname}`;
