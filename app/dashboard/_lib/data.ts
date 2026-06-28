@@ -186,3 +186,80 @@ export async function getPendingCounts() {
   ]);
   return { pendingOvertime: overtime, pendingReports: reports };
 }
+
+/** 社員一覧（read-only） */
+export async function getEmployees() {
+  const users = await prisma.user.findMany({
+    orderBy: [{ isActive: "desc" }, { role: "desc" }, { name: "asc" }],
+  });
+  return users.map((u) => ({
+    id: u.id,
+    name: u.name,
+    role: u.role,
+    loginId: u.loginId,
+    hasLine: !!u.lineUserId,
+    isActive: u.isActive,
+    lastLoginAt: u.lastLoginAt,
+  }));
+}
+
+/** 残業申請一覧（read-only、最新200件） */
+export async function getOvertimeList() {
+  const list = await prisma.overtimeRequest.findMany({
+    orderBy: [{ workDate: "desc" }, { createdAt: "desc" }],
+    take: 200,
+    include: {
+      user: { select: { name: true } },
+    },
+  });
+  const counts = {
+    submitted: 0,
+    approved: 0,
+    rejected: 0,
+    sent_back: 0,
+  };
+  for (const o of list) {
+    if (o.status in counts) {
+      counts[o.status as keyof typeof counts] += 1;
+    }
+  }
+  return {
+    counts,
+    rows: list.map((o) => ({
+      id: o.id,
+      userName: o.user.name,
+      workDate: o.workDate,
+      startAt: o.startAt,
+      endAt: o.endAt,
+      durationMinutes: o.durationMinutes,
+      workSiteName: o.workSiteName,
+      description: o.description,
+      requestType: o.requestType,
+      status: o.status,
+      reviewedAt: o.reviewedAt,
+    })),
+  };
+}
+
+/** 日報一覧（read-only、最新200件） */
+export async function getReportsList() {
+  const list = await prisma.dailyReport.findMany({
+    orderBy: [{ reportDate: "desc" }, { createdAt: "desc" }],
+    take: 200,
+    include: {
+      user: { select: { name: true } },
+      items: true,
+    },
+  });
+  return list.map((r) => ({
+    id: r.id,
+    userName: r.user.name,
+    reportDate: r.reportDate,
+    status: r.status,
+    totalMinutes: r.totalMinutes,
+    itemsCount: r.items.length,
+    progressNote: r.progressNote,
+    submittedAt: r.submittedAt,
+    acknowledgedAt: r.acknowledgedAt,
+  }));
+}

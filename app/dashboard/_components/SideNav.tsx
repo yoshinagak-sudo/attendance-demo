@@ -8,14 +8,11 @@ import {
   Calendar,
   Truck,
   Inbox,
+  Users,
+  Clock,
+  FileText,
   Menu,
   X,
-  LayoutDashboard,
-  Users,
-  ClipboardList,
-  CheckSquare,
-  FileText,
-  Settings,
 } from "lucide-react";
 import { LogoutButton } from "./LogoutButton";
 
@@ -25,41 +22,14 @@ type NavItem = {
   icon: typeof Home;
 };
 
-type NavGroup = {
-  label: string;
-  items: NavItem[];
-};
-
-const NAV_GROUPS: NavGroup[] = [
-  {
-    label: "概況",
-    items: [
-      { href: "/dashboard", label: "出勤状況", icon: Home },
-      { href: "/dashboard/monthly", label: "月次集計", icon: Calendar },
-      { href: "/dashboard/vehicle", label: "車両状況", icon: Truck },
-      { href: "/dashboard/pending", label: "未対応", icon: Inbox },
-    ],
-  },
-  {
-    label: "詳細管理",
-    items: [
-      { href: "/admin", label: "ダッシュボード（ガント）", icon: LayoutDashboard },
-      { href: "/admin/users", label: "ユーザー管理", icon: Users },
-      { href: "/admin/overtime", label: "残業申請の承認", icon: CheckSquare },
-      { href: "/admin/overtime/report", label: "残業月次レポート", icon: Calendar },
-      { href: "/admin/report", label: "日報一覧", icon: ClipboardList },
-      { href: "/admin/report/month", label: "日報 月次サマリ", icon: Calendar },
-      { href: "/admin/vehicle", label: "車両 詳細", icon: Truck },
-      { href: "/admin/vehicle/report", label: "車両 月次レポート", icon: FileText },
-    ],
-  },
-  {
-    label: "設定",
-    items: [
-      { href: "/admin/settings/overtime", label: "残業設定", icon: Settings },
-      { href: "/admin/settings/vehicle", label: "車両マスタ", icon: Settings },
-    ],
-  },
+const NAV_ITEMS: NavItem[] = [
+  { href: "/dashboard", label: "出勤状況", icon: Home },
+  { href: "/dashboard/monthly", label: "月次集計", icon: Calendar },
+  { href: "/dashboard/vehicle", label: "車両状況", icon: Truck },
+  { href: "/dashboard/pending", label: "未対応", icon: Inbox },
+  { href: "/dashboard/employees", label: "社員", icon: Users },
+  { href: "/dashboard/overtime", label: "残業申請", icon: Clock },
+  { href: "/dashboard/reports", label: "日報", icon: FileText },
 ];
 
 function isActive(currentPath: string, href: string): boolean {
@@ -139,31 +109,24 @@ export function SideNav() {
           </button>
         </div>
 
-        <div className="dash-nav-scroll">
-          {NAV_GROUPS.map((group) => (
-            <div key={group.label} className="dash-nav-group">
-              <div className="dash-nav-group-label">{group.label}</div>
-              <ul className="dash-nav-list">
-                {group.items.map((item) => {
-                  const active = isActive(pathname, item.href);
-                  const Icon = item.icon;
-                  return (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        className={`dash-nav-link${active ? " is-active" : ""}`}
-                        aria-current={active ? "page" : undefined}
-                      >
-                        <Icon size={18} aria-hidden="true" />
-                        <span>{item.label}</span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
-        </div>
+        <ul className="dash-nav-list">
+          {NAV_ITEMS.map((item) => {
+            const active = isActive(pathname, item.href);
+            const Icon = item.icon;
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={`dash-nav-link${active ? " is-active" : ""}`}
+                  aria-current={active ? "page" : undefined}
+                >
+                  <Icon size={18} aria-hidden="true" />
+                  <span>{item.label}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
 
         <div className="dash-nav-foot">
           <LogoutButton />

@@ -8,11 +8,7 @@ import {
   checkOwnerPassword,
   issueDashboardCookie,
 } from "@/lib/dashboard-session";
-import {
-  SESSION_COOKIE_NAME,
-  SESSION_TTL_SECONDS,
-  issueSession,
-} from "@/lib/session-node";
+import { SESSION_COOKIE_NAME } from "@/lib/session-node";
 
 const MIN_LATENCY_MS = 500;
 
@@ -51,19 +47,6 @@ export async function dashboardLoginAction(
     path: "/",
     maxAge: DASHBOARD_TTL_SECONDS,
   });
-
-  // 既存の /admin/* 配下を利用できるよう、synthetic owner user の User session も発行
-  const ownerUserId = process.env.OWNER_USER_ID;
-  if (ownerUserId) {
-    const userSession = issueSession({ userId: ownerUserId, role: "developer" });
-    store.set(SESSION_COOKIE_NAME, userSession.cookieValue, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: SESSION_TTL_SECONDS,
-    });
-  }
 
   await sleepUntil(startMs);
   redirect("/dashboard");

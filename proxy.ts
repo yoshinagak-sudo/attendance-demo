@@ -124,14 +124,9 @@ function rewriteToDashboard(request: NextRequest, pathname: string) {
   if (pathname.startsWith("/api/dashboard/")) {
     return NextResponse.next();
   }
-  // 既存の admin 機能群はサブドメイン経由でもそのまま使えるよう rewrite しない
-  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
-    return NextResponse.next();
-  }
-  if (pathname.startsWith("/api/admin/")) {
-    return NextResponse.next();
-  }
-  // それ以外はサブドメイン内では /dashboard 配下の同名ルートに rewrite
+  // 社員アプリ側ルート（/admin, /overtime, /vehicle, /report, /api/admin 等）への
+  // サブドメイン経由アクセスは禁止。dashboard 内で完結させる。
+  // すべて /dashboard 配下に書き換え、未実装の場合は 404 になる。
   const url = request.nextUrl.clone();
   url.pathname = pathname === "/" ? "/dashboard" : `/dashboard${pathname}`;
   return NextResponse.rewrite(url);
