@@ -19,6 +19,7 @@ export const dynamic = "force-dynamic";
 const STATE_COOKIE = "line_oauth_state";
 const NONCE_COOKIE = "line_oauth_nonce";
 const MODE_COOKIE = "line_oauth_mode";
+const PENDING_LINE_SIGNUP_COOKIE = "line_pending_signup";
 
 function errorRedirect(req: NextRequest, code: string, mode: "login" | "link") {
   const base = mode === "link" ? "/settings/account" : "/login";
@@ -98,28 +99,37 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // セッション無し: upsert で既存LINEユーザー検出 or 新規作成 (role=member)
-  const user = await prisma.user.upsert({
-    where: { lineUserId },
-    update: {
-      lastLoginAt: new Date(),
-      linePictureUrl: picture,
-      // 既存 name が「LINEユーザー」相当（初回作成のみ自動値）の場合だけ上書き
-      ...(displayName ? { name: displayName } : {}),
-    },
-    create: {
+  // セッション無し（=ログイン or 新規）。既存ユーザーは即 session 発行、新規は名前入力画面へ。
+  const existing = await prisma.user.findUnique({ where: { lineUserId } });
+
+  if (!existing) {
+    // 新規: User をまだ作らず、cookie に LINE 情報を仮置きして /signup/line に飛ばす
+    const pending = {
       lineUserId,
-      name: displayName,
-      linePictureUrl: picture,
-      role: "member",
-      isActive: true,
+      displayName,
+      picture,
+    };
+    store.set(PENDING_LINE_SIGNUP_COOKIE, JSON.stringify(pending), {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 10 * 60, // 10分
+    });
+    return NextResponse.redirect(new URL("/signup/line", req.url));
+  }
+
+  // 既存ユーザー: ログイン更新 + session 発行
+  const user = await prisma.user.update({
+    where: { id: existing.id },
+    data: {
       lastLoginAt: new Date(),
+      linePictureUrl: picture,
     },
   });
 
   if (!user.isActive) return errorRedirect(req, "user_inactive", "login");
 
-  // session 発行
   const role: "member" | "manager" | "developer" =
     user.role === "developer"
       ? "developer"
@@ -135,7 +145,6 @@ export async function GET(req: NextRequest) {
     maxAge: SESSION_TTL_SECONDS,
   });
 
-  // role に応じて行き先を変える
   const next = role === "manager" || role === "developer" ? "/admin" : "/";
   return NextResponse.redirect(new URL(next, req.url));
 }

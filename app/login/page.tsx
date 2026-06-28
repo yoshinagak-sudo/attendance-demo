@@ -58,6 +58,9 @@ function resolveLineError(value: string | undefined): string | null {
   if (value === "line_verify_failed") {
     return "LINE認証に失敗しました";
   }
+  if (value === "line_pending_expired") {
+    return "登録の有効期限が切れました。もう一度 LINE ログインからやり直してください";
+  }
   return "LINEログインで問題が発生しました";
 }
 

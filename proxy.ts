@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { SESSION_COOKIE_NAME, verifySessionEdge } from "@/lib/session-edge";
 
-const PUBLIC_PATHS = ["/login", "/signup", "/favicon.ico", "/robots.txt"];
-const PUBLIC_API_PREFIXES = [
+const PUBLIC_EXACT = ["/favicon.ico", "/robots.txt"];
+const PUBLIC_PREFIXES = [
+  "/login",
+  "/signup",
   "/api/auth/login",
   "/api/auth/logout",
   "/api/auth/demo-login",
@@ -11,9 +13,9 @@ const PUBLIC_API_PREFIXES = [
 ];
 
 function isPublicPath(pathname: string): boolean {
-  if (PUBLIC_PATHS.includes(pathname)) return true;
+  if (PUBLIC_EXACT.includes(pathname)) return true;
   if (pathname.startsWith("/_next")) return true;
-  for (const p of PUBLIC_API_PREFIXES) {
+  for (const p of PUBLIC_PREFIXES) {
     if (pathname === p || pathname.startsWith(p + "/")) return true;
   }
   return false;

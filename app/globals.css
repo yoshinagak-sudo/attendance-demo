@@ -2447,6 +2447,40 @@ body {
   line-height: 1.5;
 }
 
+/* --- LINE 名前確定画面: アカウント情報パネル（アバター + ラベル + 表示名） --- */
+.login-line-account {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+.login-line-account-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.login-line-account-label {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.login-line-account-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* --- 「または」区切り（ログイン手段の選択肢を分ける） --- */
 .login-divider {
   display: flex;
