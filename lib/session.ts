@@ -10,7 +10,7 @@ import {
 export type SessionUser = {
   id: string;
   name: string;
-  loginId: string;
+  loginId: string | null;
   role: SessionRole;
 };
 
@@ -34,7 +34,9 @@ export async function getSession(): Promise<SessionUser | null> {
   if (!payload) return null;
 
   const user = await prisma.user.findUnique({ where: { id: payload.uid } });
-  if (!user || !user.isActive || !user.loginId) return null;
+  if (!user || !user.isActive) return null;
+  // 認証手段が一つもないユーザーは弾く（メアド or LINE のいずれかは必要）
+  if (!user.loginId && !user.lineUserId) return null;
   if (user.passwordUpdatedAt && new Date(payload.iat * 1000) < user.passwordUpdatedAt) {
     return null;
   }
