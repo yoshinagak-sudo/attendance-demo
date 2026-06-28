@@ -2,8 +2,7 @@
  * 管理ダッシュボード（admin.〜）専用 セッション
  *
  * - 社員アプリの User 認証とは独立した別系統
- * - 1人専用アカウント。credentials は環境変数で配布:
- *     NINAU_OWNER_EMAIL          ニナウ社長のメアド
+ * - 合言葉のみで入る（メアド不要）:
  *     NINAU_OWNER_PASSWORD_HASH  パスワード（PBKDF2 ハッシュ済み）
  * - cookie: att_dashboard、24時間有効、HMAC-SHA256 署名
  */
@@ -14,7 +13,6 @@ export const DASHBOARD_COOKIE_NAME = "att_dashboard";
 export const DASHBOARD_TTL_SECONDS = 24 * 60 * 60;
 
 type DashPayload = {
-  email: string;
   iat: number;
   exp: number;
 };
@@ -34,22 +32,19 @@ function sign(payloadB64: string): string {
   return createHmac("sha256", getSecret()).update(payloadB64).digest("base64url");
 }
 
-/** env から credentials を読み、入力と一致するかを返す */
-export function checkOwnerCredentials(email: string, password: string): boolean {
-  const expectedEmail = (process.env.NINAU_OWNER_EMAIL ?? "").trim().toLowerCase();
+/** env からハッシュ済みパスワードを読み、入力と一致するかを返す */
+export function checkOwnerPassword(password: string): boolean {
   const expectedHash = process.env.NINAU_OWNER_PASSWORD_HASH ?? "";
-  if (!expectedEmail || !expectedHash) return false;
-  if (email.trim().toLowerCase() !== expectedEmail) return false;
+  if (!expectedHash) return false;
   return verifyPassword(expectedHash, password);
 }
 
 export function issueDashboardCookie(
-  email: string,
   now: Date = new Date(),
 ): { cookieValue: string; maxAge: number; expiresAt: Date } {
   const iat = Math.floor(now.getTime() / 1000);
   const exp = iat + DASHBOARD_TTL_SECONDS;
-  const payload: DashPayload = { email, iat, exp };
+  const payload: DashPayload = { iat, exp };
   const payloadB64 = Buffer.from(JSON.stringify(payload), "utf8").toString(
     "base64url",
   );
@@ -62,7 +57,6 @@ export function issueDashboardCookie(
 }
 
 export type DashboardSession = {
-  email: string;
   iat: number;
   exp: number;
 };
@@ -86,7 +80,7 @@ export function verifyDashboardCookie(
   } catch {
     return null;
   }
-  if (!payload.exp || !payload.email) return null;
+  if (!payload.exp) return null;
   if (payload.exp * 1000 < now.getTime()) return null;
   return payload;
 }

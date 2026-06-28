@@ -30,7 +30,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="dash-shell">
-      <SideNav ownerEmail={session.email} />
+      <SideNav />
       <main className="dash-main">{children}</main>
     </div>
   );

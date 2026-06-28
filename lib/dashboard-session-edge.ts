@@ -57,7 +57,7 @@ export async function verifyDashboardCookieEdge(
   const expected = await hmacSha256(payloadB64, getSecret());
   if (!timingSafeEqualStr(sigB64, expected)) return false;
 
-  let payload: { email?: string; exp?: number };
+  let payload: { exp?: number };
   try {
     const bytes = base64UrlToBytes(payloadB64);
     const text = new TextDecoder().decode(bytes);
@@ -65,7 +65,7 @@ export async function verifyDashboardCookieEdge(
   } catch {
     return false;
   }
-  if (!payload.exp || !payload.email) return false;
+  if (!payload.exp) return false;
   if (payload.exp * 1000 < now.getTime()) return false;
   return true;
 }

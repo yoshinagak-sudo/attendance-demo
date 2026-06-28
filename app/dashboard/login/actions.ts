@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import {
   DASHBOARD_COOKIE_NAME,
   DASHBOARD_TTL_SECONDS,
-  checkOwnerCredentials,
+  checkOwnerPassword,
   issueDashboardCookie,
 } from "@/lib/dashboard-session";
 
@@ -18,29 +18,26 @@ async function sleepUntil(startMs: number) {
   }
 }
 
-export type DashboardLoginState =
-  | { ok: false; error: string }
-  | null;
+export type DashboardLoginState = { ok: false; error: string } | null;
 
 export async function dashboardLoginAction(
   _prev: DashboardLoginState,
   formData: FormData,
 ): Promise<DashboardLoginState> {
   const startMs = Date.now();
-  const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
 
-  if (!email || !password) {
+  if (!password) {
     await sleepUntil(startMs);
-    return { ok: false, error: "メールアドレスとパスワードを入力してください" };
+    return { ok: false, error: "パスワードを入力してください" };
   }
 
-  if (!checkOwnerCredentials(email, password)) {
+  if (!checkOwnerPassword(password)) {
     await sleepUntil(startMs);
-    return { ok: false, error: "ログイン情報が正しくありません" };
+    return { ok: false, error: "パスワードが正しくありません" };
   }
 
-  const session = issueDashboardCookie(email);
+  const session = issueDashboardCookie();
   const store = await cookies();
   store.set(DASHBOARD_COOKIE_NAME, session.cookieValue, {
     httpOnly: true,

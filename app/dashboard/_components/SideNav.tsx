@@ -34,7 +34,7 @@ function isActive(currentPath: string, href: string): boolean {
   return currentPath === href || currentPath.startsWith(`${href}/`);
 }
 
-export function SideNav({ ownerEmail }: { ownerEmail: string }) {
+export function SideNav() {
   const pathname = usePathname() ?? "/dashboard";
   const [open, setOpen] = useState(false);
 
@@ -123,10 +123,6 @@ export function SideNav({ ownerEmail }: { ownerEmail: string }) {
         </ul>
 
         <div className="dash-nav-foot">
-          <div className="dash-nav-user">
-            <span className="dash-nav-user-label">ログイン中</span>
-            {ownerEmail}
-          </div>
           <LogoutButton />
         </div>
       </nav>

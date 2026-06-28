@@ -26,7 +26,7 @@ export default async function DashboardLoginPage() {
           height={100}
         />
         <h1 className="dash-login-title">管理ダッシュボード</h1>
-        <p className="dash-login-sub">代表者専用ログイン</p>
+        <p className="dash-login-sub">パスワードを入力してください</p>
       </div>
       <DashboardLoginForm />
     </main>

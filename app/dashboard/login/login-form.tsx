@@ -10,7 +10,6 @@ export function DashboardLoginForm() {
     dashboardLoginAction,
     initial,
   );
-  const emailId = useId();
   const pwId = useId();
   const [show, setShow] = useState(false);
   const error = state && !state.ok ? state.error : null;
@@ -24,23 +23,6 @@ export function DashboardLoginForm() {
       )}
 
       <div className="dash-login-field">
-        <label htmlFor={emailId} className="dash-login-label">
-          メールアドレス
-        </label>
-        <input
-          id={emailId}
-          name="email"
-          type="email"
-          className="dash-login-input"
-          autoComplete="email"
-          autoCapitalize="off"
-          spellCheck={false}
-          required
-          disabled={pending}
-        />
-      </div>
-
-      <div className="dash-login-field">
         <label htmlFor={pwId} className="dash-login-label">
           パスワード
         </label>
@@ -52,6 +34,7 @@ export function DashboardLoginForm() {
             className="dash-login-input"
             autoComplete="current-password"
             required
+            autoFocus
             disabled={pending}
           />
           <button
