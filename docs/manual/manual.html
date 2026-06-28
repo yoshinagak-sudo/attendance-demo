@@ -345,10 +345,10 @@
 <section class="cover">
   <img src="screenshots/ninau-logo.png" alt="株式会社ニナウ" class="cover-logo">
   <h1 class="cover-title">勤怠アプリ 操作マニュアル</h1>
-  <div class="cover-sub">デモ版 利用ガイド</div>
+  <div class="cover-sub">利用ガイド（本番版）</div>
   <div class="cover-meta">
     <span>株式会社ニナウ</span>
-    <span>2026年5月版</span>
+    <span>2026年6月版</span>
   </div>
 </section>
 
@@ -356,7 +356,7 @@
 <section class="page">
   <h1 class="section-title">はじめに</h1>
   <p class="lead">
-    本アプリは「打刻」と「残業申請」を1つの画面で完結させる勤怠管理ツールのデモ版です。
+    本アプリは「打刻」「残業申請」「車両管理」「日報」を1つの画面で完結させる勤怠管理ツールです。
     スマホブラウザでそのままアクセスでき、インストール不要で利用できます。
   </p>
 
@@ -366,7 +366,8 @@
   </p>
   <p>
     <span class="role-badge">manager</span> 経営層・部長・課長など承認権限を持つ人<br>
-    <span class="role-badge role-badge-member">member</span> 現場社員・パート・バイト
+    <span class="role-badge role-badge-member">member</span> 現場社員・パート・バイト<br>
+    <span class="role-badge" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d">developer</span> システム保守担当（社内SE / 外部開発者）
   </p>
 
   <h2>用語</h2>
@@ -384,15 +385,20 @@
   <div class="toc">
     <h2>目次</h2>
     <ol>
-      <li><span><span class="num-circle">1</span>ログイン</span><span>p.3</span></li>
-      <li><span><span class="num-circle">2</span>打刻のしかた</span><span>p.4</span></li>
-      <li><span><span class="num-circle">3</span>残業申請を出す（社員）</span><span>p.5</span></li>
-      <li><span><span class="num-circle">4</span>勤怠ダッシュボード（管理者）</span><span>p.7</span></li>
-      <li><span><span class="num-circle">5</span>残業申請の承認（管理者）</span><span>p.8</span></li>
-      <li><span><span class="num-circle">6</span>月次レポート・CSV出力</span><span>p.9</span></li>
-      <li><span><span class="num-circle">7</span>設定・ユーザー管理</span><span>p.10</span></li>
-      <li><span><span class="num-circle">8</span>デモ機能：別の人で試す</span><span>p.11</span></li>
-      <li><span><span class="num-circle">9</span>よくある質問</span><span>p.12</span></li>
+      <li><span><span class="num-circle">1</span>アカウント作成・ログイン</span><span>p.3</span></li>
+      <li><span><span class="num-circle">2</span>打刻のしかた</span><span>p.5</span></li>
+      <li><span><span class="num-circle">3</span>残業申請を出す（社員）</span><span>p.6</span></li>
+      <li><span><span class="num-circle">4</span>勤怠ダッシュボード（管理者）</span><span>p.8</span></li>
+      <li><span><span class="num-circle">5</span>残業申請の承認（管理者）</span><span>p.9</span></li>
+      <li><span><span class="num-circle">6</span>月次レポート・CSV出力</span><span>p.10</span></li>
+      <li><span><span class="num-circle">7</span>ユーザー管理（管理者）</span><span>p.11</span></li>
+      <li><span><span class="num-circle">8</span>改善依頼の管理（管理者）</span><span>p.12</span></li>
+      <li><span><span class="num-circle">9</span>改善依頼を送る</span><span>p.13</span></li>
+      <li><span><span class="num-circle">10</span>アカウント設定（連携・ログイン方法）</span><span>p.14</span></li>
+      <li><span><span class="num-circle">11</span>車両管理</span><span>p.15</span></li>
+      <li><span><span class="num-circle">12</span>日報</span><span>p.16</span></li>
+      <li><span><span class="num-circle">13</span>入力負担を減らす工夫</span><span>p.17</span></li>
+      <li><span><span class="num-circle">14</span>よくある質問</span><span>p.18</span></li>
     </ol>
   </div>
 
@@ -401,36 +407,75 @@
   </div>
 </section>
 
-<!-- ============== 1. ログイン ============== -->
+<!-- ============== 1. アカウント作成・ログイン ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">1</span>ログイン</h1>
+  <h1 class="section-title"><span class="num">1</span>アカウント作成・ログイン</h1>
 
   <p class="lead">
-    商談デモ版では「<strong>かんたん体験ログイン</strong>」を用意しています。
-    パスワード入力なしで、立場を選んでクリックするだけでログインできます。
+    本アプリには <strong>2 通りのログイン方法</strong>があります。どちらか好きな方を選んでください。
+    一度作成したアカウントは、後から両方の方法で入れるように紐付けることもできます。
   </p>
 
-  <ol class="steps">
-    <li>スマホのブラウザで <strong>https://attendance-demo-dun.vercel.app</strong> を開く</li>
-    <li>「かんたん体験ログイン」から試したい立場のカードをタップ</li>
-    <li>自動的にその役職の画面に遷移します（manager は管理画面、member は打刻画面）</li>
-  </ol>
+  <table class="feature-table">
+    <tr><th style="width:25%">方法</th><th>初回</th><th>2回目以降</th></tr>
+    <tr><td><strong>メールアドレス + パスワード</strong></td><td>「新規登録」フォームに名前・メアド・パスワードを入力</td><td>同じメアドとパスワードで入る</td></tr>
+    <tr><td><strong>LINE で入る</strong></td><td>「LINEでログイン」→ 認可 → 名前を入力して登録完了</td><td>「LINEでログイン」をタップするだけ</td></tr>
+  </table>
 
   <img src="screenshots/01-login.png" alt="ログイン画面" class="screenshot sm">
   <div class="screenshot-caption">ログイン画面（モバイル）</div>
 
-  <h3>4つのデモ役職</h3>
-  <table class="feature-table">
-    <tr><th style="width:30%">役職</th><th>体験できること</th></tr>
-    <tr><td><span class="role-badge">代表取締役</span></td><td>経営層として全体を俯瞰、すべての操作が可能</td></tr>
-    <tr><td><span class="role-badge">課長</span></td><td>残業承認・差戻のフローを操作</td></tr>
-    <tr><td><span class="role-badge role-badge-member">現場社員</span></td><td>残業申請を出す側の体験。自分のデータのみ閲覧可</td></tr>
-    <tr><td><span class="role-badge role-badge-member">蛸と衣 社員</span></td><td>別組織のメンバー目線</td></tr>
-  </table>
+  <h2>1-1. 既にアカウントがある場合（ログイン）</h2>
+  <ol class="steps">
+    <li>スマホのブラウザで <strong>https://attendance-demo-dun.vercel.app</strong> を開く</li>
+    <li>メールアドレスとパスワードを入力して「ログイン」をタップ<br>または「LINEでログイン / 新規登録」をタップ</li>
+    <li>役割に応じた画面に自動遷移（<span class="role-badge">manager</span> / <span class="role-badge" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d">developer</span> は管理画面、<span class="role-badge role-badge-member">member</span> はホーム）</li>
+  </ol>
 
   <div class="note">
-    <strong>デモモードのため</strong>パスワード不要で誰でもログインできます。本番運用時はこの体験ログインを無効化し、各社員に個別のパスワードを発行します。
+    パスワードを忘れた場合は管理者に依頼してください。管理者がユーザー管理画面から新しいパスワードを発行できます（第11章参照）。
   </div>
+</section>
+
+<!-- ============== 1-2. メアド新規登録 ============== -->
+<section class="page">
+  <h1 class="section-title"><span class="num">1</span>アカウント作成・ログイン（つづき）</h1>
+
+  <h2>1-2. メールアドレスで新規登録する</h2>
+  <ol class="steps">
+    <li>ログイン画面の下部にある「<strong>初めての方は 新規登録</strong>」をタップ</li>
+    <li>新規登録画面で 4 項目を入力<ul>
+      <li>お名前（会社で表示される名前。例: 山田 太郎）</li>
+      <li>メールアドレス（次回ログインで使います）</li>
+      <li>パスワード（8 文字以上 100 文字以内）</li>
+      <li>パスワード（確認用）— 上と同じものを入力</li>
+    </ul></li>
+    <li>「アカウントを作成してログイン」をタップ → そのままホーム画面に入ります</li>
+  </ol>
+
+  <img src="screenshots/26-signup.png" alt="メアド新規登録画面" class="screenshot sm">
+  <div class="screenshot-caption">メアド新規登録画面（モバイル）</div>
+
+  <div class="note">
+    新規登録した直後のロールは <span class="role-badge role-badge-member">member</span> です。
+    管理者権限が必要な人は、登録後に管理者から <span class="role-badge">manager</span> に切り替えてもらってください（第11章参照）。
+  </div>
+
+  <h2>1-3. LINE で新規登録する（初回ログイン）</h2>
+  <ol class="steps">
+    <li>ログイン画面の「<strong>LINEでログイン / 新規登録</strong>」をタップ</li>
+    <li>LINE の認可画面で「許可する」をタップ</li>
+    <li>初回のみ「名前確定画面」が表示される。LINE の表示名が初期値として入っているので、必要なら<strong>会社で使う名前に書き換え</strong>て「登録を完了する」をタップ</li>
+    <li>そのままホーム画面に入ります</li>
+  </ol>
+
+  <img src="screenshots/27-signup-line.png" alt="LINE 初回登録の名前入力画面" class="screenshot sm">
+  <div class="screenshot-caption">LINE 初回登録時の名前入力画面</div>
+
+  <div class="note">
+    2 回目以降は LINE ボタンをタップするだけで一瞬で入れます。名前入力画面は出ません。
+  </div>
+</section>
 </section>
 
 <!-- ============== 2. 打刻 ============== -->
@@ -614,9 +659,9 @@
   </div>
 </section>
 
-<!-- ============== 7. 設定・ユーザー管理 ============== -->
+<!-- ============== 7. ユーザー管理 ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">7</span>設定・ユーザー管理</h1>
+  <h1 class="section-title"><span class="num">7</span>ユーザー管理（管理者）</h1>
 
   <h2>7-1. 設定</h2>
   <div class="two-col">
@@ -639,16 +684,18 @@
   <div class="two-col">
     <div>
       <p class="lead" style="margin-bottom: 8px;">
-        <span class="role-badge">manager</span> 各社員のパスワード再発行・有効/無効切替を行います。
+        <span class="role-badge">manager</span> 各社員のパスワード再発行・ロール変更・有効/無効切替を行います。
       </p>
       <ol class="steps">
         <li>ヘッダーメニュー → 「<strong>ユーザー管理</strong>」</li>
         <li>パスワードを忘れた社員の行で「PW再発行」をタップ</li>
         <li>新しいパスワードが画面に<strong>1回だけ</strong>表示されるので、本人に渡す</li>
         <li>退職者は「無効化」で非アクティブ化（過去の履歴は保持）</li>
+        <li>ロール列のセレクトで <strong>一般 / 管理者 / 開発者</strong> を切替</li>
       </ol>
       <div class="note">
-        <strong>最後の manager は無効化できません</strong>（システムがロックされるのを防ぐため）。
+        <strong>最後の管理者(manager/developer)は無効化・降格できません</strong>（システムがロックされるのを防ぐため）。
+        自分自身のロールは変更不可。
       </div>
     </div>
     <div>
@@ -658,39 +705,101 @@
   </div>
 </section>
 
-<!-- ============== 8. デモ切替 ============== -->
+<!-- ============== 8. 改善依頼の管理（管理者） ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">8</span>デモ機能：別の人で試す</h1>
+  <h1 class="section-title"><span class="num">8</span>改善依頼の管理（管理者）</h1>
 
   <p class="lead">
-    デモ版限定。ログアウトせずに別の役職に切り替えて挙動を比較できる機能です。
-    商談中に「manager視点」「member視点」を素早く行き来できます。
+    <span class="role-badge">manager</span> <span class="role-badge" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d">developer</span>
+    社員から送られた改善依頼を一覧・ステータス管理します。
+    新規投稿時は社長の Slack に通知が飛びます（リアルタイム）。
+  </p>
+
+  <ol class="steps">
+    <li>管理画面ヘッダーから「<strong>改善依頼の管理</strong>」へ（URL: <code>/admin/improvements</code>）</li>
+    <li>上部の 4 ステータス別カウントカードで未対応件数を把握</li>
+    <li>各依頼の行末「ステータス変更」セレクトで <strong>未対応 / 対応中 / 対応完了 / 見送り</strong> に切替</li>
+    <li>ステータスは即時に反映され、投稿者の履歴画面にも同期されます</li>
+  </ol>
+
+  <img src="screenshots/30-admin-improvements.png" alt="改善依頼の管理画面" class="screenshot">
+  <div class="screenshot-caption">改善依頼の管理画面（PC）</div>
+
+  <h3>Slack 通知</h3>
+  <p>
+    社員が改善依頼を送信した瞬間、社長の Slack（既存の「order-management フィードバック」チャネルに統合）に
+    「[ニナウ勤怠デモ] 改善依頼が届きました」というメッセージが届きます。投稿者名・本文・管理画面への直リンク付き。
+  </p>
+
+  <div class="note">
+    通知 channel を専用にしたい場合は、新しい Slack Incoming Webhook を発行して
+    <code>SLACK_FEEDBACK_WEBHOOK_URL</code> 環境変数を差し替えるだけで切り替え可能（開発者依頼）。
+  </div>
+</section>
+
+<!-- ============== 9. 改善依頼を送る ============== -->
+<section class="page">
+  <h1 class="section-title"><span class="num">9</span>改善依頼を送る</h1>
+
+  <p class="lead">
+    使いにくい点・直してほしい点・あったら便利な機能などを、誰でもいつでも送れます。
+    送信内容は管理者に通知され、対応状況をあとから確認できます。
+  </p>
+
+  <ol class="steps">
+    <li>画面下のタブから「<strong>改善</strong>」をタップ（または管理者ならメニューからも到達可）</li>
+    <li>「改善してほしい内容」欄に思いついたことを書く（最大 1000 文字）</li>
+    <li>「<strong>改善依頼を送信</strong>」をタップ</li>
+    <li>下に自分の依頼履歴とステータス（<strong>未対応 / 対応中 / 対応完了 / 見送り</strong>）が並びます</li>
+  </ol>
+
+  <img src="screenshots/29-improvements.png" alt="改善依頼画面" class="screenshot sm">
+  <div class="screenshot-caption">改善依頼の投稿画面</div>
+
+  <div class="note">
+    匿名ではありません。投稿者と日時は管理者から見えます。
+    管理者は対応状況を切り替えると、自分の履歴のステータス表示にも反映されます。
+  </div>
+</section>
+
+<!-- ============== 10. アカウント設定 ============== -->
+<section class="page">
+  <h1 class="section-title"><span class="num">10</span>アカウント設定（連携・ログイン方法）</h1>
+
+  <p class="lead">
+    画面右上のユーザーメニュー →「<strong>設定</strong>」から、自分のアカウント情報と
+    ログイン方法の連携状況を確認・変更できます。
   </p>
 
   <div class="two-col">
     <div>
-      <ol class="steps">
-        <li>画面右上の「[名前]▾」プルダウンをタップ</li>
-        <li>メニュー内の「<strong>デモ: 別の人で試す</strong>」セクション</li>
-        <li>切り替えたい役職をタップ</li>
-        <li>即座にその人としてログインし直し、適切な画面に遷移します</li>
-      </ol>
+      <h2>確認できる項目</h2>
+      <ul>
+        <li>名前・ロール（manager / member / developer）</li>
+        <li>メールアドレス・最終ログイン日時</li>
+        <li>メアド/LINE それぞれの連携状況</li>
+      </ul>
+
+      <h2>できる操作</h2>
+      <ul>
+        <li><strong>LINE と連携する</strong>: メアドで入っている人が「LINEと連携する」ボタンを押すと、自分のアカウントに LINE userId が紐付き、以降は<strong>どちらの方法でも同じアカウントに入れます</strong>。</li>
+        <li><strong>LINE 連携を解除する</strong>: メアド+パスワードが設定済みのアカウントは、LINE 連携を外せます（メアドだけのアカウントに戻ります）。</li>
+      </ul>
 
       <div class="note">
-        <strong>本番運用時はこの機能を無効化します。</strong>
-        各社員は自分のアカウントだけログインできるようになります。
+        メアド未設定の LINE 専用アカウントは、解除するとログイン手段がなくなるため<strong>解除できません</strong>。先にメアド+パスワードを登録してから解除してください。
       </div>
     </div>
     <div>
-      <img src="screenshots/05-user-menu.png" alt="ユーザーメニュー" class="screenshot">
-      <div class="screenshot-caption">ユーザーメニューを開いた状態</div>
+      <img src="screenshots/28-settings-account.png" alt="アカウント設定画面" class="screenshot">
+      <div class="screenshot-caption">アカウント設定画面（モバイル）</div>
     </div>
   </div>
 </section>
 
-<!-- ============== 9. 車両管理 ============== -->
+<!-- ============== 11. 車両管理 ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">9</span>車両管理</h1>
+  <h1 class="section-title"><span class="num">11</span>車両管理</h1>
 
   <p class="lead">
     社用車の割当・走行記録・給油記録を一元管理。スマホで現場社員が登録し、
@@ -732,7 +841,7 @@
 </section>
 
 <section class="page">
-  <h1 class="section-title"><span class="num">10</span>車両管理（管理者）</h1>
+  <h1 class="section-title"><span class="num">11</span>車両管理（管理者向け）</h1>
 
   <p class="lead">
     管理者は「車両管理」ダッシュボードで当日の割当状況・進行中の走行・点検期限切迫を一覧でき、
@@ -756,9 +865,9 @@
   </div>
 </section>
 
-<!-- ============== 11. 日報 ============== -->
+<!-- ============== 12. 日報 ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">11</span>日報</h1>
+  <h1 class="section-title"><span class="num">12</span>日報</h1>
 
   <p class="lead">
     1日の業務内容を作業ごとに記録します。複数の作業（最大10件）を時刻つきで残せるので、
@@ -792,7 +901,7 @@
 </section>
 
 <section class="page">
-  <h1 class="section-title"><span class="num">12</span>日報（管理者）</h1>
+  <h1 class="section-title"><span class="num">12</span>日報（管理者向け）</h1>
 
   <p class="lead">
     管理者は部下の提出日報を一覧で確認し、「確認済」マークでフィードバックできます。
@@ -885,21 +994,30 @@
     <dt>Q. スマホ以外でも使えますか？</dt>
     <dd>PC・タブレット・スマホすべてで動作します。画面サイズに応じて自動でレイアウトが切り替わります。</dd>
 
+    <dt>Q. パスワードを忘れました</dt>
+    <dd>管理者に依頼してください。ユーザー管理画面の「PW再発行」で新しいパスワードを発行し、画面に1回だけ表示されるので本人に渡します。LINE 連携済みの場合は LINE でログインして「設定」画面からメアド+パスワードを再設定する手もあります。</dd>
+
+    <dt>Q. メアドと LINE どちらでも入れるようにするには？</dt>
+    <dd>どちらか一方でログインした後、画面右上「設定」→「LINE と連携する」で自分のアカウントに紐付けます。以降はどちらの方法でも同じアカウントに入れます。</dd>
+
     <dt>Q. 打刻のミスは管理者が修正できますか？</dt>
-    <dd>本デモ版では打刻の編集機能は実装されていません（本番化時の検討事項）。残業申請は社員自身が差戻→再申請できます。</dd>
+    <dd>現状は打刻の編集機能は未実装です（要望が多ければ追加検討）。残業申請は社員自身が差戻→再申請できます。</dd>
+
+    <dt>Q. 改善要望を伝えたい</dt>
+    <dd>下部タブの「改善」から、いつでもどなたでも送信できます。管理者の Slack にリアルタイムで通知が届きます。</dd>
 
     <dt>Q. データは安全ですか？</dt>
-    <dd>本番運用ではアプリ全体に Basic 認証または個別パスワード認証を有効化します。データベース（Turso）は東京リージョンで保管され、TLS で暗号化通信されます。</dd>
+    <dd>パスワードは PBKDF2-SHA256 でハッシュ化、セッションは HMAC 署名付き HttpOnly Cookie。データベース（Turso）は東京リージョンで保管され、TLS で暗号化通信されます。</dd>
 
     <dt>Q. 給与計算ソフトと連携できますか？</dt>
     <dd>月次レポートから CSV をダウンロードできます（UTF-8 BOM、Excel互換）。現状は汎用フォーマットですが、freee / マネーフォワード等の特定フォーマットへの拡張は対応可能です。</dd>
 
     <dt>Q. 何人まで使えますか？</dt>
-    <dd>技術的には数百人規模まで対応可能。今回のデモは14名構成です（ニナウ社員10名＋蛸と衣4名）。</dd>
+    <dd>技術的には数百人規模まで対応可能。</dd>
   </dl>
 
   <div class="footer-note">
-    本マニュアル発行: 2026年5月／株式会社ニナウ向けデモ版　質問・ご要望はお気軽にお問い合わせください。
+    本マニュアル発行: 2026年6月／株式会社ニナウ　質問・ご要望は「改善」タブからお気軽にどうぞ。
   </div>
 </section>
 
