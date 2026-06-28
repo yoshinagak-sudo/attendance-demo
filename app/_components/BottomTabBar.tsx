@@ -9,7 +9,6 @@ import {
   VehicleIcon,
   ReportIcon,
   AdminIcon,
-  ImprovementIcon,
 } from "./icons";
 
 type Role = "member" | "manager" | "developer";
@@ -32,7 +31,6 @@ const TABS: Tab[] = [
   { href: "/overtime", label: "残業", Icon: OvertimeIcon },
   { href: "/vehicle", label: "車両", Icon: VehicleIcon },
   { href: "/report", label: "日報", Icon: ReportIcon },
-  { href: "/improvements", label: "改善", Icon: ImprovementIcon },
   { href: "/admin", label: "管理", Icon: AdminIcon, managerOnly: true },
 ];
 

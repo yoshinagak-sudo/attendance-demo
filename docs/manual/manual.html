@@ -392,13 +392,11 @@
       <li><span><span class="num-circle">5</span>残業申請の承認（管理者）</span><span>p.9</span></li>
       <li><span><span class="num-circle">6</span>月次レポート・CSV出力</span><span>p.10</span></li>
       <li><span><span class="num-circle">7</span>ユーザー管理（管理者）</span><span>p.11</span></li>
-      <li><span><span class="num-circle">8</span>改善依頼の管理（管理者）</span><span>p.12</span></li>
-      <li><span><span class="num-circle">9</span>改善依頼を送る</span><span>p.13</span></li>
-      <li><span><span class="num-circle">10</span>アカウント設定（連携・ログイン方法）</span><span>p.14</span></li>
-      <li><span><span class="num-circle">11</span>車両管理</span><span>p.15</span></li>
-      <li><span><span class="num-circle">12</span>日報</span><span>p.16</span></li>
-      <li><span><span class="num-circle">13</span>入力負担を減らす工夫</span><span>p.17</span></li>
-      <li><span><span class="num-circle">14</span>よくある質問</span><span>p.18</span></li>
+      <li><span><span class="num-circle">8</span>アカウント設定（連携・ログイン方法）</span><span>p.12</span></li>
+      <li><span><span class="num-circle">9</span>車両管理</span><span>p.13</span></li>
+      <li><span><span class="num-circle">10</span>日報</span><span>p.14</span></li>
+      <li><span><span class="num-circle">11</span>入力負担を減らす工夫</span><span>p.15</span></li>
+      <li><span><span class="num-circle">12</span>よくある質問</span><span>p.16</span></li>
     </ol>
   </div>
 
@@ -705,66 +703,9 @@
   </div>
 </section>
 
-<!-- ============== 8. 改善依頼の管理（管理者） ============== -->
-<section class="page">
-  <h1 class="section-title"><span class="num">8</span>改善依頼の管理（管理者）</h1>
-
-  <p class="lead">
-    <span class="role-badge">manager</span> <span class="role-badge" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d">developer</span>
-    社員から送られた改善依頼を一覧・ステータス管理します。
-    新規投稿時は社長の Slack に通知が飛びます（リアルタイム）。
-  </p>
-
-  <ol class="steps">
-    <li>管理画面ヘッダーから「<strong>改善依頼の管理</strong>」へ（URL: <code>/admin/improvements</code>）</li>
-    <li>上部の 4 ステータス別カウントカードで未対応件数を把握</li>
-    <li>各依頼の行末「ステータス変更」セレクトで <strong>未対応 / 対応中 / 対応完了 / 見送り</strong> に切替</li>
-    <li>ステータスは即時に反映され、投稿者の履歴画面にも同期されます</li>
-  </ol>
-
-  <img src="screenshots/30-admin-improvements.png" alt="改善依頼の管理画面" class="screenshot">
-  <div class="screenshot-caption">改善依頼の管理画面（PC）</div>
-
-  <h3>Slack 通知</h3>
-  <p>
-    社員が改善依頼を送信した瞬間、社長の Slack（既存の「order-management フィードバック」チャネルに統合）に
-    「[ニナウ勤怠デモ] 改善依頼が届きました」というメッセージが届きます。投稿者名・本文・管理画面への直リンク付き。
-  </p>
-
-  <div class="note">
-    通知 channel を専用にしたい場合は、新しい Slack Incoming Webhook を発行して
-    <code>SLACK_FEEDBACK_WEBHOOK_URL</code> 環境変数を差し替えるだけで切り替え可能（開発者依頼）。
-  </div>
-</section>
-
-<!-- ============== 9. 改善依頼を送る ============== -->
-<section class="page">
-  <h1 class="section-title"><span class="num">9</span>改善依頼を送る</h1>
-
-  <p class="lead">
-    使いにくい点・直してほしい点・あったら便利な機能などを、誰でもいつでも送れます。
-    送信内容は管理者に通知され、対応状況をあとから確認できます。
-  </p>
-
-  <ol class="steps">
-    <li>画面下のタブから「<strong>改善</strong>」をタップ（または管理者ならメニューからも到達可）</li>
-    <li>「改善してほしい内容」欄に思いついたことを書く（最大 1000 文字）</li>
-    <li>「<strong>改善依頼を送信</strong>」をタップ</li>
-    <li>下に自分の依頼履歴とステータス（<strong>未対応 / 対応中 / 対応完了 / 見送り</strong>）が並びます</li>
-  </ol>
-
-  <img src="screenshots/29-improvements.png" alt="改善依頼画面" class="screenshot sm">
-  <div class="screenshot-caption">改善依頼の投稿画面</div>
-
-  <div class="note">
-    匿名ではありません。投稿者と日時は管理者から見えます。
-    管理者は対応状況を切り替えると、自分の履歴のステータス表示にも反映されます。
-  </div>
-</section>
-
 <!-- ============== 10. アカウント設定 ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">10</span>アカウント設定（連携・ログイン方法）</h1>
+  <h1 class="section-title"><span class="num">8</span>アカウント設定（連携・ログイン方法）</h1>
 
   <p class="lead">
     画面右上のユーザーメニュー →「<strong>設定</strong>」から、自分のアカウント情報と
@@ -799,7 +740,7 @@
 
 <!-- ============== 11. 車両管理 ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">11</span>車両管理</h1>
+  <h1 class="section-title"><span class="num">9</span>車両管理</h1>
 
   <p class="lead">
     社用車の割当・走行記録・給油記録を一元管理。スマホで現場社員が登録し、
@@ -841,7 +782,7 @@
 </section>
 
 <section class="page">
-  <h1 class="section-title"><span class="num">11</span>車両管理（管理者向け）</h1>
+  <h1 class="section-title"><span class="num">9</span>車両管理（管理者向け）</h1>
 
   <p class="lead">
     管理者は「車両管理」ダッシュボードで当日の割当状況・進行中の走行・点検期限切迫を一覧でき、
@@ -867,7 +808,7 @@
 
 <!-- ============== 12. 日報 ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">12</span>日報</h1>
+  <h1 class="section-title"><span class="num">10</span>日報</h1>
 
   <p class="lead">
     1日の業務内容を作業ごとに記録します。複数の作業（最大10件）を時刻つきで残せるので、
@@ -901,7 +842,7 @@
 </section>
 
 <section class="page">
-  <h1 class="section-title"><span class="num">12</span>日報（管理者向け）</h1>
+  <h1 class="section-title"><span class="num">10</span>日報（管理者向け）</h1>
 
   <p class="lead">
     管理者は部下の提出日報を一覧で確認し、「確認済」マークでフィードバックできます。
@@ -922,7 +863,7 @@
 
 <!-- ============== 13. 入力負担を減らす工夫 ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">13</span>入力負担を減らす3つの工夫</h1>
+  <h1 class="section-title"><span class="num">11</span>入力負担を減らす3つの工夫</h1>
 
   <p class="lead">
     現場社員は両手で作業しています。少しでも「アプリの操作」に取られる時間を減らすため、
@@ -988,7 +929,7 @@
 
 <!-- ============== 14. FAQ ============== -->
 <section class="page faq">
-  <h1 class="section-title"><span class="num">14</span>よくある質問</h1>
+  <h1 class="section-title"><span class="num">12</span>よくある質問</h1>
 
   <dl class="faq-list">
     <dt>Q. スマホ以外でも使えますか？</dt>
@@ -1003,9 +944,6 @@
     <dt>Q. 打刻のミスは管理者が修正できますか？</dt>
     <dd>現状は打刻の編集機能は未実装です（要望が多ければ追加検討）。残業申請は社員自身が差戻→再申請できます。</dd>
 
-    <dt>Q. 改善要望を伝えたい</dt>
-    <dd>下部タブの「改善」から、いつでもどなたでも送信できます。管理者の Slack にリアルタイムで通知が届きます。</dd>
-
     <dt>Q. データは安全ですか？</dt>
     <dd>パスワードは PBKDF2-SHA256 でハッシュ化、セッションは HMAC 署名付き HttpOnly Cookie。データベース（Turso）は東京リージョンで保管され、TLS で暗号化通信されます。</dd>
 
@@ -1017,7 +955,7 @@
   </dl>
 
   <div class="footer-note">
-    本マニュアル発行: 2026年6月／株式会社ニナウ　質問・ご要望は「改善」タブからお気軽にどうぞ。
+    本マニュアル発行: 2026年6月／株式会社ニナウ　質問・ご要望はお気軽にお問い合わせください。
   </div>
 </section>
 
