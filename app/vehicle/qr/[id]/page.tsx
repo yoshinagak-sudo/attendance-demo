@@ -17,7 +17,7 @@ export default async function VehicleQrPage({ params }: { params: Params }) {
   if (!vehicle) notFound();
 
   const hdr = await headers();
-  const host = hdr.get("host") ?? "attendance-demo-dun.vercel.app";
+  const host = hdr.get("host") ?? "attendance-ninau.vercel.app";
   const proto = host.includes("localhost") ? "http" : "https";
   const url = `${proto}://${host}/vehicle/assign?vid=${vehicle.id}`;
   const svg = await QRCode.toString(url, { type: "svg", margin: 1, width: 360 });

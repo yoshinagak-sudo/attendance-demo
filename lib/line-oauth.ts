@@ -11,7 +11,7 @@ const VERIFY_URL = "https://api.line.me/oauth2/v2.1/verify";
 export type LineConfig = {
   channelId: string;
   channelSecret: string;
-  /** 例: https://attendance-demo-dun.vercel.app/api/auth/line/callback */
+  /** 例: https://attendance-ninau.vercel.app/api/auth/line/callback */
   redirectUri: string;
 };
 

@@ -363,12 +363,12 @@
     <tr><th style="width:36%">用途</th><th style="width:32%">URL</th><th>主な利用者</th></tr>
     <tr>
       <td><strong>社員向け勤怠アプリ</strong><br><span style="font-size:9pt;color:var(--muted)">打刻・残業申請・車両管理・日報</span></td>
-      <td><code style="font-size:9pt">attendance-demo-dun.vercel.app</code></td>
+      <td><code style="font-size:9pt">attendance-ninau.vercel.app</code></td>
       <td>全社員 + 管理者(manager)</td>
     </tr>
     <tr>
       <td><strong>管理者向け管理ダッシュボード</strong><br><span style="font-size:9pt;color:var(--muted)">閲覧専用・全社の状況をまとめて表示</span></td>
-      <td><code style="font-size:9pt">attendance-demo-admin.vercel.app</code></td>
+      <td><code style="font-size:9pt">attendance-ninau-admin.vercel.app</code></td>
       <td>ニナウ社長</td>
     </tr>
   </table>
@@ -405,30 +405,26 @@
       <li><span><span class="num-circle">1</span>アカウント作成・ログイン</span><span>p.3</span></li>
       <li><span><span class="num-circle">2</span>打刻のしかた</span><span>p.5</span></li>
       <li><span><span class="num-circle">3</span>残業申請を出す（社員）</span><span>p.6</span></li>
-      <li><span><span class="num-circle">4</span>勤怠ダッシュボード（管理者）</span><span>p.8</span></li>
-      <li><span><span class="num-circle">5</span>残業申請の承認（管理者）</span><span>p.9</span></li>
-      <li><span><span class="num-circle">6</span>月次レポート・CSV出力</span><span>p.10</span></li>
-      <li><span><span class="num-circle">7</span>ユーザー管理（管理者）</span><span>p.11</span></li>
-      <li><span><span class="num-circle">8</span>アカウント設定（連携・ログイン方法）</span><span>p.12</span></li>
-      <li><span><span class="num-circle">9</span>車両管理</span><span>p.13</span></li>
-      <li><span><span class="num-circle">10</span>日報</span><span>p.14</span></li>
-      <li><span><span class="num-circle">11</span>入力負担を減らす工夫</span><span>p.15</span></li>
+      <li><span><span class="num-circle">4</span>アカウント設定（連携・ログイン方法）</span><span>p.7</span></li>
+      <li><span><span class="num-circle">5</span>車両管理</span><span>p.8</span></li>
+      <li><span><span class="num-circle">6</span>日報</span><span>p.9</span></li>
+      <li><span><span class="num-circle">7</span>入力負担を減らす工夫</span><span>p.10</span></li>
     </ol>
     <p style="font-size:9.5pt;color:var(--primary-hover);font-weight:700;margin:10px 0 2px">第2部　管理者向け 管理ダッシュボード</p>
-    <ol start="12">
-      <li><span><span class="num-circle">12</span>ダッシュボード概要・ログイン</span><span>p.16</span></li>
-      <li><span><span class="num-circle">13</span>出勤状況（トップ）</span><span>p.17</span></li>
-      <li><span><span class="num-circle">14</span>月次集計・車両状況・未対応</span><span>p.18</span></li>
-      <li><span><span class="num-circle">15</span>社員一覧・残業申請・日報</span><span>p.19</span></li>
+    <ol start="8">
+      <li><span><span class="num-circle">8</span>ダッシュボード概要・ログイン</span><span>p.11</span></li>
+      <li><span><span class="num-circle">9</span>出勤状況（トップ）</span><span>p.12</span></li>
+      <li><span><span class="num-circle">10</span>月次集計・車両状況・未対応</span><span>p.13</span></li>
+      <li><span><span class="num-circle">11</span>社員一覧・残業申請・日報</span><span>p.14</span></li>
     </ol>
     <p style="font-size:9.5pt;color:var(--primary-hover);font-weight:700;margin:10px 0 2px">付録</p>
-    <ol start="16">
-      <li><span><span class="num-circle">16</span>よくある質問</span><span>p.20</span></li>
+    <ol start="12">
+      <li><span><span class="num-circle">12</span>よくある質問</span><span>p.15</span></li>
     </ol>
   </div>
 
   <div class="footer-note">
-    アクセスURL: <strong>https://attendance-demo-dun.vercel.app</strong>
+    アクセスURL: <strong>https://attendance-ninau.vercel.app</strong>
   </div>
 </section>
 
@@ -452,7 +448,7 @@
 
   <h2>1-1. 既にアカウントがある場合（ログイン）</h2>
   <ol class="steps">
-    <li>スマホのブラウザで <strong>https://attendance-demo-dun.vercel.app</strong> を開く</li>
+    <li>スマホのブラウザで <strong>https://attendance-ninau.vercel.app</strong> を開く</li>
     <li>メールアドレスとパスワードを入力して「ログイン」をタップ<br>または「LINEでログイン / 新規登録」をタップ</li>
     <li>役割に応じた画面に自動遷移（<span class="role-badge">manager</span> / <span class="role-badge" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d">developer</span> は管理画面、<span class="role-badge role-badge-member">member</span> はホーム）</li>
   </ol>
@@ -599,140 +595,10 @@
   </div>
 </section>
 
-<!-- ============== 4. 勤怠ダッシュボード ============== -->
-<section class="page">
-  <h1 class="section-title"><span class="num">4</span>勤怠ダッシュボード（管理者）</h1>
-
-  <p class="lead">
-    <span class="role-badge">manager</span>
-    出勤中の社員・労働時間・長時間勤務の警告を1画面で把握します。
-    manager でログインすると最初に表示される画面です。
-  </p>
-
-  <ol class="steps">
-    <li>ログイン直後の画面、もしくはヘッダーメニュー → 「管理画面」</li>
-    <li>上部の <strong>AI 今日のサマリー</strong> で全体状況を1行で確認</li>
-    <li><strong>未承認バナー</strong> から残業承認キューに直接ジャンプ可能</li>
-    <li><strong>KPI 4枚</strong>（出勤中 / 退勤済 / 未出勤 / 合計労働時間）と <strong>タイムライン（ガントチャート）</strong> で詳細を確認</li>
-  </ol>
-
-  <img src="screenshots/11-admin-desktop.png" alt="勤怠ダッシュボード" class="screenshot-wide">
-  <div class="screenshot-caption">勤怠ダッシュボード（PC表示）</div>
-
-  <div class="note">
-    タイムラインは <strong>緑=出勤中 / グレー=退勤済 / 赤=10時間超</strong> で色分けされます。
-    現在時刻の縦線（NOW）も表示されるので「今どうなっているか」が一目で分かります。
-  </div>
-</section>
-
-<!-- ============== 5. 残業承認 ============== -->
-<section class="page">
-  <h1 class="section-title"><span class="num">5</span>残業申請の承認（管理者）</h1>
-
-  <p class="lead">
-    <span class="role-badge">manager</span>
-    申請中の残業を「承認 / 差戻 / 却下」で処理します。
-    差戻と却下はコメントが必須です。
-  </p>
-
-  <ol class="steps">
-    <li>ヘッダー → 「管理画面」→ 「承認キュー」、または未承認バナーから直接</li>
-    <li>申請カードの「<strong>承認</strong>」をタップで即時承認</li>
-    <li>「<strong>差戻</strong>」または「<strong>却下</strong>」をタップ → コメント入力欄が展開 → 確定</li>
-    <li>処理後はフィルタ「すべて」で過去の承認履歴も確認可能</li>
-  </ol>
-
-  <img src="screenshots/12-admin-overtime-desktop.png" alt="承認キュー" class="screenshot-wide">
-  <div class="screenshot-caption">残業承認キュー（PC表示）</div>
-
-  <h3>差戻・却下の違い</h3>
-  <table class="feature-table">
-    <tr><th>操作</th><th>意味</th><th>申請者の次のアクション</th></tr>
-    <tr><td>承認</td><td>申請を確定。月次集計に反映</td><td>不要</td></tr>
-    <tr><td>差戻</td><td>修正してもう一度出してほしい</td><td>コメントを見て再申請</td></tr>
-    <tr><td>却下</td><td>申請を認めない</td><td>原則終了</td></tr>
-  </table>
-</section>
-
-<!-- ============== 6. レポート ============== -->
-<section class="page">
-  <h1 class="section-title"><span class="num">6</span>月次レポート・CSV出力</h1>
-
-  <p class="lead">
-    <span class="role-badge">manager</span>
-    実労働時間と承認済残業を月次で突き合わせ、CSVでダウンロードできます。
-    給与計算用・労務監査用の出力が想定です。
-  </p>
-
-  <ol class="steps">
-    <li>「管理画面」→ ヘッダーの「<strong>月次レポート</strong>」</li>
-    <li>月切替ナビ（◀／▶）または月選択フォームで対象月を選ぶ</li>
-    <li>合計バッジ4枚で月次サマリーを把握（承認済 / 申請中 / 却下 / 差分注意者）</li>
-    <li>「<strong>CSV（承認済）</strong>」または「<strong>全件CSV</strong>」ボタンでダウンロード</li>
-  </ol>
-
-  <img src="screenshots/13-admin-report-desktop.png" alt="月次レポート" class="screenshot-wide">
-  <div class="screenshot-caption">月次レポート（PC表示）</div>
-
-  <h3>CSV出力の列</h3>
-  <p style="font-size: 10pt;">
-    申請ID / 業務日 / 申請者 / 申請種別 / 状態 / 開始時刻 / 終了時刻 /
-    残業時間（分）/ 残業時間（h:mm）/ 現場名 / 作業内容 / 承認者 / 承認日時 / 差戻コメント
-  </p>
-  <div class="note">
-    <strong>UTF-8 BOM付き</strong>・CRLF改行で出力されます。Excel で開くと文字化けせずに表示されます。
-  </div>
-</section>
-
-<!-- ============== 7. ユーザー管理 ============== -->
-<section class="page">
-  <h1 class="section-title"><span class="num">7</span>ユーザー管理（管理者）</h1>
-
-  <h2>7-1. 設定</h2>
-  <div class="two-col">
-    <div>
-      <p class="lead" style="margin-bottom: 8px;">
-        <span class="role-badge">manager</span> 所定終業時刻と現場名マスタを管理します。
-      </p>
-      <ul style="font-size: 10pt; line-height: 1.7; margin-bottom: 8px;">
-        <li><strong>所定終業時刻</strong>：残業申請フォームの開始時刻デフォルト値（初期 17:30）</li>
-        <li><strong>現場名マスタ</strong>：申請時のサジェストに出る現場一覧。追加・無効化が可能</li>
-      </ul>
-    </div>
-    <div>
-      <img src="screenshots/10-admin-settings.png" alt="設定画面" class="screenshot">
-      <div class="screenshot-caption">設定画面</div>
-    </div>
-  </div>
-
-  <h2>7-2. ユーザー管理</h2>
-  <div class="two-col">
-    <div>
-      <p class="lead" style="margin-bottom: 8px;">
-        <span class="role-badge">manager</span> 各社員のパスワード再発行・ロール変更・有効/無効切替を行います。
-      </p>
-      <ol class="steps">
-        <li>ヘッダーメニュー → 「<strong>ユーザー管理</strong>」</li>
-        <li>パスワードを忘れた社員の行で「PW再発行」をタップ</li>
-        <li>新しいパスワードが画面に<strong>1回だけ</strong>表示されるので、本人に渡す</li>
-        <li>退職者は「無効化」で非アクティブ化（過去の履歴は保持）</li>
-        <li>ロール列のセレクトで <strong>一般 / 管理者 / 開発者</strong> を切替</li>
-      </ol>
-      <div class="note">
-        <strong>最後の管理者(manager/developer)は無効化・降格できません</strong>（システムがロックされるのを防ぐため）。
-        自分自身のロールは変更不可。
-      </div>
-    </div>
-    <div>
-      <img src="screenshots/09-admin-users.png" alt="ユーザー管理画面" class="screenshot">
-      <div class="screenshot-caption">ユーザー管理画面</div>
-    </div>
-  </div>
-</section>
 
 <!-- ============== 10. アカウント設定 ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">8</span>アカウント設定（連携・ログイン方法）</h1>
+  <h1 class="section-title"><span class="num">4</span>アカウント設定（連携・ログイン方法）</h1>
 
   <p class="lead">
     画面右上のユーザーメニュー →「<strong>設定</strong>」から、自分のアカウント情報と
@@ -767,7 +633,7 @@
 
 <!-- ============== 11. 車両管理 ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">9</span>車両管理</h1>
+  <h1 class="section-title"><span class="num">5</span>車両管理</h1>
 
   <p class="lead">
     社用車の割当・走行記録・給油記録を一元管理。スマホで現場社員が登録し、
@@ -809,7 +675,7 @@
 </section>
 
 <section class="page">
-  <h1 class="section-title"><span class="num">9</span>車両管理（管理者向け）</h1>
+  <h1 class="section-title"><span class="num">5</span>車両管理（社内 manager 向け）</h1>
 
   <p class="lead">
     管理者は「車両管理」ダッシュボードで当日の割当状況・進行中の走行・点検期限切迫を一覧でき、
@@ -835,7 +701,7 @@
 
 <!-- ============== 12. 日報 ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">10</span>日報</h1>
+  <h1 class="section-title"><span class="num">6</span>日報</h1>
 
   <p class="lead">
     1日の業務内容を作業ごとに記録します。複数の作業（最大10件）を時刻つきで残せるので、
@@ -869,7 +735,7 @@
 </section>
 
 <section class="page">
-  <h1 class="section-title"><span class="num">10</span>日報（管理者向け）</h1>
+  <h1 class="section-title"><span class="num">6</span>日報（社内 manager 向け）</h1>
 
   <p class="lead">
     管理者は部下の提出日報を一覧で確認し、「確認済」マークでフィードバックできます。
@@ -890,7 +756,7 @@
 
 <!-- ============== 13. 入力負担を減らす工夫 ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">11</span>入力負担を減らす3つの工夫</h1>
+  <h1 class="section-title"><span class="num">7</span>入力負担を減らす3つの工夫</h1>
 
   <p class="lead">
     現場社員は両手で作業しています。少しでも「アプリの操作」に取られる時間を減らすため、
@@ -958,7 +824,7 @@
 <section class="cover" style="background: linear-gradient(180deg, var(--primary-soft) 0%, #fff 60%); page-break-after: always;">
   <div style="font-size:14pt; color:var(--text-sub); margin-bottom:8px; letter-spacing:0.04em;">PART 2</div>
   <h1 class="cover-title" style="font-size:22pt">管理者向け 管理ダッシュボード</h1>
-  <div class="cover-sub" style="margin-top:12px">attendance-demo-admin.vercel.app</div>
+  <div class="cover-sub" style="margin-top:12px">attendance-ninau-admin.vercel.app</div>
   <div style="max-width:520px; margin: 24px auto 0; font-size:10.5pt; color:var(--text-sub); line-height:1.7;">
     社員向けアプリとは独立した、<strong>社長専用の閲覧ダッシュボード</strong>です。
     パスワード1つで入れて、出勤状況・月次集計・車両・未対応件数・社員一覧・残業申請・日報を一覧できます。
@@ -968,16 +834,16 @@
 
 <!-- ============== 12. ダッシュボード概要・ログイン ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">12</span>ダッシュボード概要・ログイン</h1>
+  <h1 class="section-title"><span class="num">8</span>ダッシュボード概要・ログイン</h1>
 
   <p class="lead">
-    管理者専用の管理ダッシュボードは <strong>https://attendance-demo-admin.vercel.app</strong> でアクセスできます。
+    管理者専用の管理ダッシュボードは <strong>https://attendance-ninau-admin.vercel.app</strong> でアクセスできます。
     パスワードのみで入る軽量設計です（メアド不要）。
   </p>
 
   <h2>ログイン手順</h2>
   <ol class="steps">
-    <li>ブラウザで <strong>https://attendance-demo-admin.vercel.app</strong> を開く</li>
+    <li>ブラウザで <strong>https://attendance-ninau-admin.vercel.app</strong> を開く</li>
     <li>パスワード欄に管理者パスワードを入力</li>
     <li>「ログイン」をタップ → ダッシュボードに入る</li>
   </ol>
@@ -988,7 +854,7 @@
   <div class="note">
     <strong>このダッシュボードは閲覧専用です。</strong>
     残業申請の承認・パスワード再発行・設定変更などの操作は、社員向け勤怠アプリ
-    (<code>attendance-demo-dun.vercel.app</code>) の管理画面から管理者(manager)権限で行います。
+    (<code>attendance-ninau.vercel.app</code>) の管理画面から管理者(manager)権限で行います。
   </div>
 
   <h2>サイドナビの構成</h2>
@@ -1007,7 +873,7 @@
 
 <!-- ============== 13. 出勤状況 ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">13</span>出勤状況（トップ画面）</h1>
+  <h1 class="section-title"><span class="num">9</span>出勤状況（トップ画面）</h1>
 
   <p class="lead">
     ログイン直後に表示されるトップ画面。今日のリアルタイム稼働状況をカードと
@@ -1031,7 +897,7 @@
 
 <!-- ============== 14. 月次集計・車両・未対応 ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">14</span>月次集計・車両状況・未対応</h1>
+  <h1 class="section-title"><span class="num">10</span>月次集計・車両状況・未対応</h1>
 
   <h2>14-1. 月次集計</h2>
   <div class="two-col">
@@ -1091,7 +957,7 @@
 
 <!-- ============== 15. 社員一覧・残業申請・日報 ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">15</span>社員一覧・残業申請・日報</h1>
+  <h1 class="section-title"><span class="num">11</span>社員一覧・残業申請・日報</h1>
 
   <h2>15-1. 社員一覧</h2>
   <div class="two-col">
@@ -1148,14 +1014,14 @@
 
 <!-- ============== 16. FAQ ============== -->
 <section class="page faq">
-  <h1 class="section-title"><span class="num">16</span>よくある質問</h1>
+  <h1 class="section-title"><span class="num">12</span>よくある質問</h1>
 
   <dl class="faq-list">
     <dt>Q. 管理ダッシュボードのパスワードを忘れました</dt>
     <dd>システム管理者（開発者）に依頼してください。Vercel 環境変数 <code>NINAU_OWNER_PASSWORD_HASH</code> を新パスワードのハッシュで差し替えることで即時切替できます。</dd>
 
     <dt>Q. ダッシュボードから残業申請を承認できますか？</dt>
-    <dd>できません（閲覧専用）。承認は社員向け勤怠アプリ（<code>attendance-demo-dun.vercel.app</code>）に管理者(manager)アカウントでログインして行ってください。</dd>
+    <dd>できません（閲覧専用）。承認は社員向け勤怠アプリ（<code>attendance-ninau.vercel.app</code>）に管理者(manager)アカウントでログインして行ってください。</dd>
 
     <dt>Q. スマホ以外でも使えますか？</dt>
     <dd>PC・タブレット・スマホすべてで動作します。画面サイズに応じて自動でレイアウトが切り替わります。</dd>
