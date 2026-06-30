@@ -1,199 +1,245 @@
-import { unstable_noStore as noStore } from "next/cache";
-import {
-  Clock,
-  Inbox,
-  CheckCircle2,
-  RotateCcw,
-  XCircle,
-} from "lucide-react";
+import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 import { requireDashboardSession } from "@/app/dashboard/_lib/require-dashboard";
-import { getOvertimeList } from "@/app/dashboard/_lib/data";
-import { formatJSTYmd, formatJSTHHmm } from "@/lib/time";
-import { formatMinutesJa } from "@/lib/daily-report";
+import {
+  formatDurationJa,
+  type OvertimeStatus,
+  type RequestType,
+} from "@/lib/overtime";
+import {
+  formatJSTHHmm,
+  formatJSTYmd,
+  startOfTodayJST,
+  startOfMonthJST,
+  endOfMonthJST,
+} from "@/lib/time";
+import { QueueRows, QueueCards } from "@/app/admin/overtime/queue-rows";
 
 export const dynamic = "force-dynamic";
 
-function truncate(text: string, max: number): string {
-  if (!text) return "";
-  const arr = [...text];
-  if (arr.length <= max) return text;
-  return `${arr.slice(0, max).join("")}…`;
+const WEEKDAY_JA = ["日", "月", "火", "水", "木", "金", "土"];
+
+function formatWorkDate(date: Date): string {
+  const ymd = formatJSTYmd(date);
+  const [y, m, d] = ymd.split("-").map(Number);
+  const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+  return `${m}/${d}（${WEEKDAY_JA[dow]}）`;
 }
 
-function statusBadge(status: string) {
-  if (status === "approved") {
-    return (
-      <span className="dash-badge dash-badge-primary">承認済</span>
-    );
-  }
-  if (status === "submitted") {
-    return <span className="dash-badge dash-badge-warn">未承認</span>;
-  }
-  if (status === "sent_back") {
-    return <span className="dash-badge dash-badge-accent">差戻</span>;
-  }
-  if (status === "rejected") {
-    return <span className="dash-badge dash-badge-danger">却下</span>;
-  }
-  return <span className="dash-badge dash-badge-done">{status}</span>;
-}
+type SearchParams = Promise<{
+  status?: string;
+  reviewed?: string;
+  error?: string;
+  id?: string;
+}>;
 
-function requestTypeTag(requestType: string) {
-  if (requestType === "pre") {
-    return <span className="dash-typetag dash-typetag-pre">事前</span>;
-  }
-  if (requestType === "post") {
-    return <span className="dash-typetag dash-typetag-post">事後</span>;
-  }
-  return <span className="dash-typetag">{requestType}</span>;
-}
-
-export default async function OvertimePage() {
-  noStore();
+export default async function DashboardOvertimePage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
   await requireDashboardSession();
-  const { counts, rows } = await getOvertimeList();
+  const sp = await searchParams;
+  const filter = sp.status === "all" ? "all" : "pending";
+  const reviewed = sp.reviewed === "1";
+  const errorMsg = sp.error;
+
+  const todayStart = startOfTodayJST();
+  const tomorrowStart = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
+  const now = new Date();
+  const ymd = formatJSTYmd(now);
+  const [y, m] = ymd.split("-").map(Number);
+  const monthStart = startOfMonthJST(y, m);
+  const monthEnd = endOfMonthJST(y, m);
+
+  const [
+    pendingCount,
+    todayApprovedCount,
+    todaySentBackCount,
+    monthApprovedAgg,
+    pendingRequests,
+    allRequests,
+  ] = await Promise.all([
+    prisma.overtimeRequest.count({ where: { status: "submitted" } }),
+    prisma.overtimeRequest.count({
+      where: {
+        status: "approved",
+        reviewedAt: { gte: todayStart, lt: tomorrowStart },
+      },
+    }),
+    prisma.overtimeRequest.count({
+      where: {
+        status: "sent_back",
+        reviewedAt: { gte: todayStart, lt: tomorrowStart },
+      },
+    }),
+    prisma.overtimeRequest.aggregate({
+      where: {
+        status: "approved",
+        workDate: { gte: monthStart, lt: monthEnd },
+      },
+      _sum: { durationMinutes: true },
+    }),
+    prisma.overtimeRequest.findMany({
+      where: { status: "submitted" },
+      include: { user: true, workSite: true },
+      orderBy: [{ workDate: "asc" }, { createdAt: "asc" }],
+    }),
+    prisma.overtimeRequest.findMany({
+      include: { user: true, workSite: true },
+      orderBy: [{ workDate: "desc" }, { createdAt: "desc" }],
+      take: 100,
+    }),
+  ]);
+
+  const monthApprovedMinutes = monthApprovedAgg._sum.durationMinutes ?? 0;
+  const rows = filter === "all" ? allRequests : pendingRequests;
 
   return (
     <>
       <header className="dash-page-head">
         <div className="dash-page-head-main">
-          <span className="dash-page-eyebrow">残業申請</span>
-          <h1 className="dash-page-title">残業申請</h1>
+          <span className="dash-page-eyebrow">残業承認</span>
+          <h1 className="dash-page-title">残業申請 承認キュー</h1>
           <span className="dash-page-sub">
-            提出された残業申請の状況（最新 {rows.length} 件、閲覧専用）
+            事前/事後申請の承認・差戻
           </span>
-        </div>
-        <div className="dash-page-side">
-          <Clock size={16} aria-hidden="true" />
-          {rows.length} 件
         </div>
       </header>
 
-      <section className="dash-cards" aria-label="残業申請ステータス">
-        <article className="dash-card dash-card-warn">
-          <div className="dash-card-head">
-            <Inbox aria-hidden="true" />
-            未承認
-          </div>
-          <div className="dash-card-value">
-            {counts.submitted}
-            <span className="dash-card-unit">件</span>
-          </div>
-          <div className="dash-card-note">承認・差戻待ち</div>
-        </article>
+      {reviewed && (
+        <div className="ot-banner ot-banner-success" role="status">
+          <span className="ot-banner-icon" aria-hidden="true">✓</span>
+          <div className="ot-banner-body">承認/差戻を反映しました</div>
+        </div>
+      )}
 
-        <article className="dash-card dash-card-primary">
-          <div className="dash-card-head">
-            <CheckCircle2 aria-hidden="true" />
-            承認済
-          </div>
-          <div className="dash-card-value">
-            {counts.approved}
-            <span className="dash-card-unit">件</span>
-          </div>
-          <div className="dash-card-note">承認済み（最新200件中）</div>
-        </article>
+      {errorMsg && (
+        <div className="ot-banner ot-banner-danger" role="alert">
+          <span className="ot-banner-icon" aria-hidden="true">!</span>
+          <div className="ot-banner-body">{errorMsg}</div>
+        </div>
+      )}
 
-        <article className="dash-card dash-card-info">
-          <div className="dash-card-head">
-            <RotateCcw aria-hidden="true" />
-            差戻
+      <section className="section" aria-labelledby="ot-kpi-heading" style={{ marginTop: 16 }}>
+        <div className="section-head">
+          <h2 id="ot-kpi-heading" className="section-title">概況</h2>
+        </div>
+        <div className="cards">
+          <div className="card">
+            <div className="card-head"><span className="card-label">申請中</span></div>
+            <div className="card-value">{pendingCount}<span className="card-unit">件</span></div>
+            <div className="card-foot">承認/差戻 待ち</div>
           </div>
-          <div className="dash-card-value">
-            {counts.sent_back}
-            <span className="dash-card-unit">件</span>
+          <div className="card">
+            <div className="card-head"><span className="card-label">本日承認</span></div>
+            <div className="card-value">{todayApprovedCount}<span className="card-unit">件</span></div>
+            <div className="card-foot">本日中の承認件数</div>
           </div>
-          <div className="dash-card-note">修正依頼中（再申請待ち）</div>
-        </article>
-
-        <article
-          className={`dash-card${
-            counts.rejected > 0 ? " dash-card-danger" : ""
-          }`}
-        >
-          <div className="dash-card-head">
-            <XCircle aria-hidden="true" />
-            却下
+          <div className="card">
+            <div className="card-head"><span className="card-label">本日差戻</span></div>
+            <div className="card-value">{todaySentBackCount}<span className="card-unit">件</span></div>
+            <div className="card-foot">本日中の差戻件数</div>
           </div>
-          <div className="dash-card-value">
-            {counts.rejected}
-            <span className="dash-card-unit">件</span>
+          <div className="card">
+            <div className="card-head"><span className="card-label">月次承認分</span></div>
+            <div className="card-value">{formatDurationJa(monthApprovedMinutes)}</div>
+            <div className="card-foot">{m}月の承認済 残業合計</div>
           </div>
-          <div className="dash-card-note">却下済み</div>
-        </article>
+        </div>
       </section>
 
-      <section className="dash-section">
-        <div className="dash-section-head">
-          <h2 className="dash-section-title">申請一覧</h2>
-          <span className="dash-section-sub">直近 {rows.length} 件</span>
+      <section className="section" aria-labelledby="ot-toolbar-heading">
+        <div className="section-head">
+          <h2 id="ot-toolbar-heading" className="section-title">申請一覧</h2>
+          <span className="section-sub tabular">
+            表示中 {rows.length} 件
+            {filter === "pending" ? "（申請中のみ）" : "（すべて）"}
+          </span>
+        </div>
+
+        <div className="ot-admin-toolbar">
+          <div className="ot-filter-tabs" role="tablist" aria-label="ステータスフィルタ">
+            <Link
+              href="/dashboard/overtime"
+              className={filter === "pending" ? "ot-filter-tab is-active" : "ot-filter-tab"}
+              role="tab"
+              aria-selected={filter === "pending"}
+            >
+              申請中のみ<span className="ot-filter-count">{pendingCount}</span>
+            </Link>
+            <Link
+              href="/dashboard/overtime?status=all"
+              className={filter === "all" ? "ot-filter-tab is-active" : "ot-filter-tab"}
+              role="tab"
+              aria-selected={filter === "all"}
+            >
+              すべて<span className="ot-filter-count">{allRequests.length}</span>
+            </Link>
+          </div>
         </div>
 
         {rows.length === 0 ? (
-          <div className="dash-empty">残業申請はまだありません</div>
+          <div className="ot-empty">
+            <div className="ot-empty-title">
+              {filter === "pending" ? "申請中の残業はありません" : "申請がありません"}
+            </div>
+            <div>
+              {filter === "pending"
+                ? "新規の申請が届くとここに表示されます"
+                : "申請者から残業申請が届くとここに表示されます"}
+            </div>
+          </div>
         ) : (
-          <div className="dash-table-wrap">
-            <div className="dash-table-scroll">
-              <table className="dash-table">
+          <>
+            <div className="table-wrap ot-queue-scroll">
+              <table className="ot-queue-table">
                 <thead>
                   <tr>
-                    <th scope="col">日付</th>
-                    <th scope="col">申請者</th>
-                    <th scope="col">時間</th>
-                    <th scope="col">分数</th>
-                    <th scope="col">現場</th>
-                    <th scope="col">内容</th>
-                    <th scope="col">ステータス</th>
-                    <th scope="col">種別</th>
+                    <th style={{ width: 96 }}>業務日</th>
+                    <th style={{ width: 120 }}>申請者</th>
+                    <th style={{ width: 64 }}>種別</th>
+                    <th style={{ width: 140 }}>時間帯</th>
+                    <th style={{ width: 80 }}>残業</th>
+                    <th>現場</th>
+                    <th>作業内容</th>
+                    <th style={{ width: 88 }}>状態</th>
+                    <th style={{ width: 1 }} aria-label="アクション" />
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((o) => (
-                    <tr key={o.id}>
-                      <td className="dash-td-num">
-                        {formatJSTYmd(o.workDate)}
-                      </td>
-                      <td className="dash-td-name">{o.userName}</td>
-                      <td>
-                        <span className="dash-time-range">
-                          {formatJSTHHmm(o.startAt)}
-                          <span className="dash-time-sep">–</span>
-                          {o.endAt ? formatJSTHHmm(o.endAt) : "—"}
-                        </span>
-                      </td>
-                      <td className="dash-td-num">
-                        {formatMinutesJa(o.durationMinutes)}
-                      </td>
-                      <td>
-                        {o.workSiteName || (
-                          <span className="dash-td-muted">—</span>
-                        )}
-                      </td>
-                      <td>
-                        {o.description ? (
-                          <span className="dash-td-text">
-                            {truncate(o.description, 30)}
-                          </span>
-                        ) : (
-                          <span className="dash-td-text dash-td-text-empty">
-                            —
-                          </span>
-                        )}
-                      </td>
-                      <td>{statusBadge(o.status)}</td>
-                      <td>{requestTypeTag(o.requestType)}</td>
-                    </tr>
-                  ))}
+                  <QueueRows
+                    rows={rows.map((r) => ({
+                      id: r.id,
+                      workDateLabel: formatWorkDate(r.workDate),
+                      userName: r.user.name,
+                      requestType: r.requestType as RequestType,
+                      timeRange: `${formatJSTHHmm(r.startAt)}〜${formatJSTHHmm(r.endAt)}`,
+                      durationLabel: formatDurationJa(r.durationMinutes),
+                      workSiteName: r.workSiteName,
+                      description: r.description,
+                      status: r.status as OvertimeStatus,
+                    }))}
+                  />
                 </tbody>
               </table>
             </div>
-          </div>
+            <QueueCards
+              rows={rows.map((r) => ({
+                id: r.id,
+                workDateLabel: formatWorkDate(r.workDate),
+                userName: r.user.name,
+                requestType: r.requestType as RequestType,
+                timeRange: `${formatJSTHHmm(r.startAt)}〜${formatJSTHHmm(r.endAt)}`,
+                durationLabel: formatDurationJa(r.durationMinutes),
+                workSiteName: r.workSiteName,
+                description: r.description,
+                status: r.status as OvertimeStatus,
+              }))}
+            />
+          </>
         )}
       </section>
-
-      <div className="dash-note">
-        この画面は閲覧専用です。承認・差戻・却下の操作は社員向け勤怠アプリの管理画面から行ってください。
-      </div>
     </>
   );
 }

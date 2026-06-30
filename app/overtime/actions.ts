@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession, isAdminRole } from "@/lib/session";
+import { requireAdminOrDashboard, adminPrefix } from "@/lib/auth-guard";
 import {
   REVIEW_COMMENT_MAX_CHARS,
   codePointLength,
@@ -12,6 +13,19 @@ import {
   type ValidationErrors,
 } from "@/lib/overtime";
 import { parseHHmm } from "@/lib/time";
+
+// dashboard 経由で承認した時に reviewerId にする「統括管理者」相当の User ID を取得
+async function resolveReviewerId(
+  principal: Awaited<ReturnType<typeof requireAdminOrDashboard>>,
+): Promise<string | null> {
+  if (principal.kind === "user") return principal.user.id;
+  const dev = await prisma.user.findFirst({
+    where: { role: "developer", isActive: true },
+    select: { id: true },
+    orderBy: { createdAt: "asc" },
+  });
+  return dev?.id ?? null;
+}
 
 export type ActionResult =
   | { ok: true; id: string }
@@ -187,54 +201,58 @@ async function applyReview(
 
   revalidatePath("/admin/overtime");
   revalidatePath("/admin/overtime/report");
+  revalidatePath("/dashboard/overtime");
   revalidatePath("/admin");
   revalidatePath("/overtime");
   return { ok: true, status: nextStatus };
 }
 
 export async function approveRequestAction(formData: FormData): Promise<void> {
-  const session = await getSession();
-  if (!session || !isAdminRole(session.role)) {
-    redirect("/login?next=/admin/overtime");
+  const principal = await requireAdminOrDashboard("/admin/overtime");
+  const prefix = await adminPrefix();
+  const reviewerId = await resolveReviewerId(principal);
+  if (!reviewerId) {
+    redirect(`${prefix}/overtime?error=${encodeURIComponent("有効な開発者ユーザーが見つかりません")}`);
   }
   const id = String(formData.get("id") ?? "");
-  await applyReview(id, session!.id, "approved", null);
-  redirect("/admin/overtime?reviewed=1");
+  await applyReview(id, reviewerId!, "approved", null);
+  redirect(`${prefix}/overtime?reviewed=1`);
 }
 
 export async function rejectRequestAction(formData: FormData): Promise<void> {
-  const session = await getSession();
-  if (!session || !isAdminRole(session.role)) {
-    redirect("/login?next=/admin/overtime");
+  const principal = await requireAdminOrDashboard("/admin/overtime");
+  const prefix = await adminPrefix();
+  const reviewerId = await resolveReviewerId(principal);
+  if (!reviewerId) {
+    redirect(`${prefix}/overtime?error=${encodeURIComponent("有効な開発者ユーザーが見つかりません")}`);
   }
   const id = String(formData.get("id") ?? "");
   const comment = String(formData.get("comment") ?? "");
-  const result = await applyReview(id, session!.id, "rejected", comment);
+  const result = await applyReview(id, reviewerId!, "rejected", comment);
   if (!result.ok) {
-    redirect(`/admin/overtime?id=${id}&error=${encodeURIComponent(result.error)}`);
+    redirect(`${prefix}/overtime?id=${id}&error=${encodeURIComponent(result.error)}`);
   }
-  redirect("/admin/overtime?reviewed=1");
+  redirect(`${prefix}/overtime?reviewed=1`);
 }
 
 export async function sendBackRequestAction(formData: FormData): Promise<void> {
-  const session = await getSession();
-  if (!session || !isAdminRole(session.role)) {
-    redirect("/login?next=/admin/overtime");
+  const principal = await requireAdminOrDashboard("/admin/overtime");
+  const prefix = await adminPrefix();
+  const reviewerId = await resolveReviewerId(principal);
+  if (!reviewerId) {
+    redirect(`${prefix}/overtime?error=${encodeURIComponent("有効な開発者ユーザーが見つかりません")}`);
   }
   const id = String(formData.get("id") ?? "");
   const comment = String(formData.get("comment") ?? "");
-  const result = await applyReview(id, session!.id, "sent_back", comment);
+  const result = await applyReview(id, reviewerId!, "sent_back", comment);
   if (!result.ok) {
-    redirect(`/admin/overtime?id=${id}&error=${encodeURIComponent(result.error)}`);
+    redirect(`${prefix}/overtime?id=${id}&error=${encodeURIComponent(result.error)}`);
   }
-  redirect("/admin/overtime?reviewed=1");
+  redirect(`${prefix}/overtime?reviewed=1`);
 }
 
 export async function updateRegularEndTime(formData: FormData): Promise<void> {
-  const session = await getSession();
-  if (!session || !isAdminRole(session.role)) {
-    redirect("/login?next=/admin/settings/overtime");
-  }
+  await requireAdminOrDashboard("/admin/settings/overtime");
   const value = String(formData.get("value") ?? "").trim();
   try {
     parseHHmm(value);
@@ -252,10 +270,7 @@ export async function updateRegularEndTime(formData: FormData): Promise<void> {
 }
 
 export async function upsertWorkSite(formData: FormData): Promise<void> {
-  const session = await getSession();
-  if (!session || !isAdminRole(session.role)) {
-    redirect("/login?next=/admin/settings/overtime");
-  }
+  await requireAdminOrDashboard("/admin/settings/overtime");
   const name = String(formData.get("name") ?? "").trim().normalize("NFKC");
   if (name.length === 0) {
     redirect(`/admin/settings/overtime?error=${encodeURIComponent("現場名を入力してください")}`);
@@ -271,10 +286,7 @@ export async function upsertWorkSite(formData: FormData): Promise<void> {
 }
 
 export async function deactivateWorkSite(formData: FormData): Promise<void> {
-  const session = await getSession();
-  if (!session || !isAdminRole(session.role)) {
-    redirect("/login?next=/admin/settings/overtime");
-  }
+  await requireAdminOrDashboard("/admin/settings/overtime");
   const id = String(formData.get("id") ?? "");
   if (!id) return;
   await prisma.workSite.update({ where: { id }, data: { isActive: false } });

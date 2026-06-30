@@ -9,7 +9,7 @@ import "./dashboard.css";
 
 export const metadata: Metadata = {
   title: "管理ダッシュボード - 株式会社ニナウ",
-  description: "代表者専用 管理ダッシュボード",
+  description: "統括管理者専用 管理ダッシュボード",
 };
 
 export default async function DashboardLayout({

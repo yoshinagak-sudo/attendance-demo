@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { requireManager } from "@/lib/session";
+import { requireAdminOrDashboard } from "@/lib/auth-guard";
 import { hashPassword, randomPasswordHumanFriendly } from "@/lib/password";
 
 type RoleValue = "member" | "manager" | "developer";
@@ -25,7 +25,7 @@ export async function resetPasswordAction(
   _prev: ResetPasswordState,
   formData: FormData,
 ): Promise<ResetPasswordState> {
-  await requireManager("/admin/users");
+  await requireAdminOrDashboard("/admin/users");
   const userId = String(formData.get("userId") ?? "").trim();
   if (!userId) {
     return { ok: false, error: "ユーザーIDが不正です" };
@@ -50,6 +50,7 @@ export async function resetPasswordAction(
 
   // 既存セッションは passwordUpdatedAt > session.iat の関係で自動失効する想定
   revalidatePath("/admin/users");
+  revalidatePath("/dashboard/users");
 
   return {
     ok: true,
@@ -72,7 +73,7 @@ export async function toggleUserActiveAction(
   _prev: ToggleActiveState,
   formData: FormData,
 ): Promise<ToggleActiveState> {
-  const session = await requireManager("/admin/users");
+  const principal = await requireAdminOrDashboard("/admin/users");
   const userId = String(formData.get("userId") ?? "").trim();
   if (!userId) {
     return { ok: false, error: "ユーザーIDが不正です" };
@@ -100,8 +101,12 @@ export async function toggleUserActiveAction(
     }
   }
 
-  // 自分自身を inactive にしようとしている場合も、安全のため拒否
-  if (!nextActive && target.id === session.id) {
+  // 自分自身を inactive にしようとしている場合も、安全のため拒否（user session 経由時のみ）
+  if (
+    !nextActive &&
+    principal.kind === "user" &&
+    target.id === principal.user.id
+  ) {
     return {
       ok: false,
       error: "自分自身を無効化することはできません",
@@ -113,6 +118,7 @@ export async function toggleUserActiveAction(
     data: { isActive: nextActive },
   });
   revalidatePath("/admin/users");
+  revalidatePath("/dashboard/users");
 
   return { ok: true, userId, isActive: nextActive };
 }
@@ -132,7 +138,7 @@ export async function changeUserRoleAction(
   _prev: ChangeRoleState,
   formData: FormData,
 ): Promise<ChangeRoleState> {
-  const session = await requireManager("/admin/users");
+  const principal = await requireAdminOrDashboard("/admin/users");
   const userId = String(formData.get("userId") ?? "").trim();
   const newRoleRaw = String(formData.get("newRole") ?? "").trim();
   if (!userId) {
@@ -150,7 +156,8 @@ export async function changeUserRoleAction(
   if (target.role === newRole) {
     return { ok: true, userId, newRole };
   }
-  if (target.id === session.id) {
+  // 自分自身の role 変更は user session 経由時のみ抑止（dashboard 経由は別アカウントなのでOK）
+  if (principal.kind === "user" && target.id === principal.user.id) {
     return { ok: false, error: "自分自身のロールは変更できません" };
   }
 
@@ -174,6 +181,7 @@ export async function changeUserRoleAction(
     data: { role: newRole },
   });
   revalidatePath("/admin/users");
+  revalidatePath("/dashboard/users");
 
   return { ok: true, userId, newRole };
 }
