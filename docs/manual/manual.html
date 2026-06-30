@@ -367,7 +367,7 @@
       <td>全社員 + 管理者(manager)</td>
     </tr>
     <tr>
-      <td><strong>管理者向け管理ダッシュボード</strong><br><span style="font-size:9pt;color:var(--muted)">閲覧専用・全社の状況をまとめて表示</span></td>
+      <td><strong>管理者向け管理ダッシュボード</strong><br><span style="font-size:9pt;color:var(--muted)">全社状況の閲覧 + 社員管理・残業承認・日報確認・車両マスタ</span></td>
       <td><code style="font-size:9pt">attendance-ninau-admin.vercel.app</code></td>
       <td>統括管理者</td>
     </tr>
@@ -415,11 +415,11 @@
       <li><span><span class="num-circle">8</span>ダッシュボード概要・ログイン</span><span>p.11</span></li>
       <li><span><span class="num-circle">9</span>出勤状況（トップ）</span><span>p.12</span></li>
       <li><span><span class="num-circle">10</span>月次集計・車両状況・未対応</span><span>p.13</span></li>
-      <li><span><span class="num-circle">11</span>社員一覧・残業申請・日報</span><span>p.14</span></li>
+      <li><span><span class="num-circle">11</span>社員管理・残業承認・日報・車両マスタ</span><span>p.14</span></li>
     </ol>
     <p style="font-size:9.5pt;color:var(--primary-hover);font-weight:700;margin:10px 0 2px">付録</p>
     <ol start="12">
-      <li><span><span class="num-circle">12</span>よくある質問</span><span>p.15</span></li>
+      <li><span><span class="num-circle">12</span>よくある質問</span><span>p.16</span></li>
     </ol>
   </div>
 
@@ -825,10 +825,11 @@
   <div style="font-size:14pt; color:var(--text-sub); margin-bottom:8px; letter-spacing:0.04em;">PART 2</div>
   <h1 class="cover-title" style="font-size:22pt">管理者向け 管理ダッシュボード</h1>
   <div class="cover-sub" style="margin-top:12px">attendance-ninau-admin.vercel.app</div>
-  <div style="max-width:520px; margin: 24px auto 0; font-size:10.5pt; color:var(--text-sub); line-height:1.7;">
-    社員向けアプリとは独立した、<strong>統括管理者専用の閲覧ダッシュボード</strong>です。
-    パスワード1つで入れて、出勤状況・月次集計・車両・未対応件数・社員一覧・残業申請・日報を一覧できます。
-    承認や設定変更などの操作は、第1部の社員向けアプリの管理者画面で行います。
+  <div style="max-width:560px; margin: 24px auto 0; font-size:10.5pt; color:var(--text-sub); line-height:1.7;">
+    社員向けアプリとは独立した、<strong>統括管理者専用の管理ダッシュボード</strong>です。
+    パスワード1つで入れて、全社状況の閲覧に加えて
+    <strong>社員管理（ロール変更/PW再発行/有効化）・残業承認・日報確認・車両マスタ管理</strong>
+    まで、社員向けアプリ側の管理画面と同等の操作をここで完結できます。
   </div>
 </section>
 
@@ -852,22 +853,22 @@
   <div class="screenshot-caption">ダッシュボードログイン画面</div>
 
   <div class="note">
-    <strong>このダッシュボードは閲覧専用です。</strong>
-    残業申請の承認・パスワード再発行・設定変更などの操作は、社員向け勤怠アプリ
-    (<code>attendance-ninau.vercel.app</code>) の管理画面から管理者(manager)権限で行います。
+    社員向け勤怠アプリ (<code>attendance-ninau.vercel.app</code>) と
+    DBは同じものを参照しています。どちらで操作しても結果は即座に反映されます。
   </div>
 
   <h2>サイドナビの構成</h2>
-  <p>画面左にサイドナビが常時表示され、7つの閲覧画面に切り替えできます。</p>
+  <p>画面左にサイドナビが常時表示され、8つの画面に切り替えできます。前半4つは閲覧のみ、後半4つは操作も可能です。</p>
   <table class="feature-table">
-    <tr><th style="width:30%">メニュー</th><th>表示する内容</th></tr>
-    <tr><td><strong>出勤状況</strong></td><td>今日の出勤中/退勤済/未出勤/合計労働時間 + タイムライン</td></tr>
-    <tr><td><strong>月次集計</strong></td><td>社員ごと勤務日数・勤務時間・残業時間（今月分）</td></tr>
-    <tr><td><strong>車両状況</strong></td><td>全車両の使用者・車検期限・直近30日走行距離</td></tr>
-    <tr><td><strong>未対応</strong></td><td>残業申請の未承認件数 / 日報の未確認件数</td></tr>
-    <tr><td><strong>社員</strong></td><td>登録済み社員の一覧（ロール・ログイン手段・最終ログイン）</td></tr>
-    <tr><td><strong>残業申請</strong></td><td>最新200件 + 4ステータス別カウント</td></tr>
-    <tr><td><strong>日報</strong></td><td>最新200件 + 提出/確認状況</td></tr>
+    <tr><th style="width:30%">メニュー</th><th>内容</th></tr>
+    <tr><td><strong>出勤状況</strong></td><td>今日の出勤中/退勤済/未出勤/合計労働時間 + タイムライン（閲覧）</td></tr>
+    <tr><td><strong>月次集計</strong></td><td>社員ごと勤務日数・勤務時間・残業時間（閲覧）</td></tr>
+    <tr><td><strong>車両状況</strong></td><td>全車両の使用者・車検期限・直近30日走行距離（閲覧）</td></tr>
+    <tr><td><strong>未対応</strong></td><td>残業申請の未承認件数 / 日報の未確認件数（閲覧）</td></tr>
+    <tr><td><strong>社員管理</strong></td><td>ロール変更・パスワード再発行・有効化/無効化</td></tr>
+    <tr><td><strong>残業承認</strong></td><td>申請の承認・差戻・却下（コメント付き）</td></tr>
+    <tr><td><strong>日報</strong></td><td>提出済日報の詳細閲覧・確認済化・確認取消</td></tr>
+    <tr><td><strong>車両マスタ</strong></td><td>社用車の追加・編集・無効化・点検期限管理</td></tr>
   </table>
 </section>
 
@@ -940,8 +941,8 @@
   <div class="two-col">
     <div>
       <p style="font-size:10pt;">
-        管理者が対応すべきタスクの未処理件数。統括管理者は件数だけ把握し、
-        実際の承認は管理者(manager)が社員向けアプリの管理画面で行います。
+        対応待ちのタスクの件数。残業承認なら<strong>「残業承認」</strong>、
+        日報確認なら<strong>「日報」</strong>に進んで処理します。
       </p>
       <ul style="margin:4px 0 4px 18px; font-size:9.5pt;">
         <li>残業申請（未承認）</li>
@@ -955,59 +956,83 @@
   </div>
 </section>
 
-<!-- ============== 15. 社員一覧・残業申請・日報 ============== -->
+<!-- ============== 15. 社員管理・残業承認・日報・車両マスタ ============== -->
 <section class="page">
-  <h1 class="section-title"><span class="num">11</span>社員一覧・残業申請・日報</h1>
+  <h1 class="section-title"><span class="num">11</span>社員管理・残業承認・日報・車両マスタ</h1>
 
-  <h2>15-1. 社員一覧</h2>
+  <h2>15-1. 社員管理</h2>
   <div class="two-col">
     <div>
       <p style="font-size:10pt;">
-        登録済み社員の一覧。新規登録があったときの状況把握に使えます。
+        登録済み社員の一覧で、行ごとに<strong>ロール変更・PW再発行・有効化/無効化</strong>を直接操作できます。
       </p>
       <ul style="margin:4px 0 4px 18px; font-size:9.5pt;">
-        <li>名前 / ロール（developer/manager/member）</li>
-        <li>ログイン手段（メールアドレス or LINE）</li>
-        <li>最終ログイン日時 / 有効・無効</li>
+        <li><strong>ロール</strong>：ドロップダウンで「一般 / 管理者 / 開発者」を選択（即保存）</li>
+        <li><strong>PW再発行</strong>：新パスワードを生成しモーダルで1回だけ表示</li>
+        <li><strong>無効化 / 再有効化</strong>：休職・退職時に運用</li>
+        <li>最後の有効な管理者は降格・無効化を抑止</li>
       </ul>
+      <p style="font-size:9.5pt;color:var(--muted);margin-top:6px">
+        ロールを「管理者」に変更したユーザーは、社員向け勤怠アプリにログインすると管理画面 (<code>/admin</code>) に入れるようになります。
+      </p>
     </div>
     <div>
-      <img src="screenshots/d06-dash-employees.png" alt="社員一覧画面" class="screenshot">
-      <div class="screenshot-caption">社員一覧</div>
+      <img src="screenshots/d06-dash-users.png" alt="社員管理画面" class="screenshot">
+      <div class="screenshot-caption">社員管理（ロール変更・PW再発行・有効化）</div>
     </div>
   </div>
 
-  <h2>15-2. 残業申請一覧</h2>
+  <h2>15-2. 残業承認</h2>
   <div class="two-col">
     <div>
       <p style="font-size:10pt;">
-        最新200件の残業申請を一覧表示。4ステータスのカウントカードで全体状況を把握。
+        申請中の残業申請を承認・差戻・却下する画面。「申請中のみ」「すべて」でフィルタ可能。
       </p>
       <ul style="margin:4px 0 4px 18px; font-size:9.5pt;">
-        <li><strong>未承認</strong>（amber）/ <strong>承認済</strong>（緑）/ <strong>差戻</strong>（青）/ <strong>却下</strong>（赤）</li>
-        <li>各行: 日付 / 申請者 / 時間 / 分数 / 現場 / 内容 / 状態 / 種別（事前/事後）</li>
+        <li>概況カード：申請中 / 本日承認 / 本日差戻 / 月次承認分</li>
+        <li>各行のボタンから <strong>承認</strong>（即時）・<strong>差戻</strong>・<strong>却下</strong>（コメント必須）</li>
+        <li>承認すると勤務時間集計（月次画面）に反映</li>
       </ul>
     </div>
     <div>
-      <img src="screenshots/d07-dash-overtime.png" alt="残業申請一覧画面" class="screenshot">
-      <div class="screenshot-caption">残業申請一覧（read-only）</div>
+      <img src="screenshots/d07-dash-overtime.png" alt="残業承認画面" class="screenshot">
+      <div class="screenshot-caption">残業承認キュー</div>
     </div>
   </div>
 
-  <h2>15-3. 日報一覧</h2>
+  <h2>15-3. 日報</h2>
   <div class="two-col">
     <div>
       <p style="font-size:10pt;">
-        最新200件の日報を一覧表示。未確認のものは行色で目立つように。
+        本日の提出状況・直近7日の日報一覧。各行を開くと詳細ページで<strong>確認済化</strong>できます。
       </p>
       <ul style="margin:4px 0 4px 18px; font-size:9.5pt;">
-        <li>日付 / 名前 / 状態（草稿/提出/確認済）</li>
-        <li>件数 / 合計分 / 進捗メモ（先頭40字）</li>
+        <li>未確認件数のバナーで一目で把握</li>
+        <li>詳細ページで作業アイテム・進捗メモを閲覧</li>
+        <li>「確認済にする」でステータス更新（コメント任意）／「確認を取り消す」で下書きに戻す</li>
       </ul>
     </div>
     <div>
-      <img src="screenshots/d08-dash-reports.png" alt="日報一覧画面" class="screenshot">
-      <div class="screenshot-caption">日報一覧（read-only）</div>
+      <img src="screenshots/d08-dash-report.png" alt="日報画面" class="screenshot">
+      <div class="screenshot-caption">日報管理（一覧から詳細→確認）</div>
+    </div>
+  </div>
+
+  <h2>15-4. 車両マスタ</h2>
+  <div class="two-col">
+    <div>
+      <p style="font-size:10pt;">
+        社用車の追加・編集・無効化・点検期限管理を行います。社員アプリ「車両管理」に表示される車両はここで決まります。
+      </p>
+      <ul style="margin:4px 0 4px 18px; font-size:9.5pt;">
+        <li>追加フォーム：車両番号・車種・所属拠点・点検/車検期限</li>
+        <li>無効化：割当中の社員からも自動的にリリース</li>
+        <li>期限の30日前から警告色で強調</li>
+      </ul>
+    </div>
+    <div>
+      <img src="screenshots/d09-dash-settings-vehicle.png" alt="車両マスタ画面" class="screenshot">
+      <div class="screenshot-caption">車両マスタ（追加・無効化）</div>
     </div>
   </div>
 </section>
@@ -1021,7 +1046,7 @@
     <dd>システム管理者（開発者）に依頼してください。Vercel 環境変数 <code>NINAU_OWNER_PASSWORD_HASH</code> を新パスワードのハッシュで差し替えることで即時切替できます。</dd>
 
     <dt>Q. ダッシュボードから残業申請を承認できますか？</dt>
-    <dd>できません（閲覧専用）。承認は社員向け勤怠アプリ（<code>attendance-ninau.vercel.app</code>）に管理者(manager)アカウントでログインして行ってください。</dd>
+    <dd>できます。サイドナビ「残業承認」から承認・差戻・却下を直接操作できます。社員向け勤怠アプリ（<code>attendance-ninau.vercel.app</code>）の管理画面からも同じ操作が可能で、どちらで操作しても結果は即時反映されます。</dd>
 
     <dt>Q. スマホ以外でも使えますか？</dt>
     <dd>PC・タブレット・スマホすべてで動作します。画面サイズに応じて自動でレイアウトが切り替わります。</dd>
