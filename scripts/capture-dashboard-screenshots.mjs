@@ -16,9 +16,10 @@ const SHOTS = [
   { id: "d03-dash-monthly", url: `${BASE}/monthly`, auth: true },
   { id: "d04-dash-vehicle", url: `${BASE}/vehicle`, auth: true },
   { id: "d05-dash-pending", url: `${BASE}/pending`, auth: true },
-  { id: "d06-dash-employees", url: `${BASE}/employees`, auth: true },
+  { id: "d06-dash-users", url: `${BASE}/users`, auth: true },
   { id: "d07-dash-overtime", url: `${BASE}/overtime`, auth: true },
-  { id: "d08-dash-reports", url: `${BASE}/reports`, auth: true },
+  { id: "d08-dash-report", url: `${BASE}/report`, auth: true },
+  { id: "d09-dash-settings-vehicle", url: `${BASE}/settings/vehicle`, auth: true },
 ];
 
 function getOwnerPassword() {
