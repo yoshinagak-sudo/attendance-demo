@@ -101,17 +101,10 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (
-    pathname.startsWith("/admin") &&
-    payload.rl !== "manager" &&
-    payload.rl !== "developer"
-  ) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/";
-    url.search = "";
-    return NextResponse.redirect(url);
-  }
-
+  // /admin の role チェックはここではしない。
+  // 理由: cookie の payload.rl は発行時の role を保持し、後から変更されないため、
+  //       /dashboard/users でロール変更しても再ログインまで反映されない問題があった。
+  // 各ページの requireManager() が DB から最新 role を取り直して /(ルート) に redirect する。
   return NextResponse.next();
 }
 
