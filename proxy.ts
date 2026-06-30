@@ -8,7 +8,7 @@ import {
 
 /**
  * ホスト名で2系統に分岐：
- *  - admin.* / *-admin.vercel.app … ニナウ社長専用ダッシュボード（dashboard cookie 必須）
+ *  - admin.* / *-admin.vercel.app … 統括管理者専用ダッシュボード（dashboard cookie 必須）
  *  - それ以外 … 既存の社員向け勤怠アプリ（User session 必須）
  */
 function isDashboardHost(host: string): boolean {

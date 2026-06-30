@@ -18,7 +18,7 @@ export default async function PendingPage() {
           <span className="dash-page-eyebrow">未対応</span>
           <h1 className="dash-page-title">未対応</h1>
           <span className="dash-page-sub">
-            社長確認待ちの件数（社員アプリ側で確認・対応します）
+            統括管理者の確認待ち件数（社員アプリ側で確認・対応します）
           </span>
         </div>
         <div className="dash-page-side">

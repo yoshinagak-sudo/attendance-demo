@@ -1,5 +1,5 @@
 /**
- * ニナウ社長専用 管理ダッシュボードのスクリーンショット取得
+ * 統括管理者専用 管理ダッシュボードのスクリーンショット取得
  * - PC幅 1280x800 で撮影
  * - 出力: docs/manual/screenshots/d01-* 〜 d08-*
  */
@@ -7,7 +7,7 @@ import { chromium } from "playwright";
 import path from "node:path";
 import { execSync } from "node:child_process";
 
-const BASE = "https://attendance-demo-admin.vercel.app";
+const BASE = "https://attendance-ninau-admin.vercel.app";
 const OUT = path.resolve(process.cwd(), "docs/manual/screenshots");
 
 const SHOTS = [
