@@ -132,6 +132,12 @@ export default async function DashboardUsersPage() {
                                 ? "最後の有効な管理者(manager/developer)は無効化できません"
                                 : undefined
                             }
+                            disableDelete={isLastActiveAdmin}
+                            disableDeleteReason={
+                              isLastActiveAdmin
+                                ? "最後の有効な管理者(manager/developer)は削除できません"
+                                : undefined
+                            }
                           />
                         </td>
                       </tr>

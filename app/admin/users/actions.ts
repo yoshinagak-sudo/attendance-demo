@@ -185,3 +185,106 @@ export async function changeUserRoleAction(
 
   return { ok: true, userId, newRole };
 }
+
+export type DeleteUserState =
+  | { ok: true; userId: string; userName: string; removed: {
+      timeRecord: number;
+      overtimeAsApplicant: number;
+      overtimeReviewerNulled: number;
+      vehicleAssignment: number;
+      drivingLog: number;
+      refuelingLog: number;
+      dailyReport: number;
+      dailyReportAckNulled: number;
+    } }
+  | { ok: false; error: string }
+  | null;
+
+/**
+ * ユーザーを DB から完全に削除する（不可逆）。
+ * 関連する打刻・残業申請・車両割当・給油・運行・日報も一緒に消える。
+ * 他人が提出した残業/日報の reviewer / acknowledgedBy にこの人が入っている場合は null 化する。
+ *
+ * 制約:
+ *  - 自分自身は削除できない（session ログイン時のみ抑止）
+ *  - 最後の有効な管理者(manager/developer)は削除できない
+ */
+export async function deleteUserAction(
+  _prev: DeleteUserState,
+  formData: FormData,
+): Promise<DeleteUserState> {
+  const principal = await requireAdminOrDashboard("/admin/users");
+  const userId = String(formData.get("userId") ?? "").trim();
+  const confirmName = String(formData.get("confirmName") ?? "").trim();
+  if (!userId) {
+    return { ok: false, error: "ユーザーIDが不正です" };
+  }
+
+  const target = await prisma.user.findUnique({ where: { id: userId } });
+  if (!target) {
+    return { ok: false, error: "対象ユーザーが見つかりません" };
+  }
+  if (principal.kind === "user" && target.id === principal.user.id) {
+    return { ok: false, error: "自分自身は削除できません" };
+  }
+  if (confirmName !== target.name) {
+    return {
+      ok: false,
+      error: "確認用の氏名が一致しません",
+    };
+  }
+
+  // 最後の有効な管理者は削除禁止
+  const isTargetActiveAdmin =
+    target.isActive && (target.role === "manager" || target.role === "developer");
+  if (isTargetActiveAdmin) {
+    const activeAdminCount = await prisma.user.count({
+      where: { isActive: true, role: { in: ["manager", "developer"] } },
+    });
+    if (activeAdminCount <= 1) {
+      return {
+        ok: false,
+        error: "最後の有効な管理者(manager/developer)は削除できません",
+      };
+    }
+  }
+
+  const removed = await prisma.$transaction(async (tx) => {
+    const [tr, ov, va, dl, rl, dr] = await Promise.all([
+      tx.timeRecord.deleteMany({ where: { userId } }),
+      tx.overtimeRequest.deleteMany({ where: { userId } }),
+      tx.vehicleAssignment.deleteMany({ where: { userId } }),
+      tx.drivingLog.deleteMany({ where: { userId } }),
+      tx.refuelingLog.deleteMany({ where: { userId } }),
+      tx.dailyReport.deleteMany({ where: { userId } }),
+    ]);
+    // 他人の残業申請の reviewerId, 他人の日報の acknowledgedById が
+    // このユーザーを指しているものは null 化して、残す。
+    const [ovRev, drAck] = await Promise.all([
+      tx.overtimeRequest.updateMany({
+        where: { reviewerId: userId },
+        data: { reviewerId: null },
+      }),
+      tx.dailyReport.updateMany({
+        where: { acknowledgedById: userId },
+        data: { acknowledgedById: null },
+      }),
+    ]);
+    await tx.user.delete({ where: { id: userId } });
+    return {
+      timeRecord: tr.count,
+      overtimeAsApplicant: ov.count,
+      overtimeReviewerNulled: ovRev.count,
+      vehicleAssignment: va.count,
+      drivingLog: dl.count,
+      refuelingLog: rl.count,
+      dailyReport: dr.count,
+      dailyReportAckNulled: drAck.count,
+    };
+  });
+
+  revalidatePath("/admin/users");
+  revalidatePath("/dashboard/users");
+
+  return { ok: true, userId, userName: target.name, removed };
+}

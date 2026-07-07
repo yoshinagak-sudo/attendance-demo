@@ -134,6 +134,14 @@ export default async function AdminUsersPage() {
                                 ? "最後の有効な管理者(manager/developer)は無効化できません"
                                 : undefined
                           }
+                          disableDelete={isSelf || isLastActiveAdmin}
+                          disableDeleteReason={
+                            isSelf
+                              ? "自分自身は削除できません"
+                              : isLastActiveAdmin
+                                ? "最後の有効な管理者(manager/developer)は削除できません"
+                                : undefined
+                          }
                         />
                       </td>
                     </tr>

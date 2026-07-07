@@ -5,9 +5,11 @@ import {
   resetPasswordAction,
   toggleUserActiveAction,
   changeUserRoleAction,
+  deleteUserAction,
   type ResetPasswordState,
   type ToggleActiveState,
   type ChangeRoleState,
+  type DeleteUserState,
 } from "./actions";
 
 type RoleValue = "member" | "manager" | "developer";
@@ -19,6 +21,8 @@ type Props = {
   hasLoginId: boolean;
   disableDeactivate: boolean;
   disableDeactivateReason?: string;
+  disableDelete?: boolean;
+  disableDeleteReason?: string;
 };
 
 export function UserRowActions({
@@ -28,6 +32,8 @@ export function UserRowActions({
   hasLoginId,
   disableDeactivate,
   disableDeactivateReason,
+  disableDelete,
+  disableDeleteReason,
 }: Props) {
   const [resetState, resetFormAction, resetPending] = useActionState<
     ResetPasswordState,
@@ -39,11 +45,17 @@ export function UserRowActions({
     FormData
   >(toggleUserActiveAction, null);
 
+  const [deleteState, deleteFormAction, deletePending] = useActionState<
+    DeleteUserState,
+    FormData
+  >(deleteUserAction, null);
+
   // resetState の表示は「最新の成功 (ok:true)」だけモーダルに乗せる
   const [revealed, setRevealed] = useState<
     | { password: string; userId: string; userName: string }
     | null
   >(null);
+  const [deletePromptOpen, setDeletePromptOpen] = useState(false);
 
   useEffect(() => {
     if (resetState && resetState.ok && resetState.userId === userId) {
@@ -55,15 +67,24 @@ export function UserRowActions({
     }
   }, [resetState, userId]);
 
+  useEffect(() => {
+    if (deleteState && deleteState.ok && deleteState.userId === userId) {
+      setDeletePromptOpen(false);
+    }
+  }, [deleteState, userId]);
+
   const closeModal = () => setRevealed(null);
 
   const resetError =
     resetState && !resetState.ok ? resetState.error : null;
   const toggleError =
     toggleState && !toggleState.ok ? toggleState.error : null;
+  const deleteError =
+    deleteState && !deleteState.ok ? deleteState.error : null;
 
   // 無効化ボタンを止める理由のうち、サーバー側の結果も尊重する
   const cannotDeactivate = disableDeactivate;
+  const cannotDelete = disableDelete ?? false;
 
   return (
     <>
@@ -107,10 +128,22 @@ export function UserRowActions({
             </button>
           )}
         </form>
+
+        {/* 削除（不可逆） */}
+        <button
+          type="button"
+          onClick={() => setDeletePromptOpen(true)}
+          className="ot-btn-ghost ot-btn-sm"
+          style={{ color: "var(--danger)", fontWeight: 700 }}
+          disabled={cannotDelete}
+          title={cannotDelete ? disableDeleteReason : `${userName} を完全に削除`}
+        >
+          削除
+        </button>
       </div>
 
       {/* エラー（最新分のみインライン表示） */}
-      {(resetError || toggleError) && (
+      {(resetError || toggleError || deleteError) && (
         <div
           style={{
             marginTop: 6,
@@ -122,7 +155,7 @@ export function UserRowActions({
           }}
           role="alert"
         >
-          {resetError ?? toggleError}
+          {resetError ?? toggleError ?? deleteError}
         </div>
       )}
 
@@ -132,6 +165,18 @@ export function UserRowActions({
           userName={revealed.userName}
           password={revealed.password}
           onClose={closeModal}
+        />
+      )}
+
+      {/* 削除確認モーダル */}
+      {deletePromptOpen && (
+        <DeleteConfirmModal
+          userId={userId}
+          userName={userName}
+          onClose={() => setDeletePromptOpen(false)}
+          formAction={deleteFormAction}
+          pending={deletePending}
+          errorMessage={deleteError}
         />
       )}
     </>
@@ -230,6 +275,110 @@ function PasswordRevealModal({
             閉じる
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function DeleteConfirmModal({
+  userId,
+  userName,
+  onClose,
+  formAction,
+  pending,
+  errorMessage,
+}: {
+  userId: string;
+  userName: string;
+  onClose: () => void;
+  formAction: (fd: FormData) => void;
+  pending: boolean;
+  errorMessage: string | null;
+}) {
+  const [typedName, setTypedName] = useState("");
+  const matches = typedName.trim() === userName;
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <div
+      className="password-reveal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-confirm-title"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="password-reveal-card">
+        <h3 id="delete-confirm-title" className="password-reveal-title">
+          {userName} さんを削除しますか？
+        </h3>
+        <p className="password-reveal-sub" style={{ color: "var(--danger)" }}>
+          この操作は<strong>取り消せません</strong>。<br />
+          このユーザーの<strong>打刻・残業申請・車両割当・給油・運行・日報</strong>もすべて削除されます。
+        </p>
+        <p className="password-reveal-sub" style={{ marginTop: 8 }}>
+          間違えて削除しないよう、下の欄に本人の氏名（<strong>{userName}</strong>）を入力してください。
+        </p>
+        <form action={formAction}>
+          <input type="hidden" name="userId" value={userId} />
+          <input type="hidden" name="confirmName" value={typedName.trim()} />
+          <div style={{ marginTop: 8 }}>
+            <input
+              type="text"
+              value={typedName}
+              onChange={(e) => setTypedName(e.target.value)}
+              placeholder={userName}
+              className="ot-input"
+              autoFocus
+              aria-label="削除確認用の氏名"
+            />
+          </div>
+          {errorMessage && (
+            <div
+              role="alert"
+              style={{
+                marginTop: 8,
+                fontSize: 12,
+                color: "var(--danger)",
+                fontWeight: 600,
+              }}
+            >
+              {errorMessage}
+            </div>
+          )}
+          <div
+            className="password-reveal-actions"
+            style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}
+          >
+            <button
+              type="button"
+              className="ot-btn-ghost ot-btn-sm"
+              onClick={onClose}
+              disabled={pending}
+            >
+              キャンセル
+            </button>
+            <button
+              type="submit"
+              className="ot-btn-warn ot-btn-sm"
+              disabled={!matches || pending}
+              title={
+                !matches ? "氏名を正確に入力すると削除できます" : "完全に削除"
+              }
+              style={{ fontWeight: 700 }}
+            >
+              {pending ? "削除中…" : "削除する"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
