@@ -9,7 +9,7 @@
  * - インポートはここ経由で集約することで、将来差し替えを1箇所で完結させる
  */
 export {
-  Home as HomeIcon,
+  Clock as PunchIcon,
   Clock4 as OvertimeIcon,
   Truck as VehicleIcon,
   ClipboardList as ReportIcon,

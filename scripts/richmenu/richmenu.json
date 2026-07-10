@@ -11,6 +11,6 @@
     {"bounds": {"x": 0, "y": 843, "width": 1250, "height": 843},
      "action": {"type": "uri", "label": "日報", "uri": "https://attendance-ninau.vercel.app/report/today"}},
     {"bounds": {"x": 1250, "y": 843, "width": 1250, "height": 843},
-     "action": {"type": "uri", "label": "ホーム", "uri": "https://attendance-ninau.vercel.app/"}}
+     "action": {"type": "uri", "label": "打刻", "uri": "https://attendance-ninau.vercel.app/"}}
   ]
 }

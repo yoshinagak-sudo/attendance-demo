@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ComponentType, SVGProps } from "react";
 import {
-  HomeIcon,
+  PunchIcon,
   OvertimeIcon,
   VehicleIcon,
   ReportIcon,
@@ -27,7 +27,7 @@ type Tab = {
 };
 
 const TABS: Tab[] = [
-  { href: "/", label: "ホーム", Icon: HomeIcon, exact: true },
+  { href: "/", label: "打刻", Icon: PunchIcon, exact: true },
   { href: "/overtime", label: "残業", Icon: OvertimeIcon },
   { href: "/vehicle", label: "車両", Icon: VehicleIcon },
   { href: "/report", label: "日報", Icon: ReportIcon },

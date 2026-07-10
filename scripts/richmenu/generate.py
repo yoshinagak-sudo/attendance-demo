@@ -168,7 +168,7 @@ def main():
         (0, 0, "打刻", "出勤・退勤", "clock"),
         (cw, 0, "残業申請", "事前・事後どちらもOK", "edit"),
         (0, ch, "日報", "今日の日報を書く", "doc"),
-        (cw, ch, "ホーム", "アプリを開く", "home"),
+        (cw, ch, "打刻", "アプリを開く", "clock"),
     ]
     for x, y, title, sub, ic in tiles:
         draw_tile(img, x, y, cw, ch, title, sub, ic)
