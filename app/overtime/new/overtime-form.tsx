@@ -21,6 +21,8 @@ type WorkSiteOption = { id: string; name: string };
 type Props = {
   userId: string;
   userName: string;
+  /** 残業 or 休日出勤。既定は "overtime"。 */
+  category?: "overtime" | "holiday_work";
   defaultWorkDate: string; // YYYY-MM-DD
   defaultStartTime: string; // HH:mm
   defaultEndTime: string; // HH:mm
@@ -62,6 +64,7 @@ export function OvertimeForm({
   // Props 自体はキャラ確認や互換用に受け取るだけ。
   userId: _userId,
   userName,
+  category = "overtime",
   defaultWorkDate,
   defaultStartTime,
   defaultEndTime,
@@ -409,6 +412,7 @@ export function OvertimeForm({
       {step === 2 && (
         <form action={formAction} className="ot-form-card">
           {/* hidden fields（userId は Server Action 側で session から強制上書きされる） */}
+          <input type="hidden" name="category" value={category} />
           <input type="hidden" name="workDate" value={workDate} />
           <input type="hidden" name="startAt" value={computed.startIso} />
           <input type="hidden" name="endAt" value={computed.endIso} />

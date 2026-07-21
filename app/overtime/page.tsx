@@ -51,7 +51,7 @@ export default async function OvertimeIndexPage({
   const withdrawn = params.withdrawn === "1";
 
   const requests = await prisma.overtimeRequest.findMany({
-    where: { userId: session.id },
+    where: { userId: session.id, category: "overtime" },
     orderBy: [{ workDate: "desc" }, { createdAt: "desc" }],
     take: 30,
   });

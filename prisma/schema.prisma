@@ -185,6 +185,7 @@ model PaidLeaveGrant {
 
   createdAt DateTime @default(now())
 
+  @@unique([userId, grantedOn, source])
   @@index([userId, grantedOn])
   @@index([userId, expiresOn])
 }

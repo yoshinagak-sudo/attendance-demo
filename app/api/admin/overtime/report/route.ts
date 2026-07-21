@@ -38,6 +38,7 @@ export async function GET(req: Request) {
 
   const where = {
     workDate: { gte: monthStart, lt: monthEnd },
+    category: "overtime",
     ...(statusParam === "all" ? {} : { status: "approved" }),
   };
 

@@ -60,32 +60,36 @@ export default async function DashboardOvertimePage({
     pendingRequests,
     allRequests,
   ] = await Promise.all([
-    prisma.overtimeRequest.count({ where: { status: "submitted" } }),
+    prisma.overtimeRequest.count({ where: { status: "submitted", category: "overtime" } }),
     prisma.overtimeRequest.count({
       where: {
         status: "approved",
+        category: "overtime",
         reviewedAt: { gte: todayStart, lt: tomorrowStart },
       },
     }),
     prisma.overtimeRequest.count({
       where: {
         status: "sent_back",
+        category: "overtime",
         reviewedAt: { gte: todayStart, lt: tomorrowStart },
       },
     }),
     prisma.overtimeRequest.aggregate({
       where: {
         status: "approved",
+        category: "overtime",
         workDate: { gte: monthStart, lt: monthEnd },
       },
       _sum: { durationMinutes: true },
     }),
     prisma.overtimeRequest.findMany({
-      where: { status: "submitted" },
+      where: { status: "submitted", category: "overtime" },
       include: { user: true, workSite: true },
       orderBy: [{ workDate: "asc" }, { createdAt: "asc" }],
     }),
     prisma.overtimeRequest.findMany({
+      where: { category: "overtime" },
       include: { user: true, workSite: true },
       orderBy: [{ workDate: "desc" }, { createdAt: "desc" }],
       take: 100,

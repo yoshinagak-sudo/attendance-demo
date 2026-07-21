@@ -68,6 +68,7 @@ export async function getMonthlyAggregate(): Promise<{
       where: {
         workDate: { gte: monthStart, lt: monthEnd },
         status: "approved",
+        category: "overtime",
       },
     }),
   ]);
@@ -178,13 +179,20 @@ export async function getVehicleStatus() {
   };
 }
 
-/** 未対応件数: 残業申請（submitted）と未確認日報 */
+/** 未対応件数: 残業申請・休日出勤・勤怠申請・未確認日報 */
 export async function getPendingCounts() {
-  const [overtime, reports] = await Promise.all([
-    prisma.overtimeRequest.count({ where: { status: "submitted" } }),
+  const [overtime, holidayWork, attendance, reports] = await Promise.all([
+    prisma.overtimeRequest.count({ where: { status: "submitted", category: "overtime" } }),
+    prisma.overtimeRequest.count({ where: { status: "submitted", category: "holiday_work" } }),
+    prisma.attendanceRequest.count({ where: { status: "submitted" } }),
     prisma.dailyReport.count({ where: { acknowledgedAt: null } }),
   ]);
-  return { pendingOvertime: overtime, pendingReports: reports };
+  return {
+    pendingOvertime: overtime,
+    pendingHolidayWork: holidayWork,
+    pendingAttendance: attendance,
+    pendingReports: reports,
+  };
 }
 
 /** 社員一覧（read-only） */
@@ -203,9 +211,10 @@ export async function getEmployees() {
   }));
 }
 
-/** 残業申請一覧（read-only、最新200件） */
+/** 残業申請一覧（read-only、最新200件、休日出勤は除外） */
 export async function getOvertimeList() {
   const list = await prisma.overtimeRequest.findMany({
+    where: { category: "overtime" },
     orderBy: [{ workDate: "desc" }, { createdAt: "desc" }],
     take: 200,
     include: {

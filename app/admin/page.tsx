@@ -38,7 +38,7 @@ export default async function AdminPage() {
         include: { user: true },
       }),
       prisma.overtimeRequest.findMany({
-        where: { status: "submitted" },
+        where: { status: "submitted", category: "overtime" },
         select: { id: true, durationMinutes: true },
       }),
       prisma.drivingLog.count({ where: { status: "in_progress" } }),

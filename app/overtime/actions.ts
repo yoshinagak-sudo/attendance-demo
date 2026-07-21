@@ -34,6 +34,7 @@ export type ActionResult =
 async function persistRequest(
   input: CreateOvertimeInput,
   parentId: string | null,
+  category: "overtime" | "holiday_work" = "overtime",
 ): Promise<ActionResult> {
   const validated = validateCreateOvertimeInput(input);
   if (!validated.ok) return { ok: false, errors: validated.errors };
@@ -68,12 +69,15 @@ async function persistRequest(
       description: v.description,
       requestType: v.requestType,
       status: "submitted",
+      category,
       parentId,
     },
   });
 
   revalidatePath("/overtime");
+  revalidatePath("/attendance");
   revalidatePath("/admin/overtime");
+  revalidatePath("/admin/attendance");
   revalidatePath("/admin");
 
   return { ok: true, id: created.id };
@@ -92,6 +96,12 @@ function readFormInput(formData: FormData, userId: string): CreateOvertimeInput 
   };
 }
 
+function readCategory(formData: FormData): "overtime" | "holiday_work" {
+  return String(formData.get("category") ?? "overtime") === "holiday_work"
+    ? "holiday_work"
+    : "overtime";
+}
+
 export async function createOvertimeRequest(
   _prev: ActionResult | null,
   formData: FormData,
@@ -101,7 +111,8 @@ export async function createOvertimeRequest(
     return { ok: false, errors: {}, formError: "ログインしてください" };
   }
   const input = readFormInput(formData, session.id);
-  const result = await persistRequest(input, null);
+  const category = readCategory(formData);
+  const result = await persistRequest(input, null, category);
   if (result.ok) {
     redirect(`/overtime/${result.id}?submitted=1`);
   }
@@ -130,7 +141,11 @@ export async function createResubmission(
   }
 
   const input = readFormInput(formData, session.id);
-  const result = await persistRequest(input, parent.id);
+  // 再申請は親と同じ category を継承する
+  const category = (parent.category === "holiday_work" ? "holiday_work" : "overtime") as
+    | "overtime"
+    | "holiday_work";
+  const result = await persistRequest(input, parent.id, category);
   if (result.ok) {
     redirect(`/overtime/${result.id}?submitted=1`);
   }

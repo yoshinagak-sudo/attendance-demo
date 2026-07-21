@@ -1,7 +1,11 @@
 "use client";
 
 import { useActionState, useMemo, useState } from "react";
-import { createAttendanceRequest, type ActionResult } from "@/app/attendance/actions";
+import {
+  createAttendanceRequest,
+  createAttendanceResubmission,
+  type ActionResult,
+} from "@/app/attendance/actions";
 import {
   CATEGORY_LABEL,
   CATEGORY_UNIT,
@@ -17,6 +21,7 @@ import { formatJSTYmd } from "@/lib/time";
 type Props = {
   category: AttendanceCategory;
   userId: string;
+  parentId?: string | null;
   defaultScheduledStart: string; // HH:mm
   defaultScheduledEnd: string; // HH:mm
   reasonSuggest: string[];
@@ -34,15 +39,16 @@ function tomorrowYmd(): string {
   return formatJSTYmd(t);
 }
 
-/** YYYY-MM-DDTHH:mm を作る */
+/** YYYY-MM-DDTHH:mm:00+09:00 を作る（JST 明示）。UTC 解釈事故を防ぐため。 */
 function combine(ymd: string, hhmm: string): string {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd) || !/^\d{2}:\d{2}$/.test(hhmm)) return "";
-  return `${ymd}T${hhmm}`;
+  return `${ymd}T${hhmm}:00+09:00`;
 }
 
 export function AttendanceForm({
   category,
   userId,
+  parentId,
   defaultScheduledStart,
   defaultScheduledEnd,
   reasonSuggest,
@@ -50,7 +56,7 @@ export function AttendanceForm({
   substituteCandidates,
 }: Props) {
   const [state, formAction, pending] = useActionState<ActionResult | null, FormData>(
-    createAttendanceRequest,
+    parentId ? createAttendanceResubmission : createAttendanceRequest,
     null,
   );
 
@@ -92,6 +98,12 @@ export function AttendanceForm({
     <form action={formAction} className="ot-form">
       <input type="hidden" name="userId" value={userId} />
       <input type="hidden" name="category" value={category} />
+      {parentId && <input type="hidden" name="parentId" value={parentId} />}
+      {parentId && (
+        <div className="ot-notice">
+          差戻から再申請します（元の申請は履歴に残ります）
+        </div>
+      )}
       {showFormError && (
         <div className="ot-banner ot-banner-danger" role="alert">
           <span className="ot-banner-icon" aria-hidden="true">

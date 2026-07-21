@@ -38,7 +38,7 @@ export default async function AdminOvertimeReportPage({
       where: { timestamp: { gte: monthStart, lt: monthEnd } },
     }),
     prisma.overtimeRequest.findMany({
-      where: { workDate: { gte: monthStart, lt: monthEnd } },
+      where: { workDate: { gte: monthStart, lt: monthEnd }, category: "overtime" },
     }),
   ]);
 

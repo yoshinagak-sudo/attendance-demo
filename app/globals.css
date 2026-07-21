@@ -5418,3 +5418,93 @@ body.has-bottom-tab-bar {
     display: none;
   }
 }
+
+/* ============================================================
+   勤怠申請（/attendance）関連
+   ============================================================ */
+.attendance-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+.attendance-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  text-decoration: none;
+  color: var(--text);
+  transition: transform 0.05s ease, border-color 0.1s ease, background 0.1s ease;
+}
+.attendance-card:hover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 6%, var(--surface-1));
+  transform: translateY(-1px);
+}
+.attendance-card-work {
+  border-left: 4px solid var(--primary);
+}
+.attendance-card-attendance {
+  border-left: 4px solid var(--warn);
+}
+.attendance-card-leave {
+  border-left: 4px solid var(--info, #3b82f6);
+}
+.attendance-card-label {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+}
+.attendance-card-hint {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.paid-leave-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--primary) 4%, var(--surface-1));
+  color: var(--text);
+  text-decoration: none;
+  font-size: 13px;
+}
+.paid-leave-badge:hover {
+  border-color: var(--primary);
+}
+.paid-leave-badge-label {
+  font-weight: 700;
+  color: var(--primary);
+}
+.paid-leave-badge-value {
+  font-weight: 800;
+  font-size: 15px;
+}
+.paid-leave-badge-sub {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.ot-notice {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--primary) 5%, var(--surface-1));
+  color: var(--text);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.ot-notice-warn {
+  background: color-mix(in srgb, var(--warn) 8%, var(--surface-1));
+  border-color: color-mix(in srgb, var(--warn) 40%, var(--border));
+}

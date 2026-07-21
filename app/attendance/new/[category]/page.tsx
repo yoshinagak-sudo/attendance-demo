@@ -17,12 +17,37 @@ import { formatJSTYmd } from "@/lib/time";
 export const dynamic = "force-dynamic";
 
 type Params = Promise<{ category: string }>;
+type SearchParams = Promise<{ parentId?: string }>;
 
-export default async function AttendanceNewPage({ params }: { params: Params }) {
+export default async function AttendanceNewPage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams: SearchParams;
+}) {
   const session = await requireSession("/attendance");
   const { category: raw } = await params;
+  const sp = await searchParams;
   if (!(ATTENDANCE_CATEGORIES as readonly string[]).includes(raw)) notFound();
   const category = raw as AttendanceCategory;
+
+  // 再申請時: parent が「本人・sent_back・同一 category」であるか確認
+  let parentId: string | null = null;
+  if (sp.parentId) {
+    const parent = await prisma.attendanceRequest.findUnique({
+      where: { id: sp.parentId },
+      select: { id: true, userId: true, status: true, category: true },
+    });
+    if (
+      parent &&
+      parent.userId === session.id &&
+      parent.status === "sent_back" &&
+      parent.category === category
+    ) {
+      parentId = parent.id;
+    }
+  }
 
   // カテゴリ別に必要な補助データを引く
   const user = await prisma.user.findUnique({ where: { id: session.id } });
@@ -121,6 +146,7 @@ export default async function AttendanceNewPage({ params }: { params: Params }) 
         <AttendanceForm
           category={category}
           userId={session.id}
+          parentId={parentId}
           defaultScheduledStart={defaultScheduledStart}
           defaultScheduledEnd={defaultScheduledEnd}
           reasonSuggest={reasonSuggest}

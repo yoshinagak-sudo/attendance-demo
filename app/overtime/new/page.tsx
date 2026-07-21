@@ -12,8 +12,17 @@ import { OvertimeForm } from "./overtime-form";
 
 export const dynamic = "force-dynamic";
 
-export default async function NewOvertimePage() {
+type SearchParams = Promise<{ category?: string }>;
+
+export default async function NewOvertimePage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
   const session = await requireSession("/overtime/new");
+  const sp = await searchParams;
+  const category: "overtime" | "holiday_work" =
+    sp.category === "holiday_work" ? "holiday_work" : "overtime";
 
   const [workSites, setting] = await Promise.all([
     prisma.workSite.findMany({
@@ -46,19 +55,22 @@ export default async function NewOvertimePage() {
       <main className="container">
         <header className="header">
           <div>
-            <h1 className="title">残業申請 / 新規</h1>
+            <h1 className="title">
+              {category === "holiday_work" ? "休日出勤申請" : "残業申請"} / 新規
+            </h1>
             <span className="subtitle">
               申請者: <strong style={{ color: "var(--text)" }}>{session.name}</strong>
             </span>
           </div>
-          <Link href="/overtime" className="link">
-            ← 残業申請トップ
+          <Link href={category === "holiday_work" ? "/attendance" : "/overtime"} className="link">
+            ← 一覧
           </Link>
         </header>
 
         <OvertimeForm
           userId={session.id}
           userName={session.name}
+          category={category}
           defaultWorkDate={formatJSTYmd(today)}
           defaultStartTime={formatJSTHHmm(defaults.startAt)}
           defaultEndTime={formatJSTHHmm(defaults.endAt)}

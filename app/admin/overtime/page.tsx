@@ -29,6 +29,7 @@ function formatWorkDate(date: Date): string {
 
 type SearchParams = Promise<{
   status?: string;
+  category?: string;
   reviewed?: string;
   error?: string;
   id?: string;
@@ -42,6 +43,8 @@ export default async function AdminOvertimePage({
   const session = await requireManager("/admin/overtime");
   const sp = await searchParams;
   const filter = sp.status === "all" ? "all" : "pending";
+  const cat: "overtime" | "holiday_work" =
+    sp.category === "holiday_work" ? "holiday_work" : "overtime";
   const reviewed = sp.reviewed === "1";
   const errorMsg = sp.error;
 
@@ -63,32 +66,36 @@ export default async function AdminOvertimePage({
     pendingRequests,
     allRequests,
   ] = await Promise.all([
-    prisma.overtimeRequest.count({ where: { status: "submitted" } }),
+    prisma.overtimeRequest.count({ where: { status: "submitted", category: cat } }),
     prisma.overtimeRequest.count({
       where: {
         status: "approved",
+        category: cat,
         reviewedAt: { gte: todayStart, lt: tomorrowStart },
       },
     }),
     prisma.overtimeRequest.count({
       where: {
         status: "sent_back",
+        category: cat,
         reviewedAt: { gte: todayStart, lt: tomorrowStart },
       },
     }),
     prisma.overtimeRequest.aggregate({
       where: {
         status: "approved",
+        category: cat,
         workDate: { gte: monthStart, lt: monthEnd },
       },
       _sum: { durationMinutes: true },
     }),
     prisma.overtimeRequest.findMany({
-      where: { status: "submitted" },
+      where: { status: "submitted", category: cat },
       include: { user: true, workSite: true },
       orderBy: [{ workDate: "asc" }, { createdAt: "asc" }],
     }),
     prisma.overtimeRequest.findMany({
+      where: { category: cat },
       include: { user: true, workSite: true },
       orderBy: [{ workDate: "desc" }, { createdAt: "desc" }],
       take: 100,
@@ -105,10 +112,18 @@ export default async function AdminOvertimePage({
       <main className="container-wide">
         <header className="header">
           <div>
-            <h1 className="title">残業申請 承認キュー</h1>
+            <h1 className="title">
+              {cat === "holiday_work" ? "休日出勤 承認キュー" : "残業申請 承認キュー"}
+            </h1>
             <span className="subtitle">事前/事後申請の承認・差戻</span>
           </div>
           <div className="ot-admin-actions">
+            <Link
+              href={cat === "overtime" ? "/admin/overtime?category=holiday_work" : "/admin/overtime"}
+              className="link"
+            >
+              {cat === "overtime" ? "休日出勤へ切替" : "残業へ切替"}
+            </Link>
             <Link href="/admin/overtime/report" className="link">
               月次レポート
             </Link>
