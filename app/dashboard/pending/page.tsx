@@ -1,5 +1,5 @@
 import { unstable_noStore as noStore } from "next/cache";
-import { Inbox, FileClock, FileCheck2 } from "lucide-react";
+import { Inbox, FileClock, FileCheck2, Calendar, ClipboardList } from "lucide-react";
 import { requireDashboardSession } from "../_lib/require-dashboard";
 import { getPendingCounts } from "../_lib/data";
 
@@ -8,8 +8,9 @@ export const dynamic = "force-dynamic";
 export default async function PendingPage() {
   noStore();
   await requireDashboardSession();
-  const { pendingOvertime, pendingReports } = await getPendingCounts();
-  const total = pendingOvertime + pendingReports;
+  const { pendingOvertime, pendingHolidayWork, pendingAttendance, pendingReports } =
+    await getPendingCounts();
+  const total = pendingOvertime + pendingHolidayWork + pendingAttendance + pendingReports;
 
   return (
     <>
@@ -47,6 +48,42 @@ export default async function PendingPage() {
           <div className="dash-card-note">
             現場から提出され、まだ承認・差し戻しされていない残業申請の件数。
             管理者は社員アプリの残業申請メニューから個別に確認できます。
+          </div>
+        </article>
+
+        <article
+          className={`dash-card dash-card-lg${
+            pendingHolidayWork > 0 ? " dash-card-warn" : ""
+          }`}
+        >
+          <div className="dash-card-head">
+            <Calendar aria-hidden="true" />
+            休日出勤 未承認
+          </div>
+          <div className="dash-card-value">
+            {pendingHolidayWork}
+            <span className="dash-card-unit">件</span>
+          </div>
+          <div className="dash-card-note">
+            事前・事後の休日出勤申請で、承認・差戻がまだのもの。
+          </div>
+        </article>
+
+        <article
+          className={`dash-card dash-card-lg${
+            pendingAttendance > 0 ? " dash-card-warn" : ""
+          }`}
+        >
+          <div className="dash-card-head">
+            <ClipboardList aria-hidden="true" />
+            勤怠申請 未承認
+          </div>
+          <div className="dash-card-value">
+            {pendingAttendance}
+            <span className="dash-card-unit">件</span>
+          </div>
+          <div className="dash-card-note">
+            欠勤・遅刻・早退・私用外出・有給・特別・振替の合算。
           </div>
         </article>
 
