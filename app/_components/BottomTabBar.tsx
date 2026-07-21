@@ -28,7 +28,7 @@ type Tab = {
 
 const TABS: Tab[] = [
   { href: "/", label: "打刻", Icon: PunchIcon, exact: true },
-  { href: "/overtime", label: "残業", Icon: OvertimeIcon },
+  { href: "/attendance", label: "申請", Icon: OvertimeIcon },
   { href: "/vehicle", label: "車両", Icon: VehicleIcon },
   { href: "/report", label: "日報", Icon: ReportIcon },
   { href: "/admin", label: "管理", Icon: AdminIcon, managerOnly: true },

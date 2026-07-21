@@ -9,26 +9,38 @@ datasource db {
 }
 
 model User {
-  id                       String            @id @default(cuid())
-  name                     String
-  role                     String            @default("member")
-  loginId                  String?           @unique
-  passwordHash             String?
-  passwordUpdatedAt        DateTime?
-  isActive                 Boolean           @default(true)
-  lastLoginAt              DateTime?
-  createdAt                DateTime          @default(now())
-  lineUserId               String?           @unique
-  linePictureUrl           String?
+  id                String    @id @default(cuid())
+  name              String
+  role              String    @default("member")
+  loginId           String?   @unique
+  passwordHash      String?
+  passwordUpdatedAt DateTime?
+  isActive          Boolean   @default(true)
+  lastLoginAt       DateTime?
+  createdAt         DateTime  @default(now())
+  lineUserId        String?   @unique
+  linePictureUrl    String?
+
+  // 有給付与の起点。null なら自動付与対象外（手動付与のみ）
+  hireDate                  DateTime?
+  // 遅刻申請の予定出勤時刻（HH:mm）。null なら AppSetting.default_scheduled_start_time
+  defaultScheduledStartTime String?
+  // 早退申請の予定退勤時刻（HH:mm）。null なら AppSetting.regular_end_time
+  defaultScheduledEndTime   String?
+
   records                  TimeRecord[]
-  overtimeRequests         OvertimeRequest[] @relation("Applicant")
-  overtimeReviewedRequests OvertimeRequest[] @relation("Reviewer")
+  overtimeRequests         OvertimeRequest[]   @relation("Applicant")
+  overtimeReviewedRequests OvertimeRequest[]   @relation("Reviewer")
   loginAttempts            LoginAttempt[]
   vehicleAssignments       VehicleAssignment[] @relation("VehicleAssignedUser")
   drivingLogs              DrivingLog[]        @relation("DrivingLogUser")
   refuelingLogs            RefuelingLog[]      @relation("RefuelingLogUser")
   dailyReports             DailyReport[]       @relation("DailyReportUser")
   dailyReportsAcknowledged DailyReport[]       @relation("DailyReportAck")
+  attendanceRequests       AttendanceRequest[] @relation("AttendanceApplicant")
+  attendanceReviewed       AttendanceRequest[] @relation("AttendanceReviewer")
+  paidLeaveGrants          PaidLeaveGrant[]    @relation("PaidLeaveUser")
+  paidLeaveGranted         PaidLeaveGrant[]    @relation("PaidLeaveGrantor")
 }
 
 model LoginAttempt {
@@ -48,7 +60,7 @@ model LoginAttempt {
 
 model TimeRecord {
   id        String   @id @default(cuid())
-  userId   String
+  userId    String
   type      String
   timestamp DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
@@ -57,40 +69,124 @@ model TimeRecord {
 }
 
 model OvertimeRequest {
-  id              String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  userId          String
-  user            User     @relation("Applicant", fields: [userId], references: [id])
+  userId String
+  user   User   @relation("Applicant", fields: [userId], references: [id])
 
-  workDate        DateTime
+  workDate DateTime
 
   startAt         DateTime
   endAt           DateTime
   durationMinutes Int
 
-  workSiteName    String
-  workSiteId      String?
-  workSite        WorkSite? @relation(fields: [workSiteId], references: [id])
-  description     String
+  workSiteName String
+  workSiteId   String?
+  workSite     WorkSite? @relation(fields: [workSiteId], references: [id])
+  description  String
 
-  requestType     String
-  status          String   @default("submitted")
+  requestType String
+  status      String @default("submitted")
 
-  reviewerId      String?
-  reviewer        User?    @relation("Reviewer", fields: [reviewerId], references: [id])
-  reviewedAt      DateTime?
-  reviewComment   String?
+  // "overtime" | "holiday_work" （既存レコードは "overtime" にマイグレーション時 seed）
+  category String @default("overtime")
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  reviewerId    String?
+  reviewer      User?     @relation("Reviewer", fields: [reviewerId], references: [id])
+  reviewedAt    DateTime?
+  reviewComment String?
 
-  parentId        String?
-  parent          OvertimeRequest?  @relation("ResubmitChain", fields: [parentId], references: [id])
-  children        OvertimeRequest[] @relation("ResubmitChain")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  parentId String?
+  parent   OvertimeRequest?  @relation("ResubmitChain", fields: [parentId], references: [id])
+  children OvertimeRequest[] @relation("ResubmitChain")
+
+  substituteLeaves AttendanceRequest[] @relation("SubstituteFromOT")
 
   @@index([userId, workDate])
   @@index([status, workDate])
   @@index([workDate])
+  @@index([category, status, workDate])
+}
+
+// 6 種の勤怠申請（休日出勤は OvertimeRequest 側）を集約する union テーブル。
+// カテゴリ別のオプショナル列はカテゴリごとに使うか使わないかが異なる（SPEC §3.1.2 参照）。
+model AttendanceRequest {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation("AttendanceApplicant", fields: [userId], references: [id])
+
+  category    String // "absence" | "late" | "early_leave" | "personal_out"
+  //  | "paid_leave" | "special_leave" | "substitute_leave"
+  requestType String // "pre" | "post"
+  status      String @default("submitted")
+
+  workDate DateTime // JST 0:00 に丸めた日
+
+  // 時間帯系 (late / early_leave / personal_out)
+  startAt         DateTime?
+  endAt           DateTime?
+  durationMinutes Int?
+
+  // 日数系 (absence / paid_leave / special_leave / substitute_leave)
+  // paid_leave: 0.5 / 1.0、他は 1.0 固定
+  leaveDays Float?
+
+  // paid_leave 専用
+  paidLeaveKind String? // "full" | "am_half" | "pm_half"
+
+  // late / early_leave 専用
+  scheduledAt DateTime?
+
+  // special_leave 専用（必須）
+  reason String?
+
+  // substitute_leave 専用（必須、承認済 holiday_work の OvertimeRequest に紐付け）
+  substituteForId String?
+  substituteFor   OvertimeRequest? @relation("SubstituteFromOT", fields: [substituteForId], references: [id])
+
+  description String @default("")
+
+  reviewerId    String?
+  reviewer      User?     @relation("AttendanceReviewer", fields: [reviewerId], references: [id])
+  reviewedAt    DateTime?
+  reviewComment String?
+
+  parentId String?
+  parent   AttendanceRequest?  @relation("AttendanceResubmit", fields: [parentId], references: [id])
+  children AttendanceRequest[] @relation("AttendanceResubmit")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, workDate])
+  @@index([category, status, workDate])
+  @@index([status, workDate])
+  @@index([workDate])
+}
+
+model PaidLeaveGrant {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation("PaidLeaveUser", fields: [userId], references: [id])
+
+  grantedOn DateTime // 付与日 (JST 0:00)
+  expiresOn DateTime // 付与日 + 2年 (時効)
+  days      Float
+
+  source String // "auto" | "manual"
+  note   String?
+
+  grantedById String?
+  grantedBy   User?   @relation("PaidLeaveGrantor", fields: [grantedById], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, grantedOn])
+  @@index([userId, expiresOn])
 }
 
 model WorkSite {
@@ -105,19 +201,19 @@ model WorkSite {
 }
 
 model Vehicle {
-  id                       String              @id @default(cuid())
-  plate                    String              @unique
+  id                       String    @id @default(cuid())
+  plate                    String    @unique
   model                    String
   depot                    String
   inspectionDueDate        DateTime?
   vehicleInspectionDueDate DateTime?
-  isActive                 Boolean             @default(true)
-  createdAt                DateTime            @default(now())
-  updatedAt                DateTime            @updatedAt
+  isActive                 Boolean   @default(true)
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
 
-  assignments              VehicleAssignment[]
-  drivingLogs              DrivingLog[]
-  refuelingLogs            RefuelingLog[]
+  assignments   VehicleAssignment[]
+  drivingLogs   DrivingLog[]
+  refuelingLogs RefuelingLog[]
 
   @@index([isActive])
   @@index([inspectionDueDate])
@@ -227,4 +323,3 @@ model AppSetting {
   value     String
   updatedAt DateTime @updatedAt
 }
-

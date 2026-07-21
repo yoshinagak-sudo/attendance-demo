@@ -29,7 +29,7 @@ export default async function AdminPage() {
   const now = new Date();
   const since = startOfTodayJST();
 
-  const [users, records, pendingOvertime, inProgressDriving, pendingReports, vehicles] =
+  const [users, records, pendingOvertime, inProgressDriving, pendingReports, vehicles, pendingAttendance] =
     await Promise.all([
       prisma.user.findMany({ orderBy: { name: "asc" } }),
       prisma.timeRecord.findMany({
@@ -44,6 +44,7 @@ export default async function AdminPage() {
       prisma.drivingLog.count({ where: { status: "in_progress" } }),
       prisma.dailyReport.count({ where: { status: "submitted" } }),
       prisma.vehicle.findMany({ where: { isActive: true } }),
+      prisma.attendanceRequest.count({ where: { status: "submitted" } }),
     ]);
 
   const stats = buildDailyStats(users, records, now);
@@ -51,6 +52,7 @@ export default async function AdminPage() {
   const dateLabel = formatDateJP(now);
   const pendingCount = pendingOvertime.length;
   const pendingMinutes = pendingOvertime.reduce((s, r) => s + r.durationMinutes, 0);
+  const pendingAttendanceCount = pendingAttendance;
   const vehicleAlerts = allVehicleAlertsWithin({ vehicles, now });
   const inspectionWarnCount = vehicleAlerts.filter((a) => a.kind === "inspection").length;
   const vehicleInspectionWarnCount = vehicleAlerts.filter((a) => a.kind === "vehicleInspection").length;
@@ -65,7 +67,9 @@ export default async function AdminPage() {
             <span className="subtitle">{dateLabel}</span>
           </div>
           <div className="ot-admin-actions">
-            <Link href="/admin/overtime" className="link">承認キュー</Link>
+            <Link href="/admin/overtime" className="link">残業承認</Link>
+            <Link href="/admin/attendance" className="link">勤怠申請</Link>
+            <Link href="/admin/paid-leave" className="link">有給付与</Link>
             <Link href="/admin/vehicle" className="link">車両管理</Link>
             <Link href="/admin/report" className="link">日報</Link>
             <Link href="/admin/users" className="link">ユーザー管理</Link>
@@ -88,6 +92,26 @@ export default async function AdminPage() {
               </span>
               <span className="ot-banner-pending-sub">
                 合計 {formatDurationJa(pendingMinutes)}
+              </span>
+            </div>
+          </div>
+          <span className="ot-banner-pending-cta">承認画面へ →</span>
+        </Link>
+      )}
+
+      {pendingAttendanceCount > 0 && (
+        <Link
+          href="/admin/attendance"
+          className="ot-banner ot-banner-warn ot-banner-pending"
+        >
+          <div className="ot-banner-pending-head">
+            <span className="ot-banner-icon" aria-hidden="true">!</span>
+            <div className="ot-banner-pending-body">
+              <span className="ot-banner-pending-title">
+                未承認の勤怠申請が {pendingAttendanceCount} 件あります
+              </span>
+              <span className="ot-banner-pending-sub">
+                欠勤 / 遅刻 / 早退 / 私用外出 / 有給 / 特別 / 振替
               </span>
             </div>
           </div>
