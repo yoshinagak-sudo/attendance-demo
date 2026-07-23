@@ -106,6 +106,8 @@ type ShortcutDef = {
 
 const SHORTCUTS: ShortcutDef[] = [
   { href: "/overtime", Icon: OvertimeIcon, title: "残業申請", sub: "事前/事後の申請・履歴" },
+  { href: "/overtime/new?category=holiday_work", Icon: OvertimeIcon, title: "休日出勤申請", sub: "事前/事後の申請・履歴" },
+  { href: "/attendance", Icon: ReportIcon, title: "休暇・勤怠申請", sub: "欠勤・遅刻・早退・有給 など" },
   { href: "/vehicle", Icon: VehicleIcon, title: "車両管理", sub: "車両の使用記録・点検" },
   { href: "/report", Icon: ReportIcon, title: "日報", sub: "本日の業務報告を作成" },
   { href: "/admin", Icon: AdminIcon, title: "管理画面", sub: "勤怠・申請の管理", managerOnly: true },
