@@ -23,11 +23,12 @@ function formatWorkDate(date: Date): string {
   const ymd = formatJSTYmd(date);
   const [y, m, d] = ymd.split("-").map(Number);
   const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
-  return `${m}/${d}（${WEEKDAY_JA[dow]}）`;
+  return `${m}/${d}(${WEEKDAY_JA[dow]})`;
 }
 
 type SearchParams = Promise<{
   status?: string;
+  category?: string;
   reviewed?: string;
   error?: string;
   id?: string;
@@ -41,6 +42,8 @@ export default async function DashboardOvertimePage({
   await requireDashboardSession();
   const sp = await searchParams;
   const filter = sp.status === "all" ? "all" : "pending";
+  const cat: "overtime" | "holiday_work" =
+    sp.category === "holiday_work" ? "holiday_work" : "overtime";
   const reviewed = sp.reviewed === "1";
   const errorMsg = sp.error;
 
@@ -60,36 +63,36 @@ export default async function DashboardOvertimePage({
     pendingRequests,
     allRequests,
   ] = await Promise.all([
-    prisma.overtimeRequest.count({ where: { status: "submitted", category: "overtime" } }),
+    prisma.overtimeRequest.count({ where: { status: "submitted", category: cat } }),
     prisma.overtimeRequest.count({
       where: {
         status: "approved",
-        category: "overtime",
+        category: cat,
         reviewedAt: { gte: todayStart, lt: tomorrowStart },
       },
     }),
     prisma.overtimeRequest.count({
       where: {
         status: "sent_back",
-        category: "overtime",
+        category: cat,
         reviewedAt: { gte: todayStart, lt: tomorrowStart },
       },
     }),
     prisma.overtimeRequest.aggregate({
       where: {
         status: "approved",
-        category: "overtime",
+        category: cat,
         workDate: { gte: monthStart, lt: monthEnd },
       },
       _sum: { durationMinutes: true },
     }),
     prisma.overtimeRequest.findMany({
-      where: { status: "submitted", category: "overtime" },
+      where: { status: "submitted", category: cat },
       include: { user: true, workSite: true },
       orderBy: [{ workDate: "asc" }, { createdAt: "asc" }],
     }),
     prisma.overtimeRequest.findMany({
-      where: { category: "overtime" },
+      where: { category: cat },
       include: { user: true, workSite: true },
       orderBy: [{ workDate: "desc" }, { createdAt: "desc" }],
       take: 100,
@@ -99,12 +102,20 @@ export default async function DashboardOvertimePage({
   const monthApprovedMinutes = monthApprovedAgg._sum.durationMinutes ?? 0;
   const rows = filter === "all" ? allRequests : pendingRequests;
 
+  const baseHref = "/dashboard/overtime";
+  const catQuery = cat === "holiday_work" ? "?category=holiday_work" : "";
+  const catQueryAmp = cat === "holiday_work" ? "&category=holiday_work" : "";
+
   return (
     <>
       <header className="dash-page-head">
         <div className="dash-page-head-main">
-          <span className="dash-page-eyebrow">残業承認</span>
-          <h1 className="dash-page-title">残業申請 承認キュー</h1>
+          <span className="dash-page-eyebrow">
+            {cat === "holiday_work" ? "休日出勤承認" : "残業承認"}
+          </span>
+          <h1 className="dash-page-title">
+            {cat === "holiday_work" ? "休日出勤 承認キュー" : "残業申請 承認キュー"}
+          </h1>
           <span className="dash-page-sub">
             事前/事後申請の承認・差戻
           </span>
@@ -124,6 +135,27 @@ export default async function DashboardOvertimePage({
           <div className="ot-banner-body">{errorMsg}</div>
         </div>
       )}
+
+      <div className="ot-admin-toolbar" style={{ marginTop: 16 }}>
+        <div className="ot-filter-tabs" role="tablist" aria-label="カテゴリ">
+          <Link
+            href="/dashboard/overtime"
+            className={cat === "overtime" ? "ot-filter-tab is-active" : "ot-filter-tab"}
+            role="tab"
+            aria-selected={cat === "overtime"}
+          >
+            残業
+          </Link>
+          <Link
+            href="/dashboard/overtime?category=holiday_work"
+            className={cat === "holiday_work" ? "ot-filter-tab is-active" : "ot-filter-tab"}
+            role="tab"
+            aria-selected={cat === "holiday_work"}
+          >
+            休日出勤
+          </Link>
+        </div>
+      </div>
 
       <section className="section" aria-labelledby="ot-kpi-heading" style={{ marginTop: 16 }}>
         <div className="section-head">
@@ -148,7 +180,9 @@ export default async function DashboardOvertimePage({
           <div className="card">
             <div className="card-head"><span className="card-label">月次承認分</span></div>
             <div className="card-value">{formatDurationJa(monthApprovedMinutes)}</div>
-            <div className="card-foot">{m}月の承認済 残業合計</div>
+            <div className="card-foot">
+              {m}月の承認済 {cat === "holiday_work" ? "休日出勤" : "残業"}合計
+            </div>
           </div>
         </div>
       </section>
@@ -158,14 +192,14 @@ export default async function DashboardOvertimePage({
           <h2 id="ot-toolbar-heading" className="section-title">申請一覧</h2>
           <span className="section-sub tabular">
             表示中 {rows.length} 件
-            {filter === "pending" ? "（申請中のみ）" : "（すべて）"}
+            {filter === "pending" ? "(申請中のみ)" : "(すべて)"}
           </span>
         </div>
 
         <div className="ot-admin-toolbar">
           <div className="ot-filter-tabs" role="tablist" aria-label="ステータスフィルタ">
             <Link
-              href="/dashboard/overtime"
+              href={`${baseHref}${catQuery}`}
               className={filter === "pending" ? "ot-filter-tab is-active" : "ot-filter-tab"}
               role="tab"
               aria-selected={filter === "pending"}
@@ -173,7 +207,7 @@ export default async function DashboardOvertimePage({
               申請中のみ<span className="ot-filter-count">{pendingCount}</span>
             </Link>
             <Link
-              href="/dashboard/overtime?status=all"
+              href={`${baseHref}?status=all${catQueryAmp}`}
               className={filter === "all" ? "ot-filter-tab is-active" : "ot-filter-tab"}
               role="tab"
               aria-selected={filter === "all"}
@@ -186,12 +220,14 @@ export default async function DashboardOvertimePage({
         {rows.length === 0 ? (
           <div className="ot-empty">
             <div className="ot-empty-title">
-              {filter === "pending" ? "申請中の残業はありません" : "申請がありません"}
+              {filter === "pending"
+                ? `申請中の${cat === "holiday_work" ? "休日出勤" : "残業"}はありません`
+                : "申請がありません"}
             </div>
             <div>
               {filter === "pending"
                 ? "新規の申請が届くとここに表示されます"
-                : "申請者から残業申請が届くとここに表示されます"}
+                : "申請者から申請が届くとここに表示されます"}
             </div>
           </div>
         ) : (
@@ -204,7 +240,9 @@ export default async function DashboardOvertimePage({
                     <th style={{ width: 120 }}>申請者</th>
                     <th style={{ width: 64 }}>種別</th>
                     <th style={{ width: 140 }}>時間帯</th>
-                    <th style={{ width: 80 }}>残業</th>
+                    <th style={{ width: 80 }}>
+                      {cat === "holiday_work" ? "実働" : "残業"}
+                    </th>
                     <th>現場</th>
                     <th>作業内容</th>
                     <th style={{ width: 88 }}>状態</th>

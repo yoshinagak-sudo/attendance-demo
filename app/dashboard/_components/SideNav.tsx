@@ -13,6 +13,8 @@ import {
   FileText,
   Menu,
   X,
+  ClipboardList,
+  CalendarCheck,
 } from "lucide-react";
 import { LogoutButton } from "./LogoutButton";
 
@@ -28,7 +30,9 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/vehicle", label: "車両状況", icon: Truck },
   { href: "/dashboard/pending", label: "未対応", icon: Inbox },
   { href: "/dashboard/users", label: "社員管理", icon: Users },
-  { href: "/dashboard/overtime", label: "残業承認", icon: Clock },
+  { href: "/dashboard/overtime", label: "残業・休日出勤承認", icon: Clock },
+  { href: "/dashboard/attendance", label: "勤怠申請", icon: ClipboardList },
+  { href: "/dashboard/paid-leave", label: "有給付与", icon: CalendarCheck },
   { href: "/dashboard/report", label: "日報", icon: FileText },
   { href: "/dashboard/settings/vehicle", label: "車両マスタ", icon: Truck },
 ];
